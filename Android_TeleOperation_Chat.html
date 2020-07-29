@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<!-- saved from url=(0058)https://mganeko.github.io/webrtcexpjp/tool/devicelist.html -->
+<html data-minimalscrollbar="yes" style="">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" type="text/css" href="./css/style.css">
+  <title>Android Tele-Operation Chat</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://unpkg.com/imagesloaded@4/imagesloaded.pkgd.min.js"></script>
+<script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js"></script>
+</head>
+<body style="">
+  <h4>
+  device setting
+  <p>
+  <button id="devices_button" onclick="getDeviceList()"><font size="3">get devices</font></button>
+  <select id="camera_resolution_list" size="1" style="width:100pt;">
+    <option value="QVGA">QVGA(320x240px)</option>
+    <option value="VGA">VGA(640x480px)</option>
+    <option value="HD" selected>HD(1280x720px)</option>
+    <option value="FullHD">FullHD(1920x1080px)</option>
+  </select>
+  <!--
+  <select id="camera_list" size="1" style="width:160pt;">
+    <option>(video)</option>
+  </select>
+  -->
+  <select id="mic_list" size="1" style="width:160pt;">
+   <option>(audio)</option>
+  </select>
+  <select id="speaker_list" size="1" style="width:160pt;">
+   <option>(speaker)</option>
+  </select>
+  </p>
+  </h4>
+  <h4>
+  communication
+  <p>
+  <button id="step_button" onclick="gotoStanby()" disabled="true"><font size="3">go to stanby</font></button>
+  my PeerID：<input type="text" id="myPeerID" name="peerID" size="20" maxlength="20" value="hoge"> -> remote PeerID：<input type="text" id="remotePeerID" name="peerID" size="20" maxlength="20" value="foo">
+  </p>
+  </h4>
+  <h2>
+  remote videos<br>
+  <p>
+  <div id="remote_cameras" class="grid" data-masonry='{ "itemSelector": ".grid-item"}'></div>
+  <!-- appending video here -->
+  <br>
+  </p>
+  </h2>
+  <h2>
+  local videos<br>
+  <p>
+  <div id="local_cameras" class="horizontal-list"></div>
+  <!-- appending video here -->
+  </p>
+  </h2>
+  <script src="//cdn.webrtc.ecl.ntt.com/skyway-latest.js"></script>
+  <script src="./js/key.js"></script>
+  <script src="./js/videochat.js"></script>
+  <!--
+  <script>
+    var $grid = jQuery('.grid').imagesLoaded(function(){
+      $grid.masonry({
+        itemSelector: '.grid-item'
+      });
+    });
+  </script>
+  -->
+  <script>
+  jQuery.event.add(window,"load",function() {
+    $('#grid').masonry({
+        itemSelector: '.grid-item',//整理される要素のclassを指定
+        columnWidth: 200,     //一列の幅サイズを指定
+        isAnimated: true,     //スムースアニメーション設定
+        isFitWidth: true,     //親要素の幅サイズがピッタリ
+        isRTL: false,         //整理される要素が左右逆になる（読み言語などに）
+        gutterWidth: 0,       //整理される要素間の溝の幅を指定
+        containerStyle: { position: 'relative' }, //親要素にスタイルを追加できる
+        isResizable: true     //ウィンドウサイズが変更された時に並び替え
+    });
+});
+</script>
+</body>
+</html>
