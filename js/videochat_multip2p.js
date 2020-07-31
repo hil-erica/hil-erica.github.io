@@ -12,7 +12,8 @@ var stepButton = document.getElementById("step_button");
 var localMicStream;
 var localMixedStream;
 var numView = 1;
-var viewersize = 'QVGA';
+var viewersize = '360';
+var captureSize = "none";
 var default_width = 320;
 var defualt_heigt = 240;
 var small_width = 180;
@@ -53,10 +54,15 @@ function getQueryParams() {
 				}
 			}
 			if(key == "viewersize"){
-				if(value == 'QVGA' || value == 'VGA' || value == 'HD' || value == 'FullHD'){
+				if(value == '144' || value == '240' || value == '360' || value == '720' || value == '1080'){
 					viewersize = value;
 				}else{
 					console.error("wrong viewersize = "+value);
+				}
+			}
+			if(key == "capturesize"){
+				if(value == '720' || value == '1080'){
+					captureSize = value;
 				}
 			}
 		}
@@ -236,7 +242,7 @@ function addView(stream, remoterPeerID, trackID) {
 	screenObj.setAttribute('autoplay', '1');
 	//controlsを入れるとダブルクリックで最大化したりPictureInPicureモードとかできる
 	//screenObj.setAttribute('controls', '1');
-	screenObj.setAttribute('style', 'border: 1px solid;');
+	//screenObj.setAttribute('style', 'border: 1px solid;');
 	
 	if(stream.getAudioTracks().length>0){
 		var speakerId = getSelectedSpeaker();
@@ -255,20 +261,30 @@ function addView(stream, remoterPeerID, trackID) {
 	sizeSelector.setAttribute('size', '1');
 	sizeSelector.setAttribute('style', 'width:100pt;');
 	var option = document.createElement('option');
-	option.setAttribute('value', 'QVGA');
-	option.innerHTML = 'QVGA(320x240px)';
+	option.setAttribute('value', '144');
+	option.innerHTML = '256x144px';
 	sizeSelector.appendChild(option);
 	option = document.createElement('option');
-	option.setAttribute('value', 'VGA');
-	option.innerHTML = 'VGA(640x480px)';
+	option.setAttribute('value', '240');
+	option.innerHTML = '427x240px';
 	sizeSelector.appendChild(option);
 	option = document.createElement('option');
-	option.setAttribute('value', 'HD');
-	option.innerHTML = 'HD(1280x720px)';
+	option.setAttribute('value', '360');
+	option.innerHTML = '640x360px';
+	sizeSelector.appendChild(option);
+	/*
+	option = document.createElement('option');
+	option.setAttribute('value', '480');
+	option.innerHTML = '720x480px';
+	sizeSelector.appendChild(option);
+	*/
+	option = document.createElement('option');
+	option.setAttribute('value', '720');
+	option.innerHTML = '1280x720px';
 	sizeSelector.appendChild(option);
 	option = document.createElement('option');
-	option.setAttribute('value', 'FullHD');
-	option.innerHTML = 'FullHD(1920x1080px)';
+	option.setAttribute('value', '1080');
+	option.innerHTML = '1920x1080px';
 	sizeSelector.appendChild(option);
 	
 	content.appendChild(sizeSelector);
@@ -276,47 +292,65 @@ function addView(stream, remoterPeerID, trackID) {
 	
 	sizeSelector.addEventListener('change', (event) => {
 		var changedValue = event.target.value;
-		if(changedValue == 'QVGA'){
-			screenObj.width = 320;
+		if(changedValue == '144'){
+			screenObj.width = 256;
+			screenObj.height = 144;
+			content.setAttribute('class', 'viwer_grid-item viwer_grid-item--144');
+		} else if(changedValue == '240'){
+			screenObj.width = 427;
 			screenObj.height = 240;
-			content.setAttribute('class', 'viwer_grid-item viwer_grid-item--QVGA');
-		} else if(changedValue == 'VGA'){
+			content.setAttribute('class', 'viwer_grid-item viwer_grid-item--240');
+		} else if(changedValue == '360'){
 			screenObj.width = 640;
+			screenObj.height = 360;
+			content.setAttribute('class', 'viwer_grid-item viwer_grid-item--360');
+		} else if(changedValue == '480'){
+			screenObj.width = 720;
 			screenObj.height = 480;
-			content.setAttribute('class', 'viwer_grid-item viwer_grid-item--VGA');
-		} else if(changedValue == 'HD'){
+			content.setAttribute('class', 'viwer_grid-item viwer_grid-item--480');
+		}  else if(changedValue == '720'){
 			screenObj.width = 1280;
 			screenObj.height = 720;
-			content.setAttribute('class', 'viwer_grid-item viwer_grid-item--HD');
-		} else if(changedValue == 'FullHD'){
+			content.setAttribute('class', 'viwer_grid-item viwer_grid-item--720');
+		} else if(changedValue == '1080'){
 			screenObj.width = 1920;
 			screenObj.height = 1080;
-			content.setAttribute('class', 'viwer_grid-item viwer_grid-item--FullHD');
+			content.setAttribute('class', 'viwer_grid-item viwer_grid-item--1080');
 		}
 		$grid.masonry();
 		//console.log(`You like ${event.target.value}`);
 	});
 	
-	if(viewersize == 'QVGA'){
-		screenObj.width = 320;
+	if(viewersize == '144'){
+		screenObj.width = 256;
+		screenObj.height = 144;
+		sizeSelector.value = '144';
+		content.setAttribute('class', 'viwer_grid-item viwer_grid-item--144');
+	}  else if(viewersize == '240'){
+		screenObj.width = 427;
 		screenObj.height = 240;
-		sizeSelector.value = 'QVGA';
-		content.setAttribute('class', 'viwer_grid-item viwer_grid-item--QVGA');
-	} else if(viewersize == 'VGA'){
+		sizeSelector.value = '240';
+		content.setAttribute('class', 'viwer_grid-item viwer_grid-item--240');
+	} else if(viewersize == '360'){
 		screenObj.width = 640;
+		screenObj.height = 360;
+		sizeSelector.value = '360';
+		content.setAttribute('class', 'viwer_grid-item viwer_grid-item--360');
+	}  else if(viewersize == '480'){
+		screenObj.width = 720;
 		screenObj.height = 480;
-		sizeSelector.value = 'VGA';
-		content.setAttribute('class', 'viwer_grid-item viwer_grid-item--VGA');
-	} else if(viewersize == 'HD'){
+		sizeSelector.value = '480';
+		content.setAttribute('class', 'viwer_grid-item viwer_grid-item--480');
+	} else if(viewersize == '720'){
 		screenObj.width = 1280;
 		screenObj.height = 720;
-		sizeSelector.value = 'HD';
-		content.setAttribute('class', 'viwer_grid-item viwer_grid-item--HD');
-	} else if(viewersize == 'FullHD'){
+		sizeSelector.value = '720';
+		content.setAttribute('class', 'viwer_grid-item viwer_grid-item--720');
+	} else if(viewersize == '1080'){
 		screenObj.width = 1920;
 		screenObj.height = 1080;
-		sizeSelector.value = 'FullHD';
-		content.setAttribute('class', 'viwer_grid-item viwer_grid-item--FullHD');
+		sizeSelector.value = '1080';
+		content.setAttribute('class', 'viwer_grid-item viwer_grid-item--1080');
 	}
 	
 	//make jQuery object
@@ -425,11 +459,47 @@ function startVideo(cameraID, video) {
 	//var audioId = getSelectedAudio();
 	var deviceId = cameraID;
 	console.log('selected video device id=' + deviceId);
+	/*
+	var constraints = {
+		video: {
+			aspectRatio: {exact: 1.7777777778},
+                  	deviceId: deviceId
+		}
+	};
+	*/
+	/*
 	var constraints = {
 		video: {
 			deviceId: deviceId
 		}
 	};
+	*/
+	var constraints;
+	if(captureSize == "720"){
+		constraints = {
+			video: {
+				width:1280,
+				height: 720,
+	                  	deviceId: deviceId
+			}
+		};
+	}  else if(captureSize == "1080"){
+		constraints = {
+			video: {
+				width:1920,
+				height: 1080,
+	                  	deviceId: deviceId
+			}
+		};
+	} else {
+		constraints = {
+			video: {
+				aspectRatio: {exact: 1.7777777778},
+	                  	deviceId: deviceId
+			}
+		};
+	}
+	
 	console.log('mediaDevice.getMedia() constraints:', constraints);
 	navigator.mediaDevices.getUserMedia(constraints).then(function (stream) {
 		logStream('selectedVideo', stream);

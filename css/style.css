@@ -92,7 +92,7 @@ body { font-family: sans-serif; }
   height: 260px;//240-20
   float: left;
   /*鼠色*/
-  background: #838383;
+  /*background: #838383;*/
   /*
   border: 2px solid #333;
   border-color: hsla(0, 0%, 0%, 0.5);
@@ -100,21 +100,37 @@ body { font-family: sans-serif; }
   */
 }
 
-.viwer_grid-item--QVGA {
-  width: 320px;
-  height: 280px;//240+40
+.viwer_grid-item--144 {
+  width: 256px;
+  height: 184px;//144+40
 }
-.viwer_grid-item--VGA {
+.viwer_grid-item--240 {
+  width: 427px;
+  height: 284px;//240+40
+}
+.viwer_grid-item--360 {
   width: 640px;
+  height: 400px;//360+40
+}
+.viwer_grid-item--480 {
+  width: 720px;
   height: 520px;//480+40
 }
-.viwer_grid-item--HD {
+.viwer_grid-item--720 {
   width: 1280px;
   height: 760px;//720+40
 }
-.viwer_grid-item--FullHD {
+.viwer_grid-item--1080 {
   width: 1920px;
   height: 1120px;//1080+40
+}
+.viwer_grid-item--1440 {
+  width: 2560px;
+  height: 1480px;//1440+40
+}
+.viwer_grid-item--2160 {
+  width: 3840px;
+  height: 2200px;//2160+40
 }
 
 button {
