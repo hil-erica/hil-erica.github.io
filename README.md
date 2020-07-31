@@ -4,7 +4,8 @@ https://webrtc.ecl.ntt.com/
 
 ## 使い方
 https://hil-erica.github.io/SoraMichiChat_MultiP2P.html
-1. devicesタブの'get devices'ボタンをクリックし自身のカメラとオーディオデバイスを取得
+1. devicesタブの'get devices'ボタンをクリックし自身のカメラとオーディオデバイスを取得  
+   使わないVideoのチェックを外す
 2. communicationタブに移り自身のIDを入力し 'go to standby'ボダンをクリック
 3. 'add remote'ボタンをクリックし通話したい相手を入力し'call'ボタンで接続する
 
@@ -14,6 +15,11 @@ https://hil-erica.github.io/SoraMichiChat_MultiP2P.html?myPeerID=hoge&remotePeer
 - remotePeerID : 相手のID，';'区切りで複数可
 - viewersize : 相手の映像のデフォルトサイズ　144/240/360/720/1080
 - capturesize : 自身のカメラのキャプチャサイズ　720/1080
+
+### 複数映像をおくる際の注意点
+- 映像のトラック数はCallする側に決定権があるため送信する映像トラックが多いほうがCallすること  
+少ないほうがCallすると少ない方に合わせた映像トラック数になる
+- 映像を送らず音声のみは非対応
 
 ## datachannelについて
 ### 映像のダブルクリックイベント
