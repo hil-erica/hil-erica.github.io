@@ -53,19 +53,33 @@
   /*background: rgba(255, 0, 0, 0.4);*/
 }
 
+.item_addButton{
+  /* 横スクロール用 */
+  display: inline-block;
+  /*width: 90%;*/
+ width: 95px;
+  /* 見た目調整 */
+  height: 50px;
+  margin: 5px;
+  font-size: 10px;
+  /*background: rgba(255, 0, 0, 0.4);*/
+  vertical-align: top;
+}
+
 * { box-sizing: border-box; }
 
 body { font-family: sans-serif; }
 
 /* ---- grid ---- */
 
-.grid {
-  background: #EEE;
+.viwer_grid {
+  /*ビアンコ・デ・メルレッティ・ヴェネツィアーニ*/
+  background: #F7F9FC;
   max-width: 100%;
 }
 
 /* clearfix */
-.grid:after {
+.viwer_grid:after {
   content: '';
   display: block;
   clear: both;
@@ -73,11 +87,12 @@ body { font-family: sans-serif; }
 
 /* ---- grid-item ---- */
 
-.grid-item {
+.viwer_grid-item {
   width: 320px;
-  height: 280px;
+  height: 260px;//240-20
   float: left;
-  background: #D26;
+  /*鼠色*/
+  background: #838383;
   /*
   border: 2px solid #333;
   border-color: hsla(0, 0%, 0%, 0.5);
@@ -85,13 +100,22 @@ body { font-family: sans-serif; }
   */
 }
 
-.grid-item--width2 { width: 320px; }
-.grid-item--width3 { width: 480px; }
-.grid-item--width4 { width: 640px; }
-
-.grid-item--height2 { height: 200px; }
-.grid-item--height3 { height: 260px; }
-.grid-item--height4 { height: 360px; }
+.viwer_grid-item--QVGA {
+  width: 320px;
+  height: 280px;//240+40
+}
+.viwer_grid-item--VGA {
+  width: 640px;
+  height: 520px;//480+40
+}
+.viwer_grid-item--HD {
+  width: 1280px;
+  height: 760px;//720+40
+}
+.viwer_grid-item--FullHD {
+  width: 1920px;
+  height: 1120px;//1080+40
+}
 
 button {
   font-size: 20px;

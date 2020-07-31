@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<!-- saved from url=(0058)https://mganeko.github.io/webrtcexpjp/tool/devicelist.html -->
+<html data-minimalscrollbar="yes" style="">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" type="text/css" href="./css/style.css">
+  <link rel="stylesheet" type="text/css" href="./css/tab.css">
+  <title>Android Tele-Operation Chat(Multi P2P)</title>
+  <link rel="shortcut icon" href="./pics/denwa.ico" type="image/vnd.microsoft.icon">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://unpkg.com/imagesloaded@4/imagesloaded.pkgd.min.js"></script>
+<script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js"></script>
+</head>
+<body style="">
+  <div class="tab-wrap">
+    <input id="TAB-Device" type="radio" name="TAB" class="tab-switch" checked="checked" /><label class="tab-label" for="TAB-Device">devices</label>
+    <div class="tab-content">
+      <button id="devices_button" onclick="getDeviceList()"><font size="3">get devices</font></button><br>
+      <select id="mic_list" size="1" style="width:160pt;">
+        <option>(audio)</option>
+      </select>
+      <select id="speaker_list" size="1" style="width:160pt;">
+        <option>(speaker)</option>
+      </select>
+    </div>
+    <input id="TAB-Communication" type="radio" name="TAB" class="tab-switch"><label class="tab-label" for="TAB-Communication">communication</label>
+    <div class="tab-content">
+      <h5>
+      <button id="step_button" onclick="gotoStanby()" disabled="true" style="width:80pt;"><font size="2">go to stanby</font></button>
+      my PeerID：<input type="text" id="myPeerID" name="peerID" size="10" maxlength="20" value="hoge">
+      <br>
+      accessible：<input type="text" id="accessible_list" style="width:150pt;" readonly="readonly">
+      <br>
+      <div>remote PeerIDs</div><!--<input type="text" id="remotePeerID" name="peerID" size="15" maxlength="20" value="foo">-->
+     <div class="horizontal-list" style="width:600px">
+         <button class="item_addButton" id="addRemote_button" onclick="addRemotePeerId('foo')"><font size="2">add remote</font></button>
+        <div class="item_small"  id="remotePeers" style="width:300px;height:100px;">
+         </div>
+       </div>
+      <!--my PeerID for capture：<input type="text" id="myPeerID4Capture" name="peerID" size="10" maxlength="20" value="bar">-->
+      </h5>
+     </div><!--tab-content-->
+     <input id="TAB-Close" type="radio" name="TAB" class="tab-switch"><label class="tab-label" for="TAB-Close">tab close</label>
+     <div class="tab-content">
+     </div><!--tab-content-->
+  </div><!--tab-wrap-->
+  <h2>
+  remote videos<br>
+  <p>
+  <div id="remote_cameras" class="viwer_grid" data-masonry='{ "itemSelector": ".viwer_grid-item"}'></div>
+  <!-- appending video here -->
+  <br>
+  </p>
+  </h2>
+  <h3>
+  local videos<br>
+  <p>
+  <div id="local_cameras" class="horizontal-list"></div>
+  <!-- appending video here -->
+  </p>
+  </h3>
+  <script src="//cdn.webrtc.ecl.ntt.com/skyway-latest.js"></script>
+  <script src="./js/key.js"></script>
+  <script src="./js/videochat_multip2p.js"></script>
+  <!--
+  <script>
+    var $grid = jQuery('.grid').imagesLoaded(function(){
+      $grid.masonry({
+        itemSelector: '.grid-item'
+      });
+    });
+  </script>
+  -->
+  <script>
+  jQuery.event.add(window,"load",function() {
+    $('#viwer_grid').masonry({
+        itemSelector: '.grid-item',//整理される要素のclassを指定
+        columnWidth: 200,     //一列の幅サイズを指定
+        isAnimated: true,     //スムースアニメーション設定
+        isFitWidth: true,     //親要素の幅サイズがピッタリ
+        isRTL: false,         //整理される要素が左右逆になる（読み言語などに）
+        gutterWidth: 0,       //整理される要素間の溝の幅を指定
+        containerStyle: { position: 'relative' }, //親要素にスタイルを追加できる
+        isResizable: true     //ウィンドウサイズが変更された時に並び替え
+    });
+});
+</script>
+</body>
+</html>
