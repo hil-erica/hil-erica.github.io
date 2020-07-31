@@ -5,6 +5,7 @@ var remotePeers = document.getElementById("remotePeers");
 //var remotePeerID = document.getElementById("remotePeerID");
 var remotePeerIDs = [];
 var remotePeerIDMediaConMap = new Map();
+var remotePeerIDDataConMap = new Map();
 var accessibleList = document.getElementById("accessible_list");
 var getDeviceButton = document.getElementById("devices_button");
 var tabCommunication = document.getElementById("TAB-Communication");
@@ -47,7 +48,6 @@ function getQueryParams() {
 			if(key == "remotePeerID"){
 				var remotePeerIDValue = value;
 				remotePeerIDs = remotePeerIDValue.split(";");
-				openStream = true;
 				for(var i = 0; i < remotePeerIDs.length; i++){
 					if(remotePeerIDs[i] == "" || remotePeerIDs[i] == " ")continue;
 					addRemotePeerId(remotePeerIDs[i]);
@@ -222,6 +222,7 @@ function addCamera(deviceID, deviceLabel) {
 	//startVideos(deviceID, screenObj, screenObj2);
 }
 
+var clicked = false;    // クリック状態を保持するフラグ
 function addView(stream, remoterPeerID, trackID) {
 	var width = default_width;
 	var height = defualt_heigt;
@@ -240,6 +241,73 @@ function addView(stream, remoterPeerID, trackID) {
 	//screenObj.setAttribute('width', String(width) + 'px');
 	//screenObj.setAttribute('height', String(height) + 'px');
 	screenObj.setAttribute('autoplay', '1');
+	
+	//https://qiita.com/sashim1343/items/e3728bea913cadab677d
+	screenObj.addEventListener( "click", function( event ) {
+		var clickX = event.pageX ;
+		var clickY = event.pageY ;
+
+		// 要素の位置を取得
+		var clientRect = this.getBoundingClientRect() ;
+		var positionX = clientRect.left + window.pageXOffset ;
+		var positionY = clientRect.top + window.pageYOffset ;
+
+		// 要素内におけるクリック位置を計算
+		var x = clickX - positionX ;
+		var y = clickY - positionY ;
+		var xRatio = x/screenObj.width;
+		var yRatio = y/screenObj.height;
+		if (clicked) {
+			clicked = false;
+			var eventName = "dblclickevent";			
+			var sendText = "{\"peerid\": \""+myPeerID.value+"\", \""+eventName+"\": {\"objectname\":\""+screenObj.getAttribute('id')+"\", \"x\":"+x+", \"y\": "+y+",\"xRatio\":"+xRatio+", \"yRatio\": "+yRatio+"}}";
+			console.log("clicked event "+sendText);
+			for(var[key, value] of remotePeerIDDataConMap){
+				value.send(sendText);
+			}
+			//return;
+		} else {
+			clicked = true;
+			setTimeout(function () {
+				// ダブルクリックによりclickedフラグがリセットされていない
+				//     -> シングルクリックだった
+				if (clicked) {
+					var eventName = "clickevent";			
+					var sendText = "{\"peerid\": \""+myPeerID.value+"\", \""+eventName+"\": {\"objectname\":\""+screenObj.getAttribute('id')+"\", \"x\":"+x+", \"y\": "+y+",\"xRatio\":"+xRatio+", \"yRatio\": "+yRatio+"}}";
+					console.log("clicked event "+sendText);
+					for(var[key, value] of remotePeerIDDataConMap){
+						value.send(sendText);
+					}
+				}
+				clicked = false;
+			}, 200);
+		}
+	} ) ;
+	
+	/*どうやら働かないです
+	screenObj.addEventListener( "dblclick ", function( event ) {
+		var clickX = event.pageX ;
+		var clickY = event.pageY ;
+
+		// 要素の位置を取得
+		var clientRect = this.getBoundingClientRect() ;
+		var positionX = clientRect.left + window.pageXOffset ;
+		var positionY = clientRect.top + window.pageYOffset ;
+
+		// 要素内におけるクリック位置を計算
+		var x = clickX - positionX ;
+		var y = clickY - positionY ;
+		var xRatio = x/screenObj.width;
+		var yRatio = y/screenObj.height;
+		var sendText = "{\"peerid\": \""+myPeerID.value+"\", \"dblclickevent\": {\"objectname\":\""+screenObj.getAttribute('id')+"\", \"x\":"+x+", \"y\": "+y+",\"xRatio\":"+xRatio+", \"yRatio\": "+yRatio+"}}";
+		
+		console.log("clicked event "+sendText);
+		for(var[key, value] of remotePeerIDDataConMap){
+			value.send(sendText);
+		}
+	} ) ;
+	*/
+	
 	//controlsを入れるとダブルクリックで最大化したりPictureInPicureモードとかできる
 	//screenObj.setAttribute('controls', '1');
 	//screenObj.setAttribute('style', 'border: 1px solid;');
@@ -519,7 +587,7 @@ navigator.mediaDevices.ondevicechange = function (evt) {
 function gotoStanby() {
 	thisPeer = (window.peer = new Peer(myPeerID.value,{
 		key: window.__SKYWAY_KEY__,
-		debug: 3,
+		debug: 1,
 	}));
 	
 	thisPeer.on('error', console.error);
@@ -643,8 +711,24 @@ function gotoStanby() {
 				stepButton.setAttribute('onclick', 'callRemote()');
 				stepButton.innerHTML = "<font size='3'>call</font>";
 			});
-		});
-	});
+		});//end of call media connection
+		
+		thisPeer.on('connection', dataConnection => {
+			console.log(dataConnection.remoteId +" data connection connected" );
+			dataConnection.once('open', async () => {
+				remotePeerIDDataConMap.set(dataConnection.remoteId, dataConnection);
+				console.log(dataConnection.remoteId +" opened" );
+				//dataConnection.send("how are yor?");
+				dataConnection.on('data', data => {
+					console.log(dataConnection.remoteId +" >> "+data );
+				});
+				dataConnection.once('close', () => {
+					remotePeerIDDataConMap.delete(dataConnection.remoteId);
+					console.log(dataConnection.remoteId +" data connection closed" );
+				});
+			});//end of open dataconnection
+		});//end of call dataconnection
+	});//end of thisPeer.once('open', id => {
 }
 
 function callRemoteOne(remotePeerID) {
@@ -670,7 +754,6 @@ function callRemoteOne(remotePeerID) {
 		var thisPeerCounterNumer = getThisPeerCounterNumer(mediaConnection.remoteId);
 		updatePeerUI(thisPeerCounterNumer, false);
 		console.log("get stream = "+mediaConnection.remoteId +" "+mediaConnection.id);
-		openStream = true;
 		//このときのremoteIdがもし複数連続でやったらあとのpeerIdになってしまう
 		openConnection(stream, mediaConnection.remoteId, mediaConnection);
 		//await stream.paly().catch(console.error);
@@ -685,6 +768,24 @@ function callRemoteOne(remotePeerID) {
 		//stepButton.setAttribute('onclick', 'callRemote()');
 		//stepButton.innerHTML = "<font size='3'>call</font>";
 	});
+	
+	//make data connection
+	 const dataConnection = thisPeer.connect(remotePeerID);
+	dataConnection.once('open', async () => {
+		remotePeerIDDataConMap.set(dataConnection.remoteId, dataConnection);
+		console.log(dataConnection.remoteId +" data connection opened" );
+		//dataConnection.send("hello I'm "+myPeerID.value);
+	});
+	
+	dataConnection.on('data', data => {
+		console.log(dataConnection.remoteId +" >> "+data );
+	});
+	
+	dataConnection.once('close', () => {
+		remotePeerIDDataConMap.delete(dataConnection.remoteId);
+		console.log(dataConnection.remoteId +" data connection closed" );
+	});
+	
 	return true;
 }
 
@@ -694,9 +795,17 @@ function closeRemote(peerID){
 	//mediaConnection.close(true);
 	//stepButton.setAttribute('onclick', 'callRemote()');
 	//stepButton.innerHTML = "call";
+	
+	//mapからの削除はcloseイベントが発生してから
 	for(var[key, value] of remotePeerIDMediaConMap){
 		if(key == peerID){
 			value.close(true);
+		}
+	}
+	//mapからの削除はcloseイベントが発生してから
+	for(var[key, value] of remotePeerIDDataConMap){
+		if(key == peerID){
+			value.close();
 		}
 	}
 }
