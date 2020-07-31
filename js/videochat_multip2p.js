@@ -584,7 +584,7 @@ navigator.mediaDevices.ondevicechange = function (evt) {
 	console.log('mediaDevices.ondevicechange() evt:', evt);
 };
 
-function gotoStanby() {
+function gotoStandby() {
 	thisPeer = (window.peer = new Peer(myPeerID.value,{
 		key: window.__SKYWAY_KEY__,
 		debug: 1,
