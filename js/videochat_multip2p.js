@@ -66,10 +66,12 @@ function getQueryParams() {
 					captureSize = value;
 				}
 			}
-			if(key == "skywaykey" && value != ""){
-				skywaykey = value;
-			} else {
-				inputKeyDialogue();
+			if(key == "skywaykey"){
+				if(value != ""){
+					skywaykey = value;
+				} else {
+					inputKeyDialogue();
+				}
 			}
 		}
 		return result;
