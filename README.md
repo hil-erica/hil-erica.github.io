@@ -15,6 +15,7 @@ https://hil-erica.github.io/SoraMichiChat_MultiP2P.html?myPeerID=hoge&remotePeer
 - remotePeerID : 相手のID，';'区切りで複数可
 - viewersize : 相手の映像のデフォルトサイズ　144/240/360/720/1080
 - capturesize : 自身のカメラのキャプチャサイズ　720/1080
+- skywaykey : SkyWay API Key
 
 ### 複数映像をおくる際の注意点
 - 映像のトラック数はCallする側に決定権があるため送信する映像トラックが多いほうがCallすること  
@@ -25,8 +26,8 @@ https://hil-erica.github.io/SoraMichiChat_MultiP2P.html?myPeerID=hoge&remotePeer
 ### 映像のダブルクリックイベント
 <ダブルクリックイベントは連続して300msecのタイミングを検知したら Ratioは縦横の比率なので従来のサイズがわからなくてもいいかな>  
 #### プロトコルサンプル
-{"peerid": "hoge", "clickevent": {"objectname":"remote_camera_video_bar_0", "x":572.6666870117188, "y": 273.0625305175781,"xRatio":0.8947916984558105, "yRatio": 0.7585070292154948}}  
-{"peerid": "hoge", "dblclickevent": {"objectname":"remote_camera_video_bar_0", "x":572.6666870117188, "y": 273.0625305175781,"xRatio":0.8947916984558105, "yRatio": 0.7585070292154948}}  
+{"peerid": "bar", "clickevent": {"remotePeerId":"hoge", "trackID":0, "x":614, "y": 27.75,"xRatio":0.959375, "yRatio": 0.07708333333333334}}
+{"peerid": "bar", "dblclickevent": {"remotePeerId":"hoge", "trackID":0,"x":614, "y": 27.75,"xRatio":0.959375, "yRatio": 0.07708333333333334}}
 
 ## カメラについて
 ### <chromeでカメラのパラメータ一覧を得る>

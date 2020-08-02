@@ -24,6 +24,7 @@ var thisPeer = window.thisPeer;
 var checkMemberTimerId;
 var remotePeerCounter = 0;
 var isReady = false;
+var skywaykey = null;
 
 window.onload = ()=> {
 	getQueryParams();
@@ -65,13 +66,33 @@ function getQueryParams() {
 					captureSize = value;
 				}
 			}
+			if(key == "skywaykey" && value != ""){
+				skywaykey = value;
+			} else {
+				inputKeyDialogue();
+			}
 		}
 		return result;
+	}
+	if(skywaykey == null){
+		inputKeyDialogue();
 	}
 	return null;
 }
 
-
+function inputKeyDialogue(){
+	while(true){
+		// 入力ダイアログを表示 ＋ 入力内容を user に代入
+		skywaykey = window.prompt("SkyWayのKeyを入力してください", "");
+		if(skywaykey != "" && skywaykey != null){
+			break;
+		}
+		// 空の場合やキャンセルした場合は警告ダイアログを表示
+		else{
+			window.alert('キャンセルされました');
+		}
+	}
+}
 
 function addRemotePeerId(remotePeer){
 	var elements = document.getElementsByName('remotePeer_id');
@@ -238,6 +259,8 @@ function addView(stream, remoterPeerID, trackID) {
 	screenObj = document.createElement('video');
 	screenObj.setAttribute('id', 'remote_camera_video_' +remoterPeerID+'_'+ trackID);
 	screenObj.setAttribute('name', 'remote_camera_video_'+remoterPeerID);
+	screenObj.setAttribute('remotePeerId', remoterPeerID);
+	screenObj.setAttribute('trackID', trackID);
 	//screenObj.setAttribute('width', String(width) + 'px');
 	//screenObj.setAttribute('height', String(height) + 'px');
 	screenObj.setAttribute('autoplay', '1');
@@ -260,11 +283,9 @@ function addView(stream, remoterPeerID, trackID) {
 		if (clicked) {
 			clicked = false;
 			var eventName = "dblclickevent";			
-			var sendText = "{\"peerid\": \""+myPeerID.value+"\", \""+eventName+"\": {\"objectname\":\""+screenObj.getAttribute('id')+"\", \"x\":"+x+", \"y\": "+y+",\"xRatio\":"+xRatio+", \"yRatio\": "+yRatio+"}}";
+			var sendText = "{\"peerid\": \""+myPeerID.value+"\", \""+eventName+"\": {\"remotePeerId\":\""+screenObj.getAttribute('remotePeerId')+"\", \"trackID\":"+screenObj.getAttribute('trackID')+",\"x\":"+x+", \"y\": "+y+",\"xRatio\":"+xRatio+", \"yRatio\": "+yRatio+"}}";
 			console.log("clicked event "+sendText);
-			for(var[key, value] of remotePeerIDDataConMap){
-				value.send(sendText);
-			}
+			publishData(sendText);
 			//return;
 		} else {
 			clicked = true;
@@ -273,11 +294,9 @@ function addView(stream, remoterPeerID, trackID) {
 				//     -> シングルクリックだった
 				if (clicked) {
 					var eventName = "clickevent";			
-					var sendText = "{\"peerid\": \""+myPeerID.value+"\", \""+eventName+"\": {\"objectname\":\""+screenObj.getAttribute('id')+"\", \"x\":"+x+", \"y\": "+y+",\"xRatio\":"+xRatio+", \"yRatio\": "+yRatio+"}}";
+					var sendText = "{\"peerid\": \""+myPeerID.value+"\", \""+eventName+"\": {\"remotePeerId\":\""+screenObj.getAttribute('remotePeerId')+"\", \"trackID\":"+screenObj.getAttribute('trackID')+", \"x\":"+x+", \"y\": "+y+",\"xRatio\":"+xRatio+", \"yRatio\": "+yRatio+"}}";
 					console.log("clicked event "+sendText);
-					for(var[key, value] of remotePeerIDDataConMap){
-						value.send(sendText);
-					}
+					publishData(sendText);
 				}
 				clicked = false;
 			}, 200);
@@ -586,7 +605,8 @@ navigator.mediaDevices.ondevicechange = function (evt) {
 
 function gotoStandby() {
 	thisPeer = (window.peer = new Peer(myPeerID.value,{
-		key: window.__SKYWAY_KEY__,
+		//key: window.__SKYWAY_KEY__,
+		key: skywaykey,
 		debug: 1,
 	}));
 	
@@ -720,7 +740,8 @@ function gotoStandby() {
 				console.log(dataConnection.remoteId +" opened" );
 				//dataConnection.send("how are yor?");
 				dataConnection.on('data', data => {
-					console.log(dataConnection.remoteId +" >> "+data );
+					getData(dataConnection.remoteId, data);
+					//console.log(dataConnection.remoteId +" >> "+data );
 				});
 				dataConnection.once('close', () => {
 					remotePeerIDDataConMap.delete(dataConnection.remoteId);
@@ -778,7 +799,8 @@ function callRemoteOne(remotePeerID) {
 	});
 	
 	dataConnection.on('data', data => {
-		console.log(dataConnection.remoteId +" >> "+data );
+		getData(dataConnection.remoteId, data);
+		//console.log(dataConnection.remoteId +" >> "+data );
 	});
 	
 	dataConnection.once('close', () => {
@@ -893,4 +915,22 @@ function getSelectedAudio() {
 function getSelectedSpeaker() {
 	var id = speakerList.options[speakerList.selectedIndex].value;
 	return id;
+}
+
+function publishData(sendText){
+	for(var[key, value] of remotePeerIDDataConMap){
+		value.send(sendText);
+	}
+}
+
+function sendData(toPeerID, sendText){
+	if(remotePeerIDDataConMap.has(toPeerID)){
+		remotePeerIDDataConMap.get(toPeerID).send(sendText);
+	} else {
+		console.error("failed to send, "+toPeerID + " is not connected");
+	}
+}
+
+function getData(fromPeerID, receiveText){
+	console.log(fromPeerID+ " : " + receiveText);
 }
