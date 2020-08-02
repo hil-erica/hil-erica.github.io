@@ -26,8 +26,8 @@ https://hil-erica.github.io/SoraMichiChat_MultiP2P.html?myPeerID=hoge&remotePeer
 ### 映像のダブルクリックイベント
 <ダブルクリックイベントは連続して300msecのタイミングを検知したら Ratioは縦横の比率なので従来のサイズがわからなくてもいいかな>  
 #### プロトコルサンプル
-{"peerid": "bar", "clickevent": {"remotePeerId":"hoge", "trackID":0, "x":614, "y": 27.75,"xRatio":0.959375, "yRatio": 0.07708333333333334}}
-{"peerid": "bar", "dblclickevent": {"remotePeerId":"hoge", "trackID":0,"x":614, "y": 27.75,"xRatio":0.959375, "yRatio": 0.07708333333333334}}
+{"peerid": "bar", "clickevent": {"remotepeerid":"hoge", "trackid":0, "x":614, "y": 27.75,"xRatio":0.959375, "yRatio": 0.07708333333333334}}  
+{"peerid": "bar", "dblclickevent": {"remotepeerid":"hoge", "trackid":0,"x":614, "y": 27.75,"xRatio":0.959375, "yRatio": 0.07708333333333334}}  
 
 ## カメラについて
 ### <chromeでカメラのパラメータ一覧を得る>
