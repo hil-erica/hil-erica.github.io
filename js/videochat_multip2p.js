@@ -7,6 +7,7 @@ var remotePeerIDs = [];
 var remotePeerIDMediaConMap = new Map();
 var remotePeerIDDataConMap = new Map();
 var accessibleList = document.getElementById("accessible_list");
+var accessibleMembers = [];
 var getDeviceButton = document.getElementById("devices_button");
 var tabCommunication = document.getElementById("TAB-Communication");
 var stepButton = document.getElementById("step_button");
@@ -633,8 +634,10 @@ function gotoStandby() {
 	thisPeer.once('open', id => {
 		let peers = thisPeer.listAllPeers(peers => {
 			accessibleList.value = "";
+			accessibleMembers = [];
 			for(var i = 0; i< peers.length; i++){
 				accessibleList.value += peers[i]+";";
+				accessibleMembers.push(peers[i]);
 			}
 			console.log(peers);
 		});
@@ -643,8 +646,10 @@ function gotoStandby() {
 		var checkAccessibleMember = function(){
 			thisPeer.listAllPeers(peers => {
 				accessibleList.value = "";
+				accessibleMembers = [];
 				for(var i = 0; i< peers.length; i++){
 					accessibleList.value += peers[i]+";";
+					accessibleMembers.push(peers[i]);
 				}
 				//console.log(peers);
 			});
@@ -712,6 +717,7 @@ function gotoStandby() {
 			console.log('local stream videtrack = '+localMixedStream.getVideoTracks().length+', audiotrack = '+localMixedStream.getAudioTracks().length);
 			mediaConnection.answer(localMixedStream);
 			var thisPeerCounterNumer = addRemotePeerId(mediaConnection.remoteId);
+			openConnection(mediaConnection.remoteId, mediaConnection);
 			updatePeerUI(thisPeerCounterNumer, false);
 			mediaConnection.on('stream', async stream => {
 				/*
@@ -720,7 +726,7 @@ function gotoStandby() {
 				remoteVideo.playsInline = true;
 				await remoteVideo.play().catch(console.error);
 				*/
-				openConnection(stream, mediaConnection.remoteId, mediaConnection);
+				openStream(stream, mediaConnection.remoteId, mediaConnection);
 				//await stream.paly().catch(console.error);
 			});
 			//切れた
@@ -760,6 +766,12 @@ function callRemoteOne(remotePeerID) {
 	if (!thisPeer.open) {
 		return false;
 	}
+	var member = accessibleMembers.find((v) => v==remotePeerID);
+	if(member == null){
+		alert(remotePeerID+" doesn't login")
+		return false;
+	}
+	
 	if(localMixedStream == null){
 		makeLocalStream();
 	}
@@ -770,15 +782,19 @@ function callRemoteOne(remotePeerID) {
 	console.log("remotePeerID = "+ remotePeerID);
 	//var mediaConnection = thisPeer.call(remotePeerIDs[i], localMixedStream);
 	var mediaConnection = thisPeer.call(remotePeerID, localMixedStream);
+	if(mediaConnection == null){
+		return false;
+	}
 	console.log("connected = "+mediaConnection.remoteId +", "+ mediaConnection.id);
 	var thisPeerCounterNumer = getThisPeerCounterNumer(mediaConnection.remoteId);
-	//updatePeerUI(thisPeerCounterNumer, false);
+	openConnection(mediaConnection.remoteId, mediaConnection);
+	updatePeerUI(thisPeerCounterNumer, false);
 	mediaConnection.on('stream', async stream => {
 		var thisPeerCounterNumer = getThisPeerCounterNumer(mediaConnection.remoteId);
-		updatePeerUI(thisPeerCounterNumer, false);
+		//updatePeerUI(thisPeerCounterNumer, false);
 		console.log("get stream = "+mediaConnection.remoteId +" "+mediaConnection.id);
 		//このときのremoteIdがもし複数連続でやったらあとのpeerIdになってしまう
-		openConnection(stream, mediaConnection.remoteId, mediaConnection);
+		openStream(stream, mediaConnection.remoteId, mediaConnection);
 		//await stream.paly().catch(console.error);
 	});
 	//切れた
@@ -833,10 +849,11 @@ function closeRemote(peerID){
 		}
 	}
 }
-
-function openConnection(stream, remotePeerID, mediaConnection){
-	console.log(remotePeerID+ '('+mediaConnection.remoteId+') => remote stream videtrack = '+stream.getVideoTracks().length+', audiotrack = '+stream.getAudioTracks().length);
+function openConnection(remotePeerID, mediaConnection){
 	remotePeerIDMediaConMap.set(remotePeerID, mediaConnection);
+}
+function openStream(stream, remotePeerID, mediaConnection){
+	console.log(remotePeerID+ '('+mediaConnection.remoteId+') => remote stream videtrack = '+stream.getVideoTracks().length+', audiotrack = '+stream.getAudioTracks().length);
 	for(var i = 0; i<stream.getVideoTracks().length; i++){
 		var _remoteVideo = new webkitMediaStream();
 		_remoteVideo.addTrack(stream.getVideoTracks()[i]);
