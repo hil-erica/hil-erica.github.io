@@ -77,7 +77,7 @@ function getQueryParams() {
 		}
 		return result;
 	}
-	if(skywaykey == null){
+	if(skywaykey == null || value == ""){
 		inputKeyDialogue();
 	}
 	return null;
@@ -286,7 +286,7 @@ function addView(stream, remoterPeerID, trackID) {
 		if (clicked) {
 			clicked = false;
 			var eventName = "dblclickevent";			
-			var sendText = "{\"peerid\": \""+myPeerID.value+"\", \""+eventName+"\": {\"remotepeerid\":\""+screenObj.getAttribute('remotePeerId')+"\", \"trackid\":"+screenObj.getAttribute('trackID')+",\"x\":"+x+", \"y\": "+y+",\"xRatio\":"+xRatio+", \"yRatio\": "+yRatio+"}}";
+			var sendText = "{\"peerid\": \""+myPeerID.value+"\", \""+eventName+"\": {\"remotepeerid\":\""+screenObj.getAttribute('remotePeerId')+"\", \"trackid\":"+screenObj.getAttribute('trackID')+",\"x\":"+x+", \"y\": "+y+",\"xratio\":"+xRatio+", \"yratio\": "+yRatio+"}}";
 			console.log("clicked event "+sendText);
 			publishData(sendText);
 			//return;
@@ -297,7 +297,7 @@ function addView(stream, remoterPeerID, trackID) {
 				//     -> シングルクリックだった
 				if (clicked) {
 					var eventName = "clickevent";			
-					var sendText = "{\"peerid\": \""+myPeerID.value+"\", \""+eventName+"\": {\"remotePeerId\":\""+screenObj.getAttribute('remotepeerid')+"\", \"trackid\":"+screenObj.getAttribute('trackID')+", \"x\":"+x+", \"y\": "+y+",\"xRatio\":"+xRatio+", \"yRatio\": "+yRatio+"}}";
+					var sendText = "{\"peerid\": \""+myPeerID.value+"\", \""+eventName+"\": {\"remotepeerid\":\""+screenObj.getAttribute('remotePeerId')+"\", \"trackid\":"+screenObj.getAttribute('trackID')+", \"x\":"+x+", \"y\": "+y+",\"xratio\":"+xRatio+", \"yratio\": "+yRatio+"}}";
 					console.log("clicked event "+sendText);
 					publishData(sendText);
 				}
