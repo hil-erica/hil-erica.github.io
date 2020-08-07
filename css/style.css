@@ -136,3 +136,12 @@ body { font-family: sans-serif; }
 button {
   font-size: 20px;
 }
+
+/* canvas */
+.canvas {
+  position: absolute;
+  top: 20;/*サイズプルダウンのマージン*/
+  left: 0;
+  z-index: 10;
+  /*background-color:rgba(255,0,0,0.5);*/
+}

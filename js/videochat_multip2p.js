@@ -247,7 +247,9 @@ function addCamera(deviceID, deviceLabel) {
 }
 
 var clicked = false;    // クリック状態を保持するフラグ
+//var drawClerTimer;
 function addView(stream, remoterPeerID, trackID) {
+var drawClerTimer;
 	var width = default_width;
 	var height = defualt_heigt;
 	var contentID = 'remote_camera_view_'+remoterPeerID+'_' + trackID;
@@ -268,8 +270,17 @@ function addView(stream, remoterPeerID, trackID) {
 	//screenObj.setAttribute('height', String(height) + 'px');
 	screenObj.setAttribute('autoplay', '1');
 	
+	var canvasObj;
+	canvasObj = document.createElement('canvas');
+	canvasObj.setAttribute('class', 'canvas');
+	canvasObj.setAttribute('id', 'remote_camera_canvas_' +remoterPeerID+'_'+ trackID);
+	canvasObj.setAttribute('name', 'remote_camera_canvas_'+remoterPeerID);
+	canvasObj.setAttribute('remotePeerId', remoterPeerID);
+	canvasObj.setAttribute('trackID', trackID);
+	
+	
 	//https://qiita.com/sashim1343/items/e3728bea913cadab677d
-	screenObj.addEventListener( "click", function( event ) {
+	canvasObj.addEventListener( "click", function( event ) {
 		var clickX = event.pageX ;
 		var clickY = event.pageY ;
 
@@ -281,14 +292,26 @@ function addView(stream, remoterPeerID, trackID) {
 		// 要素内におけるクリック位置を計算
 		var x = clickX - positionX ;
 		var y = clickY - positionY ;
-		var xRatio = x/screenObj.width;
-		var yRatio = y/screenObj.height;
+		var xRatio = x/canvasObj.width;
+		var yRatio = y/canvasObj.height;
+		var dblClickDuration = 300;//msec
+		var drawMarkDuration = 1000;//msec
+		
 		if (clicked) {
 			clicked = false;
 			var eventName = "dblclickevent";			
-			var sendText = "{\"peerid\": \""+myPeerID.value+"\", \""+eventName+"\": {\"remotepeerid\":\""+screenObj.getAttribute('remotePeerId')+"\", \"trackid\":"+screenObj.getAttribute('trackID')+",\"x\":"+x+", \"y\": "+y+",\"xratio\":"+xRatio+", \"yratio\": "+yRatio+"}}";
+			var sendText = "{\"peerid\": \""+myPeerID.value+"\", \""+eventName+"\": {\"remotepeerid\":\""+canvasObj.getAttribute('remotePeerId')+"\", \"trackid\":"+canvasObj.getAttribute('trackID')+",\"x\":"+x+", \"y\": "+y+",\"xratio\":"+xRatio+", \"yratio\": "+yRatio+"}}";
 			console.log("clicked event "+sendText);
 			publishData(sendText);
+
+			//canvasに描画
+			var context = canvasObj.getContext( "2d" ) ;
+			context.clearRect(0, 0, canvasObj.width, canvasObj.height);
+			context.beginPath () ;
+			context.arc( x, y, 20, 0 * Math.PI / 180, 360 * Math.PI / 180, false ) ;
+			context.strokeStyle = "red" ;
+			context.lineWidth = 1 ;
+			context.stroke() ;
 			//return;
 		} else {
 			clicked = true;
@@ -296,14 +319,33 @@ function addView(stream, remoterPeerID, trackID) {
 				// ダブルクリックによりclickedフラグがリセットされていない
 				//     -> シングルクリックだった
 				if (clicked) {
+					//canvasに描画
+					var context = canvasObj.getContext( "2d" ) ;
+					context.clearRect(0, 0, canvasObj.width, canvasObj.height);
+					context.beginPath () ;
+					context.arc( x, y, 20, 0 * Math.PI / 180, 360 * Math.PI / 180, false ) ;
+					context.strokeStyle = "blue" ;
+					context.lineWidth = 1 ;
+					context.stroke() ;
+					
 					var eventName = "clickevent";			
-					var sendText = "{\"peerid\": \""+myPeerID.value+"\", \""+eventName+"\": {\"remotepeerid\":\""+screenObj.getAttribute('remotePeerId')+"\", \"trackid\":"+screenObj.getAttribute('trackID')+", \"x\":"+x+", \"y\": "+y+",\"xratio\":"+xRatio+", \"yratio\": "+yRatio+"}}";
+					var sendText = "{\"peerid\": \""+myPeerID.value+"\", \""+eventName+"\": {\"remotepeerid\":\""+canvasObj.getAttribute('remotePeerId')+"\", \"trackid\":"+canvasObj.getAttribute('trackID')+", \"x\":"+x+", \"y\": "+y+",\"xratio\":"+xRatio+", \"yratio\": "+yRatio+"}}";
 					console.log("clicked event "+sendText);
 					publishData(sendText);
 				}
 				clicked = false;
-			}, 200);
+				
+			}, dblClickDuration);
 		}
+		
+		if(drawClerTimer != null){
+			clearTimeout(drawClerTimer);
+		}
+		drawClerTimer = setTimeout(function () {
+			//canvasに描画
+			var context = canvasObj.getContext( "2d" ) ;
+			context.clearRect(0, 0, canvasObj.width, canvasObj.height);
+		}, drawMarkDuration);
 	} ) ;
 	
 	/*どうやら働かないです
@@ -379,32 +421,45 @@ function addView(stream, remoterPeerID, trackID) {
 	
 	content.appendChild(sizeSelector);
 	content.appendChild(screenObj);
+	content.appendChild(canvasObj);
 	
 	sizeSelector.addEventListener('change', (event) => {
 		var changedValue = event.target.value;
 		if(changedValue == '144'){
 			screenObj.width = 256;
 			screenObj.height = 144;
+			canvasObj.width = 256;
+			canvasObj.height = 144;
 			content.setAttribute('class', 'viwer_grid-item viwer_grid-item--144');
 		} else if(changedValue == '240'){
 			screenObj.width = 427;
 			screenObj.height = 240;
+			canvasObj.width = 427;
+			canvasObj.height = 240;
 			content.setAttribute('class', 'viwer_grid-item viwer_grid-item--240');
 		} else if(changedValue == '360'){
 			screenObj.width = 640;
 			screenObj.height = 360;
+			canvasObj.width = 640;
+			canvasObj.height = 360;
 			content.setAttribute('class', 'viwer_grid-item viwer_grid-item--360');
 		} else if(changedValue == '480'){
 			screenObj.width = 720;
 			screenObj.height = 480;
+			canvasObj.width = 720;
+			canvasObj.height = 480;
 			content.setAttribute('class', 'viwer_grid-item viwer_grid-item--480');
 		}  else if(changedValue == '720'){
 			screenObj.width = 1280;
 			screenObj.height = 720;
+			canvasObj.width = 1280;
+			canvasObj.height = 720;
 			content.setAttribute('class', 'viwer_grid-item viwer_grid-item--720');
 		} else if(changedValue == '1080'){
 			screenObj.width = 1920;
 			screenObj.height = 1080;
+			canvasObj.width = 1920;
+			canvasObj.height = 1080;
 			content.setAttribute('class', 'viwer_grid-item viwer_grid-item--1080');
 		}
 		$grid.masonry();
@@ -414,31 +469,43 @@ function addView(stream, remoterPeerID, trackID) {
 	if(viewersize == '144'){
 		screenObj.width = 256;
 		screenObj.height = 144;
+		canvasObj.width = 256;
+		canvasObj.height = 144;
 		sizeSelector.value = '144';
 		content.setAttribute('class', 'viwer_grid-item viwer_grid-item--144');
 	}  else if(viewersize == '240'){
 		screenObj.width = 427;
 		screenObj.height = 240;
+		canvasObj.width = 427;
+		canvasObj.height = 240;
 		sizeSelector.value = '240';
 		content.setAttribute('class', 'viwer_grid-item viwer_grid-item--240');
 	} else if(viewersize == '360'){
 		screenObj.width = 640;
 		screenObj.height = 360;
+		canvasObj.width = 640;
+		canvasObj.height = 360;
 		sizeSelector.value = '360';
 		content.setAttribute('class', 'viwer_grid-item viwer_grid-item--360');
 	}  else if(viewersize == '480'){
 		screenObj.width = 720;
 		screenObj.height = 480;
+		canvasObj.width = 720;
+		canvasObj.height = 480;
 		sizeSelector.value = '480';
 		content.setAttribute('class', 'viwer_grid-item viwer_grid-item--480');
 	} else if(viewersize == '720'){
 		screenObj.width = 1280;
 		screenObj.height = 720;
+		canvasObj.width = 1280;
+		canvasObj.height = 720;
 		sizeSelector.value = '720';
 		content.setAttribute('class', 'viwer_grid-item viwer_grid-item--720');
 	} else if(viewersize == '1080'){
 		screenObj.width = 1920;
 		screenObj.height = 1080;
+		canvasObj.width = 1920;
+		canvasObj.height = 1080;
 		sizeSelector.value = '1080';
 		content.setAttribute('class', 'viwer_grid-item viwer_grid-item--1080');
 	}
