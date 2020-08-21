@@ -10,6 +10,8 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
   <script src="https://unpkg.com/imagesloaded@4/imagesloaded.pkgd.min.js"></script>
 <script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+
 </head>
 <body style="">
   <div class="tab-wrap">
@@ -72,6 +74,10 @@
   </script>
   -->
   <script>
+  //https://yizm.work/sample_code/javascript/sortablejs_howto/
+  var local_cameras_div = document.getElementById('local_cameras');
+  var local_cameras_sortable = Sortable.create(local_cameras_div);
+  
   jQuery.event.add(window,"load",function() {
     $('#viwer_grid').masonry({
         itemSelector: '.grid-item',//整理される要素のclassを指定

@@ -749,6 +749,15 @@ function gotoStandby() {
 		removeCameraIDs.forEach(function(value){
 			var removeItem = document.getElementById(value);
 			if(removeItem != null){
+				for(var i = 0; i < removeItem.children.length; i++){
+					if(removeItem.children[i].getAttribute("name") == "local_camera_video"){
+						if(removeItem.children[i].srcObject != null){
+							removeItem.children[i].srcObject.getTracks().forEach(track => track.stop());
+						}
+						break;
+					}
+				}
+				
 				removeItem.parentNode.removeChild(removeItem);
 			}
 		});
