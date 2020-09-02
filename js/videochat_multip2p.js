@@ -978,7 +978,10 @@ function getSelectedMicStream(){
 	var audioId = getSelectedAudio();
 	var constraints = {
 		audio: {
-			deviceId: audioId
+			deviceId: audioId,
+			sampleRate: {ideal: 48000},
+			sampleSize: 16,
+			channelCount: {ideal: 2, min: 1}
 		}
 	};
 	console.log('mediaDevice.getMedia() constraints:', constraints);
