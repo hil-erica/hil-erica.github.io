@@ -981,6 +981,8 @@ function getSelectedMicStream(){
 			deviceId: audioId,
 			sampleRate: {ideal: 48000},
 			sampleSize: 16,
+			echoCancellation: false,
+			noiseSuppression: false,
 			channelCount: {ideal: 2, min: 1}
 		}
 	};
