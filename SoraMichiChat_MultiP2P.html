@@ -11,10 +11,11 @@
   <script src="https://unpkg.com/imagesloaded@4/imagesloaded.pkgd.min.js"></script>
 <script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.2.1/dist/jszip.js"></script><!-- zipでかためてダウンロードhttps://r17n.page/2020/01/12/js-download-zipped-images-to-local/-->
 </head>
 <body style="">
   <div class="tab-wrap">
+    
     <input id="TAB-Device" type="radio" name="TAB" class="tab-switch" checked="checked" /><label class="tab-label" for="TAB-Device">devices</label>
     <div class="tab-content">
       <button id="devices_button" onclick="getDeviceList()"><font size="3">get devices</font></button><br>
@@ -25,6 +26,7 @@
         <option>(speaker)</option>
       </select>
     </div>
+    
     <input id="TAB-Communication" type="radio" name="TAB" class="tab-switch"><label class="tab-label" for="TAB-Communication">communication</label>
     <div class="tab-content">
       <h5>
@@ -42,6 +44,13 @@
       <!--my PeerID for capture：<input type="text" id="myPeerID4Capture" name="peerID" size="10" maxlength="20" value="bar">-->
       </h5>
      </div><!--tab-content-->
+     
+     <input id="TAB-Record" type="radio" name="TAB" class="tab-switch"><label class="tab-label" for="TAB-Record">recorder</label>
+     <div class="tab-content">
+       <button id="recorder_button" onclick="startstoprecord()" disabled="true" style="width:80pt;"><font size="2">record</font></button>
+       <a href="#" id="downloadlink">download</a>
+     </div><!--tab-content-->
+     
      <input id="TAB-Close" type="radio" name="TAB" class="tab-switch"><label class="tab-label" for="TAB-Close">tab close</label>
      <div class="tab-content">
      </div><!--tab-content-->

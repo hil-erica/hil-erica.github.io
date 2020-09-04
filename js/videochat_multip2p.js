@@ -11,6 +11,7 @@ var accessibleMembers = [];
 var getDeviceButton = document.getElementById("devices_button");
 var tabCommunication = document.getElementById("TAB-Communication");
 var stepButton = document.getElementById("step_button");
+var recordButton = document.getElementById("recorder_button");
 var localMicStream;
 var localMixedStream;
 var numView = 1;
@@ -26,6 +27,14 @@ var checkMemberTimerId;
 var remotePeerCounter = 0;
 var isReady = false;
 var skywaykey = null;
+
+var isRecording = false;
+let recorder =  [];
+let blobUrl = null;
+let chunks = [];
+let fileNames = [];
+var recorderMap = new Map();
+const anchor = document.getElementById('downloadlink');
 
 window.onload = ()=> {
 	getQueryParams();
@@ -682,6 +691,7 @@ function gotoStandby() {
 	
 	thisPeer.on('error', console.error);
 	
+	recordButton.disabled = "";
 	getDeviceButton.setAttribute("disabled","true");
 	micList.setAttribute("disabled","true");
 	speakerList.setAttribute("disabled","true");
@@ -1033,4 +1043,138 @@ function sendData(toPeerID, sendText){
 
 function getData(fromPeerID, receiveText){
 	console.log(fromPeerID+ " : " + receiveText);
+}
+
+function startstoprecord(){
+	if(isRecording){
+		for(var i  = 0; i < recorder.length; i++){
+			recorder[i].stop();
+		}
+		
+		isRecording = false;
+		recordButton.innerHTML = "<font size='2'>record</font>";
+	} else {
+		//start
+		isRecording = true;
+		recorderMap.clear();
+		recordButton.innerHTML = "<font size='2'>stop</font>";
+		recorder.splice(0);
+		chunks.splice(0);
+		fileNames.splice(0);
+		var recorderCount = 0;
+		var elements = document.getElementsByName('local_camera_video');
+		for (var i = 0; i < elements.length; i++) {
+			if(elements[i].srcObject != null){
+				recorder.push(new MediaRecorder(elements[i].srcObject));
+				recorderMap.set(recorderCount, recorder[recorderCount]);
+				chunks.push([]); // 格納場所をクリア
+				fileNames.push(myPeerID.value+"_"+i+".webm");
+				// 録画進行中に、インターバルに合わせて発生するイベント
+				console.log(fileNames+":"+recorderCount);
+				recorder[recorderCount].ondataavailable = createCallbackOndataavailable(recorderCount);	
+				/*
+				recorder[recorderCount].ondataavailable = function(evt) {
+					console.log(fileNamesp[recorderCount]+":"+recorderCount);
+					console.log("data available: evt.data.type=" + evt.data.type + " size=" + evt.data.size);
+					chunks[recorderCount].push(evt.data);
+				};
+				*/
+
+				// 録画停止時のイベント
+				recorder[recorderCount].onstop = createCallbackOnstop(recorderCount);
+				/*
+				recorder[recorder.length-1].onstop = function(evt) {
+					console.log('recorder.onstop()');
+					recorder[recorderCount] = null;
+				};
+				*/
+				// 録画スタート
+				recorder[recorderCount].start(1000); // インターバルは1000ms
+				console.log('start recording : '+recorderCount);
+				recorderCount++;
+			}
+		}
+		
+		for(var[key, value] of remotePeerIDMediaConMap){
+			var elements = document.getElementsByName('remote_camera_video_'+key);
+			for (var i = 0; i < elements.length; i++) {
+				if(elements[i].srcObject != null){
+					recorder.push(new MediaRecorder(elements[i].srcObject));
+					recorderMap.set(recorderCount, recorder[recorderCount]);
+					chunks.push([]); // 格納場所をクリア
+					fileNames.push(key+"_"+elements[i].getAttribute("trackid")+".webm");
+					// 録画進行中に、インターバルに合わせて発生するイベント
+					console.log(fileNames+":"+elements[i].getAttribute("trackid"));
+					recorder[recorderCount].ondataavailable = createCallbackOndataavailable(recorderCount);	
+					
+					// 録画停止時のイベント
+					recorder[recorderCount].onstop = createCallbackOnstop(recorderCount);
+					// 録画スタート
+					recorder[recorderCount].start(1000); // インターバルは1000ms
+					console.log('start recording : '+recorderCount);
+					recorderCount++;
+				}
+			}
+		}
+		
+	}
+}
+
+//https://note.kiriukun.com/entry/20181107-passing-arguments-to-callback-function
+function createCallbackOndataavailable(recorderCount) {
+	return function(evt) {
+		//console.log(fileNames[recorderCount]+":"+recorderCount);
+		//console.log("data available: evt.data.type=" + evt.data.type + " size=" + evt.data.size);
+		chunks[recorderCount].push(evt.data);
+	}
+}
+
+function createCallbackOnstop(recorderCount) {
+	return function(evt) {
+		console.log('recorder '+recorderCount+'.onstop()');
+		recorder[recorderCount] = null;
+		
+		
+		//stop
+		if (! blobUrl) {
+			window.URL.revokeObjectURL(blobUrl);
+			blobUrl = null;
+		}
+		
+		if(recorderMap.has(recorderCount)){
+			recorderMap.delete(recorderCount);
+		}
+		
+		if(recorderMap.size == 0){
+			console.log("all recorder stopped, num recorder = "+recorder.length+ ", " + chunks.length);
+			var videoBlob =[];
+			for(var i  = 0; i < recorder.length; i++){
+				// Blob
+				//const videoBlob = new Blob(chunks[i], { type: "video/webm" });
+				videoBlob.push(new Blob(chunks[i], { type: "video/webm" }));
+				// 再生できるようにURLを生成
+				//blobUrl.push(window.URL.createObjectURL(videoBlob));			
+			}
+			
+			//zip
+			let zip = new JSZip();
+			const folderName = "skywaycaht";
+			let folder = zip.folder(folderName);
+			
+			for(var i  = 0; i < videoBlob.length; i++){
+				folder.file(fileNames[i], videoBlob[i]);
+			}
+			
+			zip.generateAsync({ type: "blob" }).then(blob => {
+				// blob から URL を生成
+				const dataUrl = URL.createObjectURL(blob);
+				anchor.download = `${folderName}.zip`;
+				anchor.href = dataUrl;
+				// オブジェクト URL の開放
+				setTimeout(function() {
+					window.URL.revokeObjectURL(dataUrl);
+				}, 10000);
+			});
+		}
+	}
 }
