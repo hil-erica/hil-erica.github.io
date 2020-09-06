@@ -275,6 +275,9 @@ var drawClerTimer;
 	screenObj.setAttribute('name', 'remote_camera_video_'+remoterPeerID);
 	screenObj.setAttribute('remotePeerId', remoterPeerID);
 	screenObj.setAttribute('trackID', trackID);
+	if(trackID > 0){
+		screenObj.setAttribute('muted', 'muted');
+	}
 	//screenObj.setAttribute('width', String(width) + 'px');
 	//screenObj.setAttribute('height', String(height) + 'px');
 	screenObj.setAttribute('autoplay', '1');
@@ -945,6 +948,8 @@ function openStream(stream, remotePeerID, mediaConnection){
 		_remoteVideo.addTrack(stream.getVideoTracks()[i]);
 		if(stream.getAudioTracks().length > i){
 			_remoteVideo.addTrack(stream.getAudioTracks()[i]);
+		} else if(stream.getAudioTracks().length > 0){			
+			_remoteVideo.addTrack(stream.getAudioTracks()[stream.getAudioTracks().length - 1]);
 		}
 		addView(_remoteVideo, remotePeerID,i);
 	}
