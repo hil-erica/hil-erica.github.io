@@ -24,6 +24,16 @@ var small_height = 120;
 var button_size = 16;
 var thisPeer = window.thisPeer;
 var checkMemberTimerId;
+var gazePics;
+var gazePicsX;
+var gazePicsY;
+var pointingPicsRightup;
+var pointingPicsRightdown;
+var pointingPicsLeftup;
+var pointingPicsLeftdown;
+var pointingPicsX;
+var pointingPicsY;
+var pointingPicsMargin;
 var remotePeerCounter = 0;
 var isReady = false;
 var skywaykey = null;
@@ -38,6 +48,23 @@ const anchor = document.getElementById('downloadlink');
 
 window.onload = ()=> {
 	getQueryParams();
+	pointingPicsRightup = new Image();
+	pointingPicsRightup.src = "./pics/pointing-right-up.png";
+	pointingPicsRightdown = new Image();
+	pointingPicsRightdown.src = "./pics/pointing-right-down.png";
+	pointingPicsLeftup = new Image();
+	pointingPicsLeftup.src = "./pics/pointing-left-up.png";
+	pointingPicsLeftdown = new Image();
+	pointingPicsLeftdown.src = "./pics/pointing-left-down.png";
+	
+	pointingPicsX = 126;
+	pointingPicsY = 126;
+	pointingPicsMargin = 20;
+	
+	gazePics = new Image();
+	gazePics.src = "./pics/eye-free.png";
+	gazePicsX = 75;
+	gazePicsY = 30;
 }
 
 //連想配列
@@ -319,11 +346,31 @@ var drawClerTimer;
 			//canvasに描画
 			var context = canvasObj.getContext( "2d" ) ;
 			context.clearRect(0, 0, canvasObj.width, canvasObj.height);
+			/*
 			context.beginPath () ;
 			context.arc( x, y, 20, 0 * Math.PI / 180, 360 * Math.PI / 180, false ) ;
 			context.strokeStyle = "red" ;
 			context.lineWidth = 1 ;
 			context.stroke() ;
+			*/
+			if(xRatio >= 0.5){
+				if(yRatio >= 0.5){
+					//right down
+					context.drawImage(pointingPicsRightdown, x-pointingPicsX+pointingPicsMargin, y-pointingPicsY+pointingPicsMargin, pointingPicsX, pointingPicsY);
+				} else {
+					//right up
+					context.drawImage(pointingPicsRightup, x-pointingPicsX+pointingPicsMargin, y-pointingPicsMargin, pointingPicsX, pointingPicsY);
+				}
+			} else {
+				if(yRatio >= 0.5){
+					//left down
+					context.drawImage(pointingPicsLeftdown, x-pointingPicsMargin, y+pointingPicsMargin-pointingPicsY, pointingPicsX, pointingPicsY);
+				} else {
+					//left up
+					context.drawImage(pointingPicsLeftup, x-pointingPicsMargin, y-pointingPicsMargin, pointingPicsX, pointingPicsY);
+				}
+			}
+			
 			//return;
 		} else {
 			clicked = true;
@@ -334,11 +381,14 @@ var drawClerTimer;
 					//canvasに描画
 					var context = canvasObj.getContext( "2d" ) ;
 					context.clearRect(0, 0, canvasObj.width, canvasObj.height);
+					/*
 					context.beginPath () ;
 					context.arc( x, y, 20, 0 * Math.PI / 180, 360 * Math.PI / 180, false ) ;
 					context.strokeStyle = "blue" ;
 					context.lineWidth = 1 ;
 					context.stroke() ;
+					*/
+					context.drawImage(gazePics, x-gazePicsX/2, y-gazePicsY/2, gazePicsX, gazePicsY);
 					
 					var eventName = "clickevent";			
 					var sendText = "{\"peerid\": \""+myPeerID.value+"\", \""+eventName+"\": {\"remotepeerid\":\""+canvasObj.getAttribute('remotePeerId')+"\", \"trackid\":"+canvasObj.getAttribute('trackID')+", \"x\":"+x+", \"y\": "+y+",\"xratio\":"+xRatio+", \"yratio\": "+yRatio+"}}";
@@ -354,7 +404,7 @@ var drawClerTimer;
 			clearTimeout(drawClerTimer);
 		}
 		drawClerTimer = setTimeout(function () {
-			//canvasに描画
+			//canvasに描画 Clear
 			var context = canvasObj.getContext( "2d" ) ;
 			context.clearRect(0, 0, canvasObj.width, canvasObj.height);
 		}, drawMarkDuration);
