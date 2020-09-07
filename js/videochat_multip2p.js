@@ -775,6 +775,10 @@ function gotoStandby() {
 			}
 		});
 		
+		
+		//mic
+		getSelectedMicStream();
+		
 		var elements = document.getElementsByName('local_camera_video');
 		//取得した一覧から全てのvalue値を表示する
 		for (var i = 0; i < elements.length; i++) {
@@ -782,6 +786,8 @@ function gotoStandby() {
 			//elements[i].setAttribute('height', String(height)+'px');
 			elements[i].width = width;
 			elements[i].height = height;
+			elements[i].setAttribute('muted', 'muted');
+			elements[i].srcObject.addTrack(localMicStream.getAudioTracks()[0]);
 		}
 		elements = document.getElementsByName('local_camera_view');
 		//取得した一覧から全てのvalue値を表示する
@@ -794,8 +800,6 @@ function gotoStandby() {
 		stepButton.innerHTML = "<font size='3'>connected</font>";
 		
 		
-		//mic
-		getSelectedMicStream();
 		
 		//かかってきたイベント
 		// Register callee handler
