@@ -787,7 +787,11 @@ function gotoStandby() {
 			elements[i].width = width;
 			elements[i].height = height;
 			elements[i].setAttribute('muted', 'muted');
-			elements[i].srcObject.addTrack(localMicStream.getAudioTracks()[0]);
+			if(localMicStream != null && localMicStream.getAudioTracks().length > 0){
+				elements[i].srcObject.addTrack(localMicStream.getAudioTracks()[0]);
+			} else {
+				console.log('local mic stream is null');
+			}
 		}
 		elements = document.getElementsByName('local_camera_view');
 		//取得した一覧から全てのvalue値を表示する
@@ -1022,6 +1026,13 @@ function makeLocalStream(){
 		//elements[i].srcObject.getTracks().forEach(track => track.stop());
 		//elements[i].srcObject = null;
 		localMixedStream.addTrack(elements[i].srcObject.getVideoTracks()[0]);
+		
+		if(elements[i].srcObject.getAudioTracks().length == 0){
+			console.log('add audio track to local mic stream');
+			elements[i].srcObject.addTrack(localMicStream.getAudioTracks()[0]);
+		} else {
+			//console.log('local mic stream is null');
+		}
 	}
 }
 
