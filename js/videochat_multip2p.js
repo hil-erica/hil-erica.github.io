@@ -39,10 +39,13 @@ var isReady = false;
 var skywaykey = null;
 
 var isRecording = false;
-let recorder =  [];
-let blobUrl = null;
-let chunks = [];
-let fileNames = [];
+var recorder =  [];
+var blobUrl = null;
+var blobUrls = [];
+var chunks = [];
+var fileNames = [];
+var videoBlob =[]
+var dataUrls =[];
 var recorderMap = new Map();
 const anchor = document.getElementById('downloadlink');
 
@@ -1217,7 +1220,8 @@ function createCallbackOnstop(recorderCount) {
 		
 		if(recorderMap.size == 0){
 			console.log("all recorder stopped, num recorder = "+recorder.length+ ", " + chunks.length);
-			var videoBlob =[];
+			videoBlob =[];
+			dataUrls = [];
 			for(var i  = 0; i < recorder.length; i++){
 				// Blob
 				//const videoBlob = new Blob(chunks[i], { type: "video/webm" });
@@ -1231,20 +1235,49 @@ function createCallbackOnstop(recorderCount) {
 			const folderName = "skywaycaht";
 			let folder = zip.folder(folderName);
 			
+			
+			var downloadLinks = document.getElementById("download_each");
+			while (downloadLinks.firstChild) {
+				downloadLinks.removeChild(downloadLinks.firstChild);
+			}
+			
 			for(var i  = 0; i < videoBlob.length; i++){
+				var downloadLink = document.createElement('a');
+				downloadLink.innerHTML = "<font size='2'>"+fileNames[i]+"</font>";
+				downloadLink.setAttribute("href", "#");
+				//const dataUrl = URL.createObjectURL(videoBlob[i]);
+				dataUrls.push(URL.createObjectURL(videoBlob[i]));
+				downloadLink.download = fileNames[i];
+				downloadLink.href = dataUrls[i];
+				setTimeout(function() {
+					//console.log("revoke object URL");
+					window.URL.revokeObjectURL(dataUrls[i]);
+				}, 1000);
+				downloadLinks.appendChild(downloadLink);
+				downloadLinks.innerHTML += '&nbsp;';
+				/*
+				var blanckObj = document.createElement('div');
+				blanckObj.innerHTML = " &ensp;";
+				downloadLinks.appendChild(blanckObj);
+				*/
 				folder.file(fileNames[i], videoBlob[i]);
 			}
 			
+			/*
+			console.log("start zip");			
 			zip.generateAsync({ type: "blob" }).then(blob => {
+				console.log("zip generated");
 				// blob から URL を生成
 				const dataUrl = URL.createObjectURL(blob);
 				anchor.download = `${folderName}.zip`;
 				anchor.href = dataUrl;
 				// オブジェクト URL の開放
 				setTimeout(function() {
+					console.log("revoke object URL");
 					window.URL.revokeObjectURL(dataUrl);
 				}, 10000);
 			});
+			*/
 		}
 	}
 }
