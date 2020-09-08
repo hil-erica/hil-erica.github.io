@@ -306,7 +306,8 @@ var drawClerTimer;
 	screenObj.setAttribute('remotePeerId', remoterPeerID);
 	screenObj.setAttribute('trackID', trackID);
 	if(trackID > 0){
-		screenObj.setAttribute('muted', 'muted');
+		//screenObj.setAttribute('muted', 'true');
+		screenObj.muted = true;
 	}
 	//screenObj.setAttribute('width', String(width) + 'px');
 	//screenObj.setAttribute('height', String(height) + 'px');
@@ -839,7 +840,8 @@ function gotoStandby() {
 			//elements[i].setAttribute('height', String(height)+'px');
 			elements[i].width = width;
 			elements[i].height = height;
-			elements[i].setAttribute('muted', 'muted');
+			//elements[i].setAttribute('muted', 'true');
+			elements[i].muted = true;
 			if(localMicStream != null && localMicStream.getAudioTracks().length > 0){
 				elements[i].srcObject.addTrack(localMicStream.getAudioTracks()[0]);
 			} else {
