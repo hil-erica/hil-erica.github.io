@@ -900,7 +900,7 @@ function gotoStandby() {
 				console.log(dataConnection.remoteId +" opened" );
 				//dataConnection.send("how are yor?");
 				dataConnection.on('data', data => {
-					getData(dataConnection.remoteId, data);
+					getData(dataConnection.remoteId, data, dataConnection);
 					//console.log(dataConnection.remoteId +" >> "+data );
 				});
 				dataConnection.once('close', () => {
@@ -933,6 +933,30 @@ function callRemoteOne(remotePeerID) {
 	if(remotePeerIDMediaConMap.has(remotePeerID))return true;
 	console.log("remotePeerID = "+ remotePeerID);
 	//var mediaConnection = thisPeer.call(remotePeerIDs[i], localMixedStream);
+	
+	//make data connection
+	 const dataConnection = thisPeer.connect(remotePeerID);
+	dataConnection.once('open', async () => {
+		remotePeerIDDataConMap.set(dataConnection.remoteId, dataConnection);
+		console.log(dataConnection.remoteId +" data connection opened" );
+		//dataConnection.send("hello I'm "+myPeerID.value);
+		dataConnection.send("numvideo="+localMixedStream.getVideoTracks().length);
+	});
+	
+	dataConnection.on('data', data => {
+		getData(dataConnection.remoteId, data, dataConnection);
+		//console.log(dataConnection.remoteId +" >> "+data );
+	});
+	
+	dataConnection.once('close', () => {
+		remotePeerIDDataConMap.delete(dataConnection.remoteId);
+		console.log(dataConnection.remoteId +" data connection closed" );
+	});
+	
+	return true;
+}
+
+function mediaCall(remotePeerID){
 	var mediaConnection = thisPeer.call(remotePeerID, localMixedStream);
 	if(mediaConnection == null){
 		return false;
@@ -959,26 +983,6 @@ function callRemoteOne(remotePeerID) {
 		//stepButton.setAttribute('onclick', 'callRemote()');
 		//stepButton.innerHTML = "<font size='3'>call</font>";
 	});
-	
-	//make data connection
-	 const dataConnection = thisPeer.connect(remotePeerID);
-	dataConnection.once('open', async () => {
-		remotePeerIDDataConMap.set(dataConnection.remoteId, dataConnection);
-		console.log(dataConnection.remoteId +" data connection opened" );
-		//dataConnection.send("hello I'm "+myPeerID.value);
-	});
-	
-	dataConnection.on('data', data => {
-		getData(dataConnection.remoteId, data);
-		//console.log(dataConnection.remoteId +" >> "+data );
-	});
-	
-	dataConnection.once('close', () => {
-		remotePeerIDDataConMap.delete(dataConnection.remoteId);
-		console.log(dataConnection.remoteId +" data connection closed" );
-	});
-	
-	return true;
 }
 
 //自分で切ったイベント
@@ -1116,8 +1120,20 @@ function sendData(toPeerID, sendText){
 	}
 }
 
-function getData(fromPeerID, receiveText){
+function getData(fromPeerID, receiveText, dataConnection){
 	console.log(fromPeerID+ " : " + receiveText);
+	if(receiveText.startsWith("numvideo")){
+		if(localMixedStream == null){
+			makeLocalStream();
+		}
+		var cmds = receiveText.split('=');
+		var removenumvideo = parseInt(cmds[1]);
+		if(localMixedStream.getVideoTracks().length >= removenumvideo){
+			mediaCall(fromPeerID);
+		} else {
+			dataConnection.send("numvideo="+localMixedStream.getVideoTracks().length);
+		}
+	}
 }
 
 function startstoprecord(){
