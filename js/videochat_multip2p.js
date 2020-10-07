@@ -49,6 +49,8 @@ var dataUrls =[];
 var recorderMap = new Map();
 const anchor = document.getElementById('downloadlink');
 
+var wSocket = null;
+
 window.onload = ()=> {
 	getQueryParams();
 	pointingPicsRightup = new Image();
@@ -288,7 +290,7 @@ function addCamera(deviceID, deviceLabel) {
 var clicked = false;    // クリック状態を保持するフラグ
 //var drawClerTimer;
 function addView(stream, remoterPeerID, trackID) {
-var drawClerTimer;
+	var drawClerTimer;
 	var width = default_width;
 	var height = defualt_heigt;
 	var contentID = 'remote_camera_view_'+remoterPeerID+'_' + trackID;
@@ -1010,15 +1012,25 @@ function openConnection(remotePeerID, mediaConnection){
 }
 function openStream(stream, remotePeerID, mediaConnection){
 	console.log(remotePeerID+ '('+mediaConnection.remoteId+') => remote stream videtrack = '+stream.getVideoTracks().length+', audiotrack = '+stream.getAudioTracks().length);
-	for(var i = 0; i<stream.getVideoTracks().length; i++){
-		var _remoteVideo = new webkitMediaStream();
-		_remoteVideo.addTrack(stream.getVideoTracks()[i]);
-		if(stream.getAudioTracks().length > i){
-			_remoteVideo.addTrack(stream.getAudioTracks()[i]);
-		} else if(stream.getAudioTracks().length > 0){			
-			_remoteVideo.addTrack(stream.getAudioTracks()[stream.getAudioTracks().length - 1]);
+	if(stream.getVideoTracks().length == 0){
+		if(stream.getAudioTracks().length > 0){
+			var _remoteVideo = new webkitMediaStream();
+			for(var i = 0; i<stream.getAudioTracks().length; i++){
+				_remoteVideo.addTrack(stream.getAudioTracks()[i]);
+			}
+			addView(_remoteVideo, remotePeerID,0);
 		}
-		addView(_remoteVideo, remotePeerID,i);
+	} else {
+		for(var i = 0; i<stream.getVideoTracks().length; i++){
+			var _remoteVideo = new webkitMediaStream();
+			_remoteVideo.addTrack(stream.getVideoTracks()[i]);
+			if(stream.getAudioTracks().length > i){
+				_remoteVideo.addTrack(stream.getAudioTracks()[i]);
+			} else if(stream.getAudioTracks().length > 0){			
+				_remoteVideo.addTrack(stream.getAudioTracks()[stream.getAudioTracks().length - 1]);
+			}
+			addView(_remoteVideo, remotePeerID,i);
+		}
 	}
 }
 
@@ -1121,7 +1133,7 @@ function sendData(toPeerID, sendText){
 }
 
 function getData(fromPeerID, receiveText, dataConnection){
-	console.log(fromPeerID+ " : " + receiveText);
+	//console.log(fromPeerID+ " : " + receiveText);
 	if(receiveText.startsWith("numvideo")){
 		if(localMixedStream == null){
 			makeLocalStream();
@@ -1132,6 +1144,11 @@ function getData(fromPeerID, receiveText, dataConnection){
 			mediaCall(fromPeerID);
 		} else {
 			dataConnection.send("numvideo="+localMixedStream.getVideoTracks().length);
+		}
+	} else if(receiveText.startsWith("socket=")){
+		var cmds = receiveText.split('=');
+		if(wSocket != null){
+			wSocket.send(cmds[1]);
 		}
 	}
 }
@@ -1296,6 +1313,51 @@ function createCallbackOnstop(recorderCount) {
 				}, 10000);
 			});
 			*/
+		}
+	}
+}
+
+function socketconnection(){
+	var url = document.getElementById('socket_url').value;
+	console.log("clicked "+url);
+	if(wSocket == null){
+		wSocket = new WebSocket(url);
+		//接続通知
+		wSocket.onopen = function(event) {
+			console.log("open socket "+event.data);
+			document.getElementById('socket_connect_button').innerHTML = "<font size='2'>disconnect</font>";
+			/*
+			var msg = {
+				type : "hoge",
+				text: "text"
+			};
+			wSocket.send("thank you\r\n\r\n");
+			wSocket.send(JSON.stringify(msg));
+			*/
+		};
+		
+		//エラー発生
+		wSocket.onerror = function(error) {
+			console.log(error.data);
+		};
+		
+		//メッセージ受信
+		wSocket.onmessage = function(event) {
+			//console.log(event.data);
+			publishData("socket="+event.data);
+		};
+		
+		//切断
+		wSocket.onclose = function() {
+			console.log("closed socket");
+			wSocket = null;
+			document.getElementById('socket_connect_button').innerHTML = "<font size='2'>connect</font>";
+		};
+		console.log("connected to "+url);
+	} else {
+		if(wSocket.readyState == 1){
+			wSocket.close();
+			console.log("close socket");
 		}
 	}
 }

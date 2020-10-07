@@ -45,6 +45,12 @@
       </h5>
      </div><!--tab-content-->
      
+     <input id="TAB-Socket" type="radio" name="TAB" class="tab-switch"><label class="tab-label" for="TAB-Socket">socket</label>
+     <div class="tab-content">
+       <button id="socket_connect_button" onclick="socketconnection()" style="width:80pt;"><font size="2">connect</font></button>
+       url：<input type="text" id="socket_url" name="socket_url" size="50" maxlength="100" value="ws://127.0.0.1:8000">
+     </div><!--tab-content-->
+     
      <input id="TAB-Record" type="radio" name="TAB" class="tab-switch"><label class="tab-label" for="TAB-Record">recorder</label>
      <div class="tab-content">
        <button id="recorder_button" onclick="startstoprecord()" disabled="true" style="width:80pt;"><font size="2">record</font></button>
