@@ -204,11 +204,15 @@ function updatePeerUI(thisPeerCounterNumer, enable){
 	var commuButton = document.getElementById('remotePeer_commuButton_'+thisPeerCounterNumer);
 	var peerIDText = document.getElementById('remotePeer_id_'+thisPeerCounterNumer);
 	if(enable){
-		commuButton.innerHTML = "<font size='2'>call</font>";
-		peerIDText.disabled= false;
+		if(commuButton != null){
+			commuButton.innerHTML = "<font size='2'>call</font>";
+			peerIDText.disabled= false;
+		}
 	} else {
-		commuButton.innerHTML = "<font size='2'>close</font>";
-		peerIDText.disabled= true;
+		if(commuButton != null){
+			commuButton.innerHTML = "<font size='2'>close</font>";
+			peerIDText.disabled= true;
+		}
 	}
 }
 
