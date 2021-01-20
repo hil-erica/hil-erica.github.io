@@ -1,6 +1,8 @@
 # 空道電話の概要
 WebRTCツールSkyWayを使ってビデオチャットを行うサイト
 https://webrtc.ecl.ntt.com/
+サポートしているのはChromeのみ
+その他ブラウザではスピーカーデバイスを取得できない（改良すればできる）
 
 ## 使い方
 https://hil-erica.github.io/SoraMichiChat_MultiP2P.html
@@ -43,4 +45,7 @@ chrome://media-internals/
 - 1440p → 2560×1440
 - 2160p → 3840×2160（4K）
 
-
+## スピーカーについて
+###選択したスピーカーから音が出ない
+HTMLMediaElement.sinkId関数を使い音声出力デバイスを変更しているが2021/01/18現在Chromeでもサポートしていない
+Windowsの場合は設定→サウンド→サウンドの詳細オプション→アプリの音量とデバイスの設定→Chromeでアプリごとにスピーカーを選択することができる
