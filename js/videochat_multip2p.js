@@ -204,15 +204,11 @@ function updatePeerUI(thisPeerCounterNumer, enable){
 	var commuButton = document.getElementById('remotePeer_commuButton_'+thisPeerCounterNumer);
 	var peerIDText = document.getElementById('remotePeer_id_'+thisPeerCounterNumer);
 	if(enable){
-		if(commuButton != null){
-			commuButton.innerHTML = "<font size='2'>call</font>";
-			peerIDText.disabled= false;
-		}
+		commuButton.innerHTML = "<font size='2'>call</font>";
+		peerIDText.disabled= false;
 	} else {
-		if(commuButton != null){
-			commuButton.innerHTML = "<font size='2'>close</font>";
-			peerIDText.disabled= true;
-		}
+		commuButton.innerHTML = "<font size='2'>close</font>";
+		peerIDText.disabled= true;
 	}
 }
 
@@ -451,13 +447,15 @@ function addView(stream, remoterPeerID, trackID) {
 	if(stream.getAudioTracks().length>0){
 		var speakerId = getSelectedSpeaker();
 		//screenObj.volume = 0;
-		screenObj.setSinkId(speakerId)
-			.then(function() {
-			console.log('setSinkID Success');
-		})
-		.catch(function(err) {
-			console.error('setSinkId Err:', err);
-		});
+		(async () => {
+			await screenObj.setSinkId(speakerId)
+				.then(function() {
+				console.log('setSinkID Success, audio is being played on '+speakerId);
+			})
+			.catch(function(err) {
+				console.error('setSinkId Err:', err);
+			});
+		})();
 	}
 	
 	var sizeSelector = document.createElement('select');
@@ -651,6 +649,24 @@ function addDevice(device) {
 function getDeviceList() {
 	clearDeviceList();
 	
+	//https://stackoverflow.com/questions/60297972/navigator-mediadevices-enumeratedevices-returns-empty-labels
+	(async () => {   
+		await navigator.mediaDevices.getUserMedia({audio: true, video: true});   
+		//let devices = await navigator.mediaDevices.enumerateDevices();   
+		//console.log(devices); 
+		await navigator.mediaDevices.enumerateDevices().then(function (devices) {
+			devices.forEach(function (device) {
+				console.log(device.kind + ": " + device.label + " id = " + device.deviceId);
+				addDevice(device);
+			});
+			stepButton.disabled = false;
+			//tabCommunication.setAttribute("disable",false);
+		}).catch(function (err) {
+			console.error('enumerateDevide ERROR:', err);
+		});
+	})();
+	
+	/*
 	navigator.mediaDevices.enumerateDevices().then(function (devices) {
 		devices.forEach(function (device) {
 			console.log(device.kind + ": " + device.label + " id = " + device.deviceId);
@@ -661,6 +677,7 @@ function getDeviceList() {
 	}).catch(function (err) {
 		console.error('enumerateDevide ERROR:', err);
 	});
+	*/
 }
 
 //こんな感じで映像のトラック数と音のトラック数がわかる，相手から複数映像トラックがある場合は分割しよう
@@ -1114,11 +1131,13 @@ function makeLocalStream(){
 
 function getSelectedAudio() {
 	var id = micList.options[micList.selectedIndex].value;
+	console.log('selected mic '+micList.selectedIndex+' '+id);
 	return id;
 }
 
 function getSelectedSpeaker() {
 	var id = speakerList.options[speakerList.selectedIndex].value;
+	console.log('selected speaker '+speakerList.selectedIndex+' '+id);
 	return id;
 }
 
