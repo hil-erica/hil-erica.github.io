@@ -1169,7 +1169,7 @@ function getData(fromPeerID, receiveText, dataConnection){
 			dataConnection.send("numvideo="+localMixedStream.getVideoTracks().length);
 		}
 	} else if(receiveText.startsWith("socket=")){
-		var cmds = receiveText.split('=');
+		var cmds = receiveText.slice(0, 7);
 		if(wSocket != null){
 			wSocket.send(cmds[1]);
 		}
