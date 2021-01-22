@@ -1156,7 +1156,7 @@ function sendData(toPeerID, sendText){
 }
 
 function getData(fromPeerID, receiveText, dataConnection){
-	//console.log(fromPeerID+ " : " + receiveText);
+	console.log(fromPeerID+ " : " + receiveText);
 	if(receiveText.startsWith("numvideo")){
 		if(localMixedStream == null){
 			makeLocalStream();
