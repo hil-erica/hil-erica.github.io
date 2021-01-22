@@ -204,10 +204,10 @@ function updatePeerUI(thisPeerCounterNumer, enable){
 	var commuButton = document.getElementById('remotePeer_commuButton_'+thisPeerCounterNumer);
 	var peerIDText = document.getElementById('remotePeer_id_'+thisPeerCounterNumer);
 	if(enable){
-		commuButton.innerHTML = "<font size='2'>call</font>";
+		if(commuButton != null)commuButton.innerHTML = "<font size='2'>call</font>";
 		peerIDText.disabled= false;
 	} else {
-		commuButton.innerHTML = "<font size='2'>close</font>";
+		if(commuButton != null)commuButton.innerHTML = "<font size='2'>close</font>";
 		peerIDText.disabled= true;
 	}
 }
@@ -1156,7 +1156,7 @@ function sendData(toPeerID, sendText){
 }
 
 function getData(fromPeerID, receiveText, dataConnection){
-	console.log(fromPeerID+ " : " + receiveText);
+	//console.log(fromPeerID+ " : " + receiveText);
 	if(receiveText.startsWith("numvideo")){
 		if(localMixedStream == null){
 			makeLocalStream();
@@ -1169,7 +1169,7 @@ function getData(fromPeerID, receiveText, dataConnection){
 			dataConnection.send("numvideo="+localMixedStream.getVideoTracks().length);
 		}
 	} else if(receiveText.startsWith("socket=")){
-		var cmds = receiveText.slice(0, 7);
+		var cmds = receiveText.slice(7);
 		if(wSocket != null){
 			wSocket.send(cmds);
 		}
