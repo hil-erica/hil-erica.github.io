@@ -1171,7 +1171,7 @@ function getData(fromPeerID, receiveText, dataConnection){
 	} else if(receiveText.startsWith("socket=")){
 		var cmds = receiveText.slice(0, 7);
 		if(wSocket != null){
-			wSocket.send(cmds[1]);
+			wSocket.send(cmds);
 		}
 	}
 }
