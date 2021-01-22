@@ -205,10 +205,10 @@ function updatePeerUI(thisPeerCounterNumer, enable){
 	var peerIDText = document.getElementById('remotePeer_id_'+thisPeerCounterNumer);
 	if(enable){
 		if(commuButton != null)commuButton.innerHTML = "<font size='2'>call</font>";
-		peerIDText.disabled= false;
+		if(peerIDText != null)peerIDText.disabled= false;
 	} else {
 		if(commuButton != null)commuButton.innerHTML = "<font size='2'>close</font>";
-		peerIDText.disabled= true;
+		if(peerIDText != null)peerIDText.disabled= true;
 	}
 }
 
