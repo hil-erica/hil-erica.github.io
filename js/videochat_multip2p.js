@@ -140,9 +140,11 @@ function inputKeyDialogue(){
 
 function addRemotePeerId(remotePeer){
 	var elements = document.getElementsByName('remotePeer_id');
-	for (var i = 0; i < elements.length; i++) {
-		if(elements[i].value == remotePeer){
-			return elements[i].getAttribute('thisPeerCounterNumer');
+	if(elements != null){
+		for (var i = 0; i < elements.length; i++) {
+			if(elements[i].value == remotePeer){
+				return elements[i].getAttribute('thisPeerCounterNumer');
+			}
 		}
 	}
 	remotePeerCounter++;
@@ -185,7 +187,6 @@ function addRemotePeerId(remotePeer){
 	content.appendChild(commuButton);
 	content.appendChild(removeButton);
 	remotePeers.appendChild(content);
-	
 	return thisPeerCounterNumer;
 }
 
@@ -985,7 +986,8 @@ function mediaCall(remotePeerID){
 		return false;
 	}
 	console.log("connected = "+mediaConnection.remoteId +", "+ mediaConnection.id);
-	var thisPeerCounterNumer = getThisPeerCounterNumer(mediaConnection.remoteId);
+	//var thisPeerCounterNumer = getThisPeerCounterNumer(mediaConnection.remoteId);
+	var thisPeerCounterNumer = addRemotePeerId(mediaConnection.remoteId);
 	openConnection(mediaConnection.remoteId, mediaConnection);
 	updatePeerUI(thisPeerCounterNumer, false);
 	mediaConnection.on('stream', async stream => {
