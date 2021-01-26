@@ -660,6 +660,15 @@ function getDeviceList() {
 				console.log(device.kind + ": " + device.label + " id = " + device.deviceId);
 				addDevice(device);
 			});
+			
+			//option to not send audio
+			var id = "don't send audio";
+			var label = "don't send audio"; // label is available for https 
+			var option = document.createElement('option');
+			option.setAttribute('value', id);
+			option.innerHTML = label + '(' + id + ')';;
+			micList.appendChild(option);
+			
 			stepButton.disabled = false;
 			//tabCommunication.setAttribute("disable",false);
 		}).catch(function (err) {
@@ -1093,6 +1102,11 @@ function closedConnection(remotePeerID){
 
 function getSelectedMicStream(){
 	var audioId = getSelectedAudio();
+	if(audioId == "don't send audio"){
+		console.log(audioId);
+		localMicStream = null;
+		return;
+	}
 	var constraints = {
 		audio: {
 			deviceId: audioId,
@@ -1114,7 +1128,9 @@ function getSelectedMicStream(){
 function makeLocalStream(){
 	localMixedStream = new webkitMediaStream();
 	//取得した一覧から全てのvalue値を表示する
-	localMixedStream.addTrack(localMicStream.getAudioTracks()[0]);
+	if(localMicStream != null){
+		localMixedStream.addTrack(localMicStream.getAudioTracks()[0]);
+	}
 	var elements = document.getElementsByName('local_camera_video');
 	for (var i = 0; i < elements.length; i++) {
 		//elements[i].srcObject.getTracks().forEach(track => track.stop());
@@ -1123,7 +1139,9 @@ function makeLocalStream(){
 		
 		if(elements[i].srcObject.getAudioTracks().length == 0){
 			console.log('add audio track to local mic stream');
-			elements[i].srcObject.addTrack(localMicStream.getAudioTracks()[0]);
+			if(localMicStream != null){
+				elements[i].srcObject.addTrack(localMicStream.getAudioTracks()[0]);
+			}
 		} else {
 			//console.log('local mic stream is null');
 		}
