@@ -15,6 +15,7 @@ var recordButton = document.getElementById("recorder_button");
 var localMicStream;
 var localMixedStream;
 var numView = 1;
+var numAudio = 1;
 var viewersize = '360';
 var captureSize = "none";
 var default_width = 320;
@@ -37,6 +38,7 @@ var pointingPicsMargin;
 var remotePeerCounter = 0;
 var isReady = false;
 var skywaykey = null;
+var teleOpeMode = false;
 
 var isRecording = false;
 var recorder =  [];
@@ -113,6 +115,12 @@ function getQueryParams() {
 					skywaykey = value;
 				} else {
 					inputKeyDialogue();
+				}
+			}
+			if(key == "teleopemode"){
+				if(value == "true" || value == "TRUE" || value == "True"){
+					teleOpeMode = true;
+					document.getElementById("teleopemodecheckbox").checked = teleOpeMode;
 				}
 			}
 		}
@@ -289,6 +297,99 @@ function addCamera(deviceID, deviceLabel) {
 }
 
 var clicked = false;    // クリック状態を保持するフラグ
+function videoCanvasClicked(event){
+	var drawClerTimer;
+	var canvasObj = this;
+	var clickX = event.pageX ;
+	var clickY = event.pageY ;
+
+	// 要素の位置を取得
+	var clientRect = this.getBoundingClientRect() ;
+	var positionX = clientRect.left + window.pageXOffset ;
+	var positionY = clientRect.top + window.pageYOffset ;
+
+	// 要素内におけるクリック位置を計算
+	var x = clickX - positionX ;
+	var y = clickY - positionY ;
+	var xRatio = x/canvasObj.width;
+	var yRatio = y/canvasObj.height;
+	var dblClickDuration = 300;//msec
+	var drawMarkDuration = 1000;//msec
+	
+	if (clicked) {
+		clicked = false;
+		var eventName = "dblclickevent";			
+		var sendText = "{\"peerid\": \""+myPeerID.value+"\", \""+eventName+"\": {\"remotepeerid\":\""+canvasObj.getAttribute('remotePeerId')+"\", \"trackid\":"+canvasObj.getAttribute('trackID')+",\"x\":"+x+", \"y\": "+y+",\"xratio\":"+xRatio+", \"yratio\": "+yRatio+"}}";
+		console.log("clicked event "+sendText);
+		publishData(sendText);
+
+		//canvasに描画
+		var context = canvasObj.getContext( "2d" ) ;
+		context.clearRect(0, 0, canvasObj.width, canvasObj.height);
+		/*
+		context.beginPath () ;
+		context.arc( x, y, 20, 0 * Math.PI / 180, 360 * Math.PI / 180, false ) ;
+		context.strokeStyle = "red" ;
+		context.lineWidth = 1 ;
+		context.stroke() ;
+		*/
+		if(xRatio >= 0.5){
+			if(yRatio >= 0.5){
+				//right down
+				context.drawImage(pointingPicsRightdown, x-pointingPicsX+pointingPicsMargin, y-pointingPicsY+pointingPicsMargin, pointingPicsX, pointingPicsY);
+			} else {
+				//right up
+				context.drawImage(pointingPicsRightup, x-pointingPicsX+pointingPicsMargin, y-pointingPicsMargin, pointingPicsX, pointingPicsY);
+			}
+		} else {
+			if(yRatio >= 0.5){
+				//left down
+				context.drawImage(pointingPicsLeftdown, x-pointingPicsMargin, y+pointingPicsMargin-pointingPicsY, pointingPicsX, pointingPicsY);
+			} else {
+				//left up
+				context.drawImage(pointingPicsLeftup, x-pointingPicsMargin, y-pointingPicsMargin, pointingPicsX, pointingPicsY);
+			}
+		}
+		
+		//return;
+	} else {
+		clicked = true;
+		setTimeout(function () {
+			// ダブルクリックによりclickedフラグがリセットされていない
+			//     -> シングルクリックだった
+			if (clicked) {
+				//canvasに描画
+				var context = canvasObj.getContext( "2d" ) ;
+				context.clearRect(0, 0, canvasObj.width, canvasObj.height);
+				/*
+				context.beginPath () ;
+				context.arc( x, y, 20, 0 * Math.PI / 180, 360 * Math.PI / 180, false ) ;
+				context.strokeStyle = "blue" ;
+				context.lineWidth = 1 ;
+				context.stroke() ;
+				*/
+				context.drawImage(gazePics, x-gazePicsX/2, y-gazePicsY/2, gazePicsX, gazePicsY);
+				
+				var eventName = "clickevent";			
+				var sendText = "{\"peerid\": \""+myPeerID.value+"\", \""+eventName+"\": {\"remotepeerid\":\""+canvasObj.getAttribute('remotePeerId')+"\", \"trackid\":"+canvasObj.getAttribute('trackID')+", \"x\":"+x+", \"y\": "+y+",\"xratio\":"+xRatio+", \"yratio\": "+yRatio+"}}";
+				console.log("clicked event "+sendText);
+				publishData(sendText);
+			}
+			clicked = false;
+			
+		}, dblClickDuration);
+	}
+	
+	if(drawClerTimer != null){
+		clearTimeout(drawClerTimer);
+	}
+	drawClerTimer = setTimeout(function () {
+		//canvasに描画 Clear
+		var context = canvasObj.getContext( "2d" ) ;
+		context.clearRect(0, 0, canvasObj.width, canvasObj.height);
+	}, drawMarkDuration);
+}
+
 //var drawClerTimer;
 function addView(stream, remoterPeerID, trackID) {
 	var drawClerTimer;
@@ -308,6 +409,7 @@ function addView(stream, remoterPeerID, trackID) {
 	screenObj.setAttribute('name', 'remote_camera_video_'+remoterPeerID);
 	screenObj.setAttribute('remotePeerId', remoterPeerID);
 	screenObj.setAttribute('trackID', trackID);
+	screenObj.setAttribute('controls', '1');
 	if(trackID > 0){
 		//screenObj.setAttribute('muted', 'true');
 		screenObj.muted = true;
@@ -324,99 +426,12 @@ function addView(stream, remoterPeerID, trackID) {
 	canvasObj.setAttribute('remotePeerId', remoterPeerID);
 	canvasObj.setAttribute('trackID', trackID);
 	
-	
 	//https://qiita.com/sashim1343/items/e3728bea913cadab677d
-	canvasObj.addEventListener( "click", function( event ) {
-		var clickX = event.pageX ;
-		var clickY = event.pageY ;
-
-		// 要素の位置を取得
-		var clientRect = this.getBoundingClientRect() ;
-		var positionX = clientRect.left + window.pageXOffset ;
-		var positionY = clientRect.top + window.pageYOffset ;
-
-		// 要素内におけるクリック位置を計算
-		var x = clickX - positionX ;
-		var y = clickY - positionY ;
-		var xRatio = x/canvasObj.width;
-		var yRatio = y/canvasObj.height;
-		var dblClickDuration = 300;//msec
-		var drawMarkDuration = 1000;//msec
-		
-		if (clicked) {
-			clicked = false;
-			var eventName = "dblclickevent";			
-			var sendText = "{\"peerid\": \""+myPeerID.value+"\", \""+eventName+"\": {\"remotepeerid\":\""+canvasObj.getAttribute('remotePeerId')+"\", \"trackid\":"+canvasObj.getAttribute('trackID')+",\"x\":"+x+", \"y\": "+y+",\"xratio\":"+xRatio+", \"yratio\": "+yRatio+"}}";
-			console.log("clicked event "+sendText);
-			publishData(sendText);
-
-			//canvasに描画
-			var context = canvasObj.getContext( "2d" ) ;
-			context.clearRect(0, 0, canvasObj.width, canvasObj.height);
-			/*
-			context.beginPath () ;
-			context.arc( x, y, 20, 0 * Math.PI / 180, 360 * Math.PI / 180, false ) ;
-			context.strokeStyle = "red" ;
-			context.lineWidth = 1 ;
-			context.stroke() ;
-			*/
-			if(xRatio >= 0.5){
-				if(yRatio >= 0.5){
-					//right down
-					context.drawImage(pointingPicsRightdown, x-pointingPicsX+pointingPicsMargin, y-pointingPicsY+pointingPicsMargin, pointingPicsX, pointingPicsY);
-				} else {
-					//right up
-					context.drawImage(pointingPicsRightup, x-pointingPicsX+pointingPicsMargin, y-pointingPicsMargin, pointingPicsX, pointingPicsY);
-				}
-			} else {
-				if(yRatio >= 0.5){
-					//left down
-					context.drawImage(pointingPicsLeftdown, x-pointingPicsMargin, y+pointingPicsMargin-pointingPicsY, pointingPicsX, pointingPicsY);
-				} else {
-					//left up
-					context.drawImage(pointingPicsLeftup, x-pointingPicsMargin, y-pointingPicsMargin, pointingPicsX, pointingPicsY);
-				}
-			}
-			
-			//return;
-		} else {
-			clicked = true;
-			setTimeout(function () {
-				// ダブルクリックによりclickedフラグがリセットされていない
-				//     -> シングルクリックだった
-				if (clicked) {
-					//canvasに描画
-					var context = canvasObj.getContext( "2d" ) ;
-					context.clearRect(0, 0, canvasObj.width, canvasObj.height);
-					/*
-					context.beginPath () ;
-					context.arc( x, y, 20, 0 * Math.PI / 180, 360 * Math.PI / 180, false ) ;
-					context.strokeStyle = "blue" ;
-					context.lineWidth = 1 ;
-					context.stroke() ;
-					*/
-					context.drawImage(gazePics, x-gazePicsX/2, y-gazePicsY/2, gazePicsX, gazePicsY);
-					
-					var eventName = "clickevent";			
-					var sendText = "{\"peerid\": \""+myPeerID.value+"\", \""+eventName+"\": {\"remotepeerid\":\""+canvasObj.getAttribute('remotePeerId')+"\", \"trackid\":"+canvasObj.getAttribute('trackID')+", \"x\":"+x+", \"y\": "+y+",\"xratio\":"+xRatio+", \"yratio\": "+yRatio+"}}";
-					console.log("clicked event "+sendText);
-					publishData(sendText);
-				}
-				clicked = false;
-				
-			}, dblClickDuration);
-		}
-		
-		if(drawClerTimer != null){
-			clearTimeout(drawClerTimer);
-		}
-		drawClerTimer = setTimeout(function () {
-			//canvasに描画 Clear
-			var context = canvasObj.getContext( "2d" ) ;
-			context.clearRect(0, 0, canvasObj.width, canvasObj.height);
-		}, drawMarkDuration);
-	} ) ;
-	
+	if(teleOpeMode){
+		canvasObj.addEventListener( "click", videoCanvasClicked);
+	} else {
+		canvasObj.style.display ="none";
+	}
 	/*どうやら働かないです
 	screenObj.addEventListener( "dblclick ", function( event ) {
 		var clickX = event.pageX ;
@@ -444,6 +459,10 @@ function addView(stream, remoterPeerID, trackID) {
 	//controlsを入れるとダブルクリックで最大化したりPictureInPicureモードとかできる
 	//screenObj.setAttribute('controls', '1');
 	//screenObj.setAttribute('style', 'border: 1px solid;');
+	
+	screenObj.srcObject = stream;
+	screenObj.playsInline = true;
+	//await screenObj.play().catch(console.error);
 	
 	if(stream.getAudioTracks().length>0){
 		var speakerId = getSelectedSpeaker();
@@ -587,10 +606,53 @@ function addView(stream, remoterPeerID, trackID) {
 	const remote_cameras = document.getElementById("remote_cameras");
 	//remote_cameras.appendChild(content);
 	$grid.masonry();
-	screenObj.srcObject = stream;
-	screenObj.playsInline = true;
-	//await screenObj.play().catch(console.error);
 	return screenObj;
+}
+
+function addSoundOnly(stream, remoterPeerID, trackID) {
+	var contentID = 'remote_audio_'+remoterPeerID+'_' + trackID;
+	numAudio++;
+	var content;
+	content = document.createElement('div');
+	content.setAttribute('id', contentID);
+	content.setAttribute('name', 'remote_audio_'+remoterPeerID);
+	
+	//content.setAttribute('style', 'padding: 10px; margin-bottom: 10px; border: 1px solid #333333;');
+	var audioObj = new Audio();
+	audioObj.srcObject = stream;
+	var speakerId = getSelectedSpeaker();
+	//screenObj.volume = 0;
+	(async () => {
+		await audioObj.setSinkId(speakerId)
+			.then(function() {
+			console.log('setSinkID Success, audio is being played on '+speakerId);
+		})
+		.catch(function(err) {
+			console.error('setSinkId Err:', err);
+		});
+	})();
+	audioObj.play();
+	
+	//var audioObj;
+	//audioObj = document.createElement('audio');
+	audioObj.setAttribute('id', 'remote_audio_source_' +remoterPeerID+'_'+ trackID);
+	audioObj.setAttribute('name', 'remote_audio_source_'+remoterPeerID);
+	audioObj.setAttribute('remotePeerId', remoterPeerID);
+	audioObj.setAttribute('trackID', trackID);
+	if(!teleOpeMode){
+		audioObj.controls=true;
+	}
+	
+	if(trackID > 0){
+		//screenObj.setAttribute('muted', 'true');
+		audioObj.muted = true;
+	}
+	audioObj.setAttribute('autoplay', '1');
+	
+	content.appendChild(audioObj);
+	const remote_audios = document.getElementById("remote_audios");
+	remote_audios.appendChild(content);
+	return audioObj;
 }
 
 var $grid = $('.viwer_grid').masonry({
@@ -772,6 +834,41 @@ navigator.mediaDevices.ondevicechange = function (evt) {
 	console.log('mediaDevices.ondevicechange() evt:', evt);
 };
 
+function teleOpeModeChanged() {
+	if (document.getElementById("teleopemodecheckbox").checked) {
+		teleOpeMode = true;
+		for(var[key, value] of remotePeerIDMediaConMap){
+			var elements = document.getElementsByName('remote_camera_canvas_'+key);
+			for (var i = 0; i < elements.length; i++) {
+				console.log('addEventListener click to '+elements[i].getAttribute("id")+ ', style.display = '+elements[i].style.display + ' to \"\"');
+				elements[i].addEventListener( "click", videoCanvasClicked);
+				elements[i].style.display ="";
+			}
+			
+			elements = document.getElementsByName('remote_audio_source_'+key);
+			for (var i = 0; i < elements.length; i++) {
+				elements[i].controls=false;
+				//console.log('change '+elements[i].getAttribute("id")+ ' controls to '+elements[i].controls);
+			}
+		}
+	} else {
+		teleOpeMode = false;
+		for(var[key, value] of remotePeerIDMediaConMap){
+			var elements = document.getElementsByName('remote_camera_canvas_'+key);
+			for (var i = 0; i < elements.length; i++) {
+				console.log('removeEventListener click to '+elements[i].getAttribute("id")+ ', style.display = '+elements[i].style.display + ' to none');
+				elements[i].removeEventListener( "click", videoCanvasClicked);
+				elements[i].style.display ="none";
+			}
+			
+			elements = document.getElementsByName('remote_audio_source_'+key);
+			for (var i = 0; i < elements.length; i++) {
+				elements[i].controls=true;
+				//console.log('change '+elements[i].getAttribute("id")+ ' controls to '+elements[i].controls);
+			}
+		}
+	}
+}
 function gotoStandby() {
 	thisPeer = (window.peer = new Peer(myPeerID.value,{
 		//key: window.__SKYWAY_KEY__,
@@ -1045,12 +1142,13 @@ function openConnection(remotePeerID, mediaConnection){
 function openStream(stream, remotePeerID, mediaConnection){
 	console.log(remotePeerID+ '('+mediaConnection.remoteId+') => remote stream videtrack = '+stream.getVideoTracks().length+', audiotrack = '+stream.getAudioTracks().length);
 	if(stream.getVideoTracks().length == 0){
-		if(stream.getAudioTracks().length > 0){
+		if(stream.getAudioTracks().length > 0){	
 			var _remoteVideo = new webkitMediaStream();
 			for(var i = 0; i<stream.getAudioTracks().length; i++){
 				_remoteVideo.addTrack(stream.getAudioTracks()[i]);
 			}
-			addView(_remoteVideo, remotePeerID,0);
+			//addView(_remoteVideo, remotePeerID,0);
+			addSoundOnly(_remoteVideo, remotePeerID,0);
 		}
 	} else {
 		for(var i = 0; i<stream.getVideoTracks().length; i++){
@@ -1095,9 +1193,26 @@ function closedConnection(remotePeerID){
 		console.log("remove "+elements[i].getAttribute("id")+ ", " +elements.length);//removeChildでelement.lengthが減る
 	}
 	$grid.masonry();
+	
+	
+	//audio
+	var elements = document.getElementsByName('remote_audio_source_'+remotePeerID);
+	//取得した一覧から全てのvalue値を表示する
+	for (var i = 0; i < elements.length; i++) {
+		elements[i].srcObject.getTracks().forEach(track => track.stop());
+		elements[i].srcObject = null;
+	}
+	const remote_audios = document.getElementById("remote_audios");
+	elements = document.getElementsByName("remote_audio_"+remotePeerID);
+	for (var i = 0; i < elements.length; i++) {
+		remote_audios.removeChild(elements[i]);
+	}
+	
 	remotePeerIDMediaConMap.delete(remotePeerID);
 	//クエリを編集
 	//window.location.search = "myPeerID="+myPeerID.value+"&remotePeerID="+remotePeerID.value ;
+	
+	
 }
 
 function getSelectedMicStream(){
@@ -1135,8 +1250,9 @@ function makeLocalStream(){
 	for (var i = 0; i < elements.length; i++) {
 		//elements[i].srcObject.getTracks().forEach(track => track.stop());
 		//elements[i].srcObject = null;
-		localMixedStream.addTrack(elements[i].srcObject.getVideoTracks()[0]);
-		
+		if(elements[i].srcObject.getVideoTracks().length > 0){
+			localMixedStream.addTrack(elements[i].srcObject.getVideoTracks()[0]);
+		}		
 		if(elements[i].srcObject.getAudioTracks().length == 0){
 			console.log('add audio track to local mic stream');
 			if(localMicStream != null){
@@ -1214,6 +1330,25 @@ function startstoprecord(){
 		fileNames.splice(0);
 		var recorderCount = 0;
 		var elements = document.getElementsByName('local_camera_video');
+		if(elements.length == 0){
+			//record sound only
+			if(localMicStream != null && localMicStream.getAudioTracks().length > 0){
+				recorder.push(new MediaRecorder(localMicStream));
+				recorderMap.set(recorderCount, recorder[recorderCount]);
+				chunks.push([]); // 格納場所をクリア
+				fileNames.push(myPeerID.value+"_audioonly.webm");
+				// 録画進行中に、インターバルに合わせて発生するイベント
+				console.log(fileNames+":"+"audiolny");
+				recorder[recorderCount].ondataavailable = createCallbackOndataavailable(recorderCount);	
+				
+				// 録画停止時のイベント
+				recorder[recorderCount].onstop = createCallbackOnstop(recorderCount);
+				// 録画スタート
+				recorder[recorderCount].start(1000); // インターバルは1000ms
+				console.log('start recording : '+recorderCount);
+				recorderCount++;
+			}
+		}
 		for (var i = 0; i < elements.length; i++) {
 			if(elements[i].srcObject != null){
 				recorder.push(new MediaRecorder(elements[i].srcObject));
@@ -1243,6 +1378,8 @@ function startstoprecord(){
 				recorder[recorderCount].start(1000); // インターバルは1000ms
 				console.log('start recording : '+recorderCount);
 				recorderCount++;
+			} else {
+				console.log('local_camera_video'+' srcObjec is null');
 			}
 		}
 		
@@ -1264,6 +1401,30 @@ function startstoprecord(){
 					recorder[recorderCount].start(1000); // インターバルは1000ms
 					console.log('start recording : '+recorderCount);
 					recorderCount++;
+				} else {
+					console.log('remote_camera_video_'+key +' srcObjec is null');
+				}
+			}
+			
+			elements = document.getElementsByName('remote_audio_source_'+key);
+			for (var i = 0; i < elements.length; i++) {
+				if(elements[i].srcObject != null){
+					recorder.push(new MediaRecorder(elements[i].srcObject));
+					recorderMap.set(recorderCount, recorder[recorderCount]);
+					chunks.push([]); // 格納場所をクリア
+					fileNames.push(key+"_audioonly_"+elements[i].getAttribute("trackid")+".webm");
+					// 録画進行中に、インターバルに合わせて発生するイベント
+					console.log(fileNames+":"+elements[i].getAttribute("trackid"));
+					recorder[recorderCount].ondataavailable = createCallbackOndataavailable(recorderCount);	
+					
+					// 録画停止時のイベント
+					recorder[recorderCount].onstop = createCallbackOnstop(recorderCount);
+					// 録画スタート
+					recorder[recorderCount].start(1000); // インターバルは1000ms
+					console.log('start recording : '+recorderCount);
+					recorderCount++;
+				} else {
+					console.log('remote_audio_source_'+key +' srcObjec is null');
 				}
 			}
 		}

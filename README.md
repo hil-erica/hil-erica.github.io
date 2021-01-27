@@ -20,6 +20,7 @@ https://hil-erica.github.io/SoraMichiChat_MultiP2P.html?myPeerID=hoge&remotePeer
 - viewersize : 相手の映像のデフォルトサイズ　144/240/360/720/1080
 - capturesize : 自身のカメラのキャプチャサイズ　720/1080
 - skywaykey : SkyWay API Key
+- teleopemode : true/false, trueだと映像のクリックイベントが転送される，デフォルトではfalse，false時はメディアのコントロールができる
 
 ### 複数映像をおくる際の注意点
 - 映像のトラック数はCallする側に決定権があるため送信する映像トラックが多いほうがCallすること  
