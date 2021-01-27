@@ -876,18 +876,13 @@ function gotoStandby() {
 		debug: 1,
 	}));
 	
-	thisPeer.on('error', console.error);
+	//thisPeer.on('error', console.error);
+	thisPeer.on('error', error => {
+		//console.log("hoge"+error);
+		alert(error);
+	});
 	
-	recordButton.disabled = "";
-	getDeviceButton.setAttribute("disabled","true");
-	micList.setAttribute("disabled","true");
-	speakerList.setAttribute("disabled","true");
-	myPeerID.setAttribute("disabled","true");
-	isReady = true;
-	var elements = document.getElementsByName('remotePeer_commuButton');
-	for (var i = 0; i < elements.length; i++) {
-		elements[i].disabled = false;
-	}
+	
 	/*
 	for(var[key, value] of remotePeerIDMediaConMap){
 		
@@ -905,6 +900,18 @@ function gotoStandby() {
 			}
 			console.log(peers);
 		});
+		
+		recordButton.disabled = "";
+		getDeviceButton.setAttribute("disabled","true");
+		micList.setAttribute("disabled","true");
+		speakerList.setAttribute("disabled","true");
+		myPeerID.setAttribute("disabled","true");
+		isReady = true;
+		var elements = document.getElementsByName('remotePeer_commuButton');
+		for (var i = 0; i < elements.length; i++) {
+			elements[i].disabled = false;
+		}
+		
 		
 		//https://techacademy.jp/magazine/5537
 		var checkAccessibleMember = function(){
@@ -1050,7 +1057,7 @@ function callRemoteOne(remotePeerID) {
 	}
 	var member = accessibleMembers.find((v) => v==remotePeerID);
 	if(member == null){
-		alert(remotePeerID+" doesn't login")
+		alert(remotePeerID+" doesn't login");
 		return false;
 	}
 	
