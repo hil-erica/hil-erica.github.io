@@ -3,7 +3,7 @@ WebRTCツールSkyWayを使ってビデオチャットを行うサイト
 
 https://webrtc.ecl.ntt.com/
 
-サポートしているのはChromeのみ
+サポートしているのはChromeのみ(Windows, Android)
 その他ブラウザではスピーカーデバイスを取得できない（改良すればできる）
 
 ## 使い方
