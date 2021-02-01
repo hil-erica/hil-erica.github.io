@@ -49,5 +49,6 @@ chrome://media-internals/
 
 ## スピーカーについて
 ### 選択したスピーカーから音が出ない
-HTMLMediaElement.sinkId関数を使い音声出力デバイスを変更しているが2021/01/18現在Chromeでもサポートしていない
+~~HTMLMediaElement.sinkId関数を使い音声出力デバイスを変更しているが2021/01/18現在Chromeでもサポートしていない~~
+VoiceMetterBananaと併用すると規定のスピーカーにしか出力されない
 Windowsの場合は設定→サウンド→サウンドの詳細オプション→アプリの音量とデバイスの設定→Chromeでアプリごとにスピーカーを選択することができる
