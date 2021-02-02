@@ -19,9 +19,11 @@
     <input id="TAB-Device" type="radio" name="TAB" class="tab-switch" checked="checked" /><label class="tab-label" for="TAB-Device">devices</label>
     <div class="tab-content">
       <button id="devices_button" onclick="getDeviceList()"><font size="3">get devices</font></button><br>
+      mic:
       <select id="mic_list" size="1" style="width:160pt;">
         <option>(audio)</option>
       </select>
+      speaker:
       <select id="speaker_list" size="1" style="width:160pt;">
         <option>(speaker)</option>
       </select>
@@ -79,7 +81,15 @@
   <!-- appending video here -->
   </p>
   </h3>
-  <script src="//cdn.webrtc.ecl.ntt.com/skyway-latest.js"></script>
+
+<!--
+<video id="videotest" autoplay="1" width = "320" height="240" controls>
+	<source src="fhana「星屑のインターリュード」 .mp4" type="video/mp4">
+</video>
+-->
+
+  <!--<script src="//cdn.webrtc.ecl.ntt.com/skyway-latest.js"></script>-->
+  <script src="https://cdn.webrtc.ecl.ntt.com/skyway-4.3.0.js"></script>
   <!--<script src="./js/key.js"></script>-->
   <script src="./js/videochat_multip2p.js"></script>
   <!--

@@ -464,6 +464,7 @@ function addView(stream, remoterPeerID, trackID) {
 	screenObj.playsInline = true;
 	//await screenObj.play().catch(console.error);
 	
+	/*
 	if(stream.getAudioTracks().length>0){
 		var speakerId = getSelectedSpeaker();
 		//screenObj.volume = 0;
@@ -477,6 +478,7 @@ function addView(stream, remoterPeerID, trackID) {
 			});
 		})();
 	}
+	*/
 	
 	var sizeSelector = document.createElement('select');
 	sizeSelector.setAttribute('id', 'remote_camera_sizeselector_' +remoterPeerID+'_'+ trackID);
@@ -509,9 +511,46 @@ function addView(stream, remoterPeerID, trackID) {
 	option.innerHTML = '1920x1080px';
 	sizeSelector.appendChild(option);
 	
+	var speakerSelector = document.createElement('select');
+	speakerSelector.setAttribute('id', 'remote_camera_speakerselector_' +remoterPeerID+'_'+ trackID);
+	speakerSelector.setAttribute('speakerid', screenObj.id);
+	speakerSelector.setAttribute('size', '1');
+	speakerSelector.setAttribute('style', 'width:100pt;');
+	for(var i = 0; i <speakerList.length; i++){
+		option = document.createElement('option');
+		option.setAttribute('value', speakerList[i].value);
+		option.innerHTML = speakerList[i].innerHTML;
+		speakerSelector.appendChild(option);
+	}
+	//メインのスピーカーに設定
+	speakerSelector.selectedIndex = speakerList.selectedIndex;
+	
+	/*
+	var openWindowButton = document.createElement("button");
+	openWindowButton.innerText = "Open";
+	openWindowButton.onclick = function() {
+		openWindowButton.innerText += " クリックされました!";
+		var obj_window = window.open("SubWindows.html?contentid="+screenObj.id, "サブ検索画面", "width=300,height=200,scrollbars=yes");
+		//obj_window.document.getElementById("hogehoge").srcObject = stream;
+		//window.open("SubWindows.html", "サブ検索画面", "width=300,height=200,scrollbars=yes");
+	};	
+	content.appendChild(openWindowButton);
+	*/
 	content.appendChild(sizeSelector);
+	content.appendChild(speakerSelector);
 	content.appendChild(screenObj);
 	content.appendChild(canvasObj);
+	
+	//初期化
+	var speakerId = speakerSelector.options[speakerList.selectedIndex].value;
+	screenObj.setSinkId(speakerId)
+		.then(function() {
+		console.log('setSinkID Success, audio is being played on '+speakerId +' at '+screenObj.id);
+	})
+	.catch(function(err) {
+		console.error('setSinkId Err:', err);
+	});
+	speakerSelector.addEventListener('change', speakerSelectEvent);
 	
 	sizeSelector.addEventListener('change', (event) => {
 		var changedValue = event.target.value;
@@ -609,6 +648,33 @@ function addView(stream, remoterPeerID, trackID) {
 	return screenObj;
 }
 
+function speakerSelectEvent(event){
+	var speakerSelector = this;
+	var speakerId = speakerSelector.options[speakerSelector.selectedIndex].value;
+	console.log("selected speaker id = "+speakerId +" for " +speakerSelector.getAttribute("speakerid"));
+	var screenObj = document.getElementById(speakerSelector.getAttribute("speakerid"));
+	/*
+	screenObj.setSinkId(speakerId)
+		.then(function() {
+		console.log('setSinkID Success, sub audio is being played on '+speakerId +' at '+screenObj.id);
+	})
+	.catch(function(err) {
+		console.error('setSinkId Err:', err);
+	});
+	*/
+	
+	//screenObj.volume = 0;
+	(async () => {
+		await screenObj.setSinkId(speakerId)
+			.then(function() {
+			console.log('setSinkID Success, audio is being played on '+speakerId +' at '+screenObj.id);
+		})
+		.catch(function(err) {
+			console.error('setSinkId Err:', err);
+		});
+	})();
+	
+}
 function addSoundOnly(stream, remoterPeerID, trackID) {
 	var contentID = 'remote_audio_'+remoterPeerID+'_' + trackID;
 	numAudio++;
@@ -830,6 +896,7 @@ function startVideo(cameraID, video) {
 		}
 	});
 }
+
 navigator.mediaDevices.ondevicechange = function (evt) {
 	console.log('mediaDevices.ondevicechange() evt:', evt);
 };
@@ -869,6 +936,7 @@ function teleOpeModeChanged() {
 		}
 	}
 }
+
 function gotoStandby() {
 	thisPeer = (window.peer = new Peer(myPeerID.value,{
 		//key: window.__SKYWAY_KEY__,
@@ -979,6 +1047,8 @@ function gotoStandby() {
 			elements[i].height = height;
 			//elements[i].setAttribute('muted', 'true');
 			elements[i].muted = true;
+			//elements[i].setAttribute('controls', '1');
+			//getSelectedMicStreamしてすぐだから間に合わないかもちゃんとasyncせなあかん
 			if(localMicStream != null && localMicStream.getAudioTracks().length > 0){
 				elements[i].srcObject.addTrack(localMicStream.getAudioTracks()[0]);
 			} else {
@@ -1009,22 +1079,15 @@ function gotoStandby() {
 			openConnection(mediaConnection.remoteId, mediaConnection);
 			updatePeerUI(thisPeerCounterNumer, false);
 			mediaConnection.on('stream', async stream => {
-				/*
-				// Render remote stream for callee
-				remoteVideo.srcObject = stream;
-				remoteVideo.playsInline = true;
-				await remoteVideo.play().catch(console.error);
-				*/
+				console.log("get stream = "+mediaConnection.remoteId +" "+mediaConnection.id);
 				openStream(stream, mediaConnection.remoteId, mediaConnection);
-				//await stream.paly().catch(console.error);
 			});
 			//切れた
 			mediaConnection.once('close', () => {
-				closedConnection(mediaConnection.remoteId);
+				console.log("close = "+mediaConnection.remoteId +" "+mediaConnection.id);
 				var thisPeerCounterNumer = getThisPeerCounterNumer(mediaConnection.remoteId);
 				updatePeerUI(thisPeerCounterNumer, true);
-				//remoteVideo.srcObject.getTracks().forEach(track => track.stop());
-				//remoteVideo.srcObject = null;
+				closedConnection(mediaConnection.remoteId);
 				stepButton.setAttribute('onclick', 'callRemote()');
 				stepButton.innerHTML = "<font size='3'>call</font>";
 			});
@@ -1105,7 +1168,6 @@ function mediaCall(remotePeerID){
 	updatePeerUI(thisPeerCounterNumer, false);
 	mediaConnection.on('stream', async stream => {
 		var thisPeerCounterNumer = getThisPeerCounterNumer(mediaConnection.remoteId);
-		//updatePeerUI(thisPeerCounterNumer, false);
 		console.log("get stream = "+mediaConnection.remoteId +" "+mediaConnection.id);
 		//このときのremoteIdがもし複数連続でやったらあとのpeerIdになってしまう
 		openStream(stream, mediaConnection.remoteId, mediaConnection);
@@ -1113,15 +1175,13 @@ function mediaCall(remotePeerID){
 	});
 	//切れた
 	mediaConnection.once('close', () => {
-		//このときのremoteIdがもし複数連続でやったらあとのpeerIdになってしまう
+		console.log("close = "+mediaConnection.remoteId +" "+mediaConnection.id);
 		var thisPeerCounterNumer = getThisPeerCounterNumer(mediaConnection.remoteId);
 		updatePeerUI(thisPeerCounterNumer, true);
-		console.log("close = "+mediaConnection.remoteId +" "+mediaConnection.id);
 		closedConnection(mediaConnection.remoteId);
-		//stepButton.setAttribute('onclick', 'callRemote()');
-		//stepButton.innerHTML = "<font size='3'>call</font>";
 	});
 }
+
 
 //自分で切ったイベント
 function closeRemote(peerID){
@@ -1252,6 +1312,8 @@ function makeLocalStream(){
 	//取得した一覧から全てのvalue値を表示する
 	if(localMicStream != null){
 		localMixedStream.addTrack(localMicStream.getAudioTracks()[0]);
+	} else {
+		console.log("no audio track to send");
 	}
 	var elements = document.getElementsByName('local_camera_video');
 	for (var i = 0; i < elements.length; i++) {
@@ -1264,6 +1326,20 @@ function makeLocalStream(){
 			console.log('add audio track to local mic stream');
 			if(localMicStream != null){
 				elements[i].srcObject.addTrack(localMicStream.getAudioTracks()[0]);
+				/*
+				//test: same mediastream can be played at different speakers
+				var speakerId = speakerList.options[speakerList.length -1 - i].value;
+				//screenObj.volume = 0;
+				(async () => {
+					await elements[i].setSinkId(speakerId)
+						.then(function() {
+						console.log('setSinkID Success, audio is being played on '+speakerId);
+					})
+					.catch(function(err) {
+						console.error('setSinkId Err:', err);
+					});
+				})();
+				*/
 			}
 		} else {
 			//console.log('local mic stream is null');
