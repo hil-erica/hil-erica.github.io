@@ -1232,6 +1232,34 @@ function openConnection(remotePeerID, mediaConnection){
 }
 function openStream(stream, remotePeerID, mediaConnection){
 	console.log(remotePeerID+ '('+mediaConnection.remoteId+') => remote stream videtrack = '+stream.getVideoTracks().length+', audiotrack = '+stream.getAudioTracks().length);
+	const audioContext = new AudioContext();
+	var source = audioContext.createMediaStreamSource(stream);
+	var destination = audioContext.createMediaStreamDestination();
+	source.connect(destination);
+	var audioStream = destination.stream;
+	
+	if(stream.getVideoTracks().length == 0){
+		if(stream.getAudioTracks().length > 0){	
+			var _remoteVideo = new webkitMediaStream();
+			for(var i = 0; i<audioStream.getAudioTracks().length; i++){
+				_remoteVideo.addTrack(audioStream.getAudioTracks()[i]);
+			}
+			//addView(_remoteVideo, remotePeerID,0);
+			addSoundOnly(_remoteVideo, remotePeerID,0);
+		}
+	} else {
+		for(var i = 0; i<stream.getVideoTracks().length; i++){
+			var _remoteVideo = new webkitMediaStream();
+			_remoteVideo.addTrack(stream.getVideoTracks()[i]);
+			if(audioStream.getAudioTracks().length > i){
+				_remoteVideo.addTrack(stream.getAudioTracks()[i]);
+			} else if(audioStream.getAudioTracks().length > 0){			
+				_remoteVideo.addTrack(audioStream.getAudioTracks()[audioStream.getAudioTracks().length - 1]);
+			}
+			addView(_remoteVideo, remotePeerID,i);
+		}
+	}
+	/*
 	if(stream.getVideoTracks().length == 0){
 		if(stream.getAudioTracks().length > 0){	
 			var _remoteVideo = new webkitMediaStream();
@@ -1253,6 +1281,7 @@ function openStream(stream, remotePeerID, mediaConnection){
 			addView(_remoteVideo, remotePeerID,i);
 		}
 	}
+	*/
 }
 
 function closedConnection(remotePeerID){
@@ -1331,12 +1360,14 @@ function getSelectedMicStream(){
 		if(delayParam > 0){
 			console.log("set mic delay = "+delayParam +" sec");
 			const audioContext = new AudioContext();
+			// for legacy browsers
+			audioContext.createDelay = context.createDelay || context.createDelayNode;
 			// Create the instance of MediaStreamAudioSourceNode
 			var source = audioContext.createMediaStreamSource(stream);
 			// Create the instance of DelayNode
 			var delay = audioContext.createDelay();
 			// Set parameters
-			delay.delayTime.value = 1.0;  // 0.5 sec
+			delay.delayTime.value = delayParam;  // sec
 			source.connect(delay);
 			//delay.connect(audioContext.destination);
 			var destination = audioContext.createMediaStreamDestination();
