@@ -123,6 +123,9 @@ function getQueryParams() {
 					document.getElementById("teleopemodecheckbox").checked = teleOpeMode;
 				}
 			}
+			if(key == "micdelay"){
+				document.getElementById("micdelayinput").value = parseFloat(value);
+			}
 		}
 		return result;
 	}
@@ -460,7 +463,25 @@ function addView(stream, remoterPeerID, trackID) {
 	//screenObj.setAttribute('controls', '1');
 	//screenObj.setAttribute('style', 'border: 1px solid;');
 	
+	/*
+	////lip sync用に再生遅延をかける，AudioCotextはVideoの音声制御とは関係ない，あと音質悪化する
+	screenObj.onloadedmetadata = function(e) {
+		screenObj.play();
+		screenObj.muted = 'true';
+	};
+	const audioContext = new AudioContext();
+	// Create the instance of MediaStreamAudioSourceNode
+	var source = audioContext.createMediaStreamSource(stream);
+	// Create the instance of DelayNode
+	var delay = audioContext.createDelay();
+	// Set parameters
+	delay.delayTime.value = 1.0;  // 0.5 sec
+	source.connect(delay);
+	delay.connect(audioContext.destination);
+	*/
 	screenObj.srcObject = stream;
+	
+	
 	screenObj.playsInline = true;
 	//await screenObj.play().catch(console.error);
 	
@@ -543,15 +564,16 @@ function addView(stream, remoterPeerID, trackID) {
 	
 	//初期化
 	var speakerId = speakerSelector.options[speakerList.selectedIndex].value;
-	screenObj.setSinkId(speakerId)
-		.then(function() {
-		console.log('setSinkID Success, audio is being played on '+speakerId +' at '+screenObj.id);
-	})
-	.catch(function(err) {
-		console.error('setSinkId Err:', err);
-	});
-	speakerSelector.addEventListener('change', speakerSelectEvent);
-	
+	if(screenObj.srcObject.getAudioTracks().length > 0){
+		screenObj.setSinkId(speakerId)
+			.then(function() {
+			console.log('setSinkID Success, audio is being played on '+speakerId +' at '+screenObj.id);
+		})
+		.catch(function(err) {
+			console.error('setSinkId Err:', err);
+		});
+		speakerSelector.addEventListener('change', speakerSelectEvent);
+	}
 	sizeSelector.addEventListener('change', (event) => {
 		var changedValue = event.target.value;
 		if(changedValue == '144'){
@@ -974,6 +996,8 @@ function gotoStandby() {
 		micList.setAttribute("disabled","true");
 		speakerList.setAttribute("disabled","true");
 		myPeerID.setAttribute("disabled","true");
+		document.getElementById("micdelayinput").setAttribute("disabled","true");
+		
 		isReady = true;
 		var elements = document.getElementsByName('remotePeer_commuButton');
 		for (var i = 0; i < elements.length; i++) {
@@ -1301,7 +1325,27 @@ function getSelectedMicStream(){
 	};
 	console.log('mediaDevice.getMedia() constraints:', constraints);
 	navigator.mediaDevices.getUserMedia(constraints).then(function (stream) {
-		localMicStream = stream;
+		//localMicStream = stream;
+		
+		var delayParam = document.getElementById("micdelayinput").value;
+		if(delayParam > 0){
+			console.log("set mic delay = "+delayParam +" sec");
+			const audioContext = new AudioContext();
+			// Create the instance of MediaStreamAudioSourceNode
+			var source = audioContext.createMediaStreamSource(stream);
+			// Create the instance of DelayNode
+			var delay = audioContext.createDelay();
+			// Set parameters
+			delay.delayTime.value = 1.0;  // 0.5 sec
+			source.connect(delay);
+			//delay.connect(audioContext.destination);
+			var destination = audioContext.createMediaStreamDestination();
+			delay.connect(destination);
+			localMicStream = destination.stream;
+		} else {
+			localMicStream = stream;
+		}
+		
 	}).catch(function (err) {
 		console.error('getUserMedia Err:', err);
 	});
