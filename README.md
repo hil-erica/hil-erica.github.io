@@ -21,6 +21,7 @@ https://hil-erica.github.io/SoraMichiChat_MultiP2P.html?myPeerID=hoge&remotePeer
 - capturesize : 自身のカメラのキャプチャサイズ　720/1080
 - skywaykey : SkyWay API Key
 - teleopemode : true/false, trueだと映像のクリックイベントが転送される，デフォルトではfalse，false時はメディアのコントロールができる
+- micdelay : float，送信する音声を遅延させるパラメータ，主にLipSyncさせるため．0で遅延なし
 
 ### 複数映像をおくる際の注意点
 - ~~映像のトラック数はCallする側に決定権があるため送信する映像トラックが多いほうがCallすること少ないほうがCallすると少ない方に合わせた映像トラック数になる~~
