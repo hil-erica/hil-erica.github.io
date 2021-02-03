@@ -1241,8 +1241,9 @@ function openStream(stream, remotePeerID, mediaConnection){
 			var audioStream = destination.stream;
 			
 			var _remoteVideo = new webkitMediaStream();
-			for(var i = 0; i<audioStream.getAudioTracks().length; i++){
-				_remoteVideo.addTrack(audioStream.getAudioTracks()[i]);
+			for(var i = 0; i<stream.getAudioTracks().length; i++){
+				//_remoteVideo.addTrack(audioStream.getAudioTracks()[i]);//これだとうまくsetSinkIdが働かないけどもとのStream直結だとうまくいくのはなぜ？でもAudioContextを通さないとだめなのもなぜ？
+				_remoteVideo.addTrack(stream.getAudioTracks()[i]);
 			}
 			/*
 			var _remoteVideo = new webkitMediaStream();
@@ -1264,17 +1265,16 @@ function openStream(stream, remotePeerID, mediaConnection){
 				source.connect(destination);
 				var audioStream = destination.stream;
 				
-				_remoteVideo.addTrack(audioStream.getAudioTracks()[i]);
-				//_remoteVideo.addTrack(stream.getAudioTracks()[i]);
+				//_remoteVideo.addTrack(audioStream.getAudioTracks()[i]);//これだとうまくsetSinkIdが働かないけどもとのStream直結だとうまくいくのはなぜ？でもAudioContextを通さないとだめなのもなぜ？
+				_remoteVideo.addTrack(stream.getAudioTracks()[i]);
 			} else if(stream.getAudioTracks().length > 0){			
 				const audioContext = new AudioContext();
 				var source = audioContext.createMediaStreamSource(stream);
 				var destination = audioContext.createMediaStreamDestination();
 				source.connect(destination);
 				var audioStream = destination.stream;
-				
-				_remoteVideo.addTrack(audioStream.getAudioTracks()[audioStream.getAudioTracks().length - 1]);
-				//_remoteVideo.addTrack(stream.getAudioTracks()[stream.getAudioTracks().length - 1]);
+				//_remoteVideo.addTrack(audioStream.getAudioTracks()[audioStream.getAudioTracks().length - 1]);//これだとうまくsetSinkIdが働かないけどもとのStream直結だとうまくいくのはなぜ？でもAudioContextを通さないとだめなのもなぜ？
+				_remoteVideo.addTrack(stream.getAudioTracks()[stream.getAudioTracks().length - 1]);
 			}
 			addView(_remoteVideo, remotePeerID,i);
 		}
