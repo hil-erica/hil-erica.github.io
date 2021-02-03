@@ -996,7 +996,6 @@ function gotoStandby() {
 		micList.setAttribute("disabled","true");
 		speakerList.setAttribute("disabled","true");
 		myPeerID.setAttribute("disabled","true");
-		document.getElementById("micdelayinput").setAttribute("disabled","true");
 		
 		isReady = true;
 		var elements = document.getElementsByName('remotePeer_commuButton');
@@ -1232,18 +1231,25 @@ function openConnection(remotePeerID, mediaConnection){
 }
 function openStream(stream, remotePeerID, mediaConnection){
 	console.log(remotePeerID+ '('+mediaConnection.remoteId+') => remote stream videtrack = '+stream.getVideoTracks().length+', audiotrack = '+stream.getAudioTracks().length);
-	const audioContext = new AudioContext();
-	var source = audioContext.createMediaStreamSource(stream);
-	var destination = audioContext.createMediaStreamDestination();
-	source.connect(destination);
-	var audioStream = destination.stream;
-	
+	//AudioContextを使ってMediaStreamを作り直すとvideo.setSinkIDで別々に出力できるようになった，じゃないとどれか1つのsinkIDを書き換えるとすべてskywayからもらったMediaStreamの音声の出力先が連動して変わってしまう，多分そんなに音質悪化はないかな？
 	if(stream.getVideoTracks().length == 0){
-		if(stream.getAudioTracks().length > 0){	
+		if(stream.getAudioTracks().length > 0){
+			const audioContext = new AudioContext();
+			var source = audioContext.createMediaStreamSource(stream);
+			var destination = audioContext.createMediaStreamDestination();
+			source.connect(destination);
+			var audioStream = destination.stream;
+			
 			var _remoteVideo = new webkitMediaStream();
 			for(var i = 0; i<audioStream.getAudioTracks().length; i++){
 				_remoteVideo.addTrack(audioStream.getAudioTracks()[i]);
 			}
+			/*
+			var _remoteVideo = new webkitMediaStream();
+			for(var i = 0; i<stream.getAudioTracks().length; i++){
+				_remoteVideo.addTrack(stream.getAudioTracks()[i]);
+			}
+			*/
 			//addView(_remoteVideo, remotePeerID,0);
 			addSoundOnly(_remoteVideo, remotePeerID,0);
 		}
@@ -1251,10 +1257,24 @@ function openStream(stream, remotePeerID, mediaConnection){
 		for(var i = 0; i<stream.getVideoTracks().length; i++){
 			var _remoteVideo = new webkitMediaStream();
 			_remoteVideo.addTrack(stream.getVideoTracks()[i]);
-			if(audioStream.getAudioTracks().length > i){
-				_remoteVideo.addTrack(stream.getAudioTracks()[i]);
-			} else if(audioStream.getAudioTracks().length > 0){			
+			if(stream.getAudioTracks().length > i){
+				const audioContext = new AudioContext();
+				var source = audioContext.createMediaStreamSource(stream);
+				var destination = audioContext.createMediaStreamDestination();
+				source.connect(destination);
+				var audioStream = destination.stream;
+				
+				_remoteVideo.addTrack(audioStream.getAudioTracks()[i]);
+				//_remoteVideo.addTrack(stream.getAudioTracks()[i]);
+			} else if(stream.getAudioTracks().length > 0){			
+				const audioContext = new AudioContext();
+				var source = audioContext.createMediaStreamSource(stream);
+				var destination = audioContext.createMediaStreamDestination();
+				source.connect(destination);
+				var audioStream = destination.stream;
+				
 				_remoteVideo.addTrack(audioStream.getAudioTracks()[audioStream.getAudioTracks().length - 1]);
+				//_remoteVideo.addTrack(stream.getAudioTracks()[stream.getAudioTracks().length - 1]);
 			}
 			addView(_remoteVideo, remotePeerID,i);
 		}
@@ -1361,7 +1381,7 @@ function getSelectedMicStream(){
 			console.log("set mic delay = "+delayParam +" sec");
 			const audioContext = new AudioContext();
 			// for legacy browsers
-			audioContext.createDelay = context.createDelay || context.createDelayNode;
+			audioContext.createDelay = audioContext.createDelay || audioContext.createDelayNode;
 			// Create the instance of MediaStreamAudioSourceNode
 			var source = audioContext.createMediaStreamSource(stream);
 			// Create the instance of DelayNode
@@ -1369,14 +1389,18 @@ function getSelectedMicStream(){
 			// Set parameters
 			delay.delayTime.value = delayParam;  // sec
 			source.connect(delay);
-			//delay.connect(audioContext.destination);
+			//delay.connect(audioContext.destination);//これしちゃうとブラウザから音再生されちゃう
 			var destination = audioContext.createMediaStreamDestination();
 			delay.connect(destination);
 			localMicStream = destination.stream;
+			document.getElementById("micdelayinput").addEventListener('input', function( event ) {
+				delay.delayTime.value = document.getElementById("micdelayinput").value;
+				console.log("set mic delay = "+document.getElementById("micdelayinput").value +" sec");
+			} ) ;
 		} else {
 			localMicStream = stream;
-		}
-		
+			document.getElementById("micdelayinput").setAttribute("disabled","true");
+		}		
 	}).catch(function (err) {
 		console.error('getUserMedia Err:', err);
 	});
