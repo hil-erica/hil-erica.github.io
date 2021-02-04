@@ -807,9 +807,16 @@ function getDeviceList() {
 	
 	//https://stackoverflow.com/questions/60297972/navigator-mediadevices-enumeratedevices-returns-empty-labels
 	(async () => {   
-		await navigator.mediaDevices.getUserMedia({audio: true, video: true});   
+		//await navigator.mediaDevices.getUserMedia({audio: true, video: true});
 		//let devices = await navigator.mediaDevices.enumerateDevices();   
 		//console.log(devices); 
+		 try {
+			await navigator.mediaDevices.getUserMedia({audio: true, video: true});
+			/* ストリームを使用 */
+		} catch(err) {
+			console.error('enumerateDevide ERROR:', err);
+		}
+		
 		await navigator.mediaDevices.enumerateDevices().then(function (devices) {
 			devices.forEach(function (device) {
 				console.log(device.kind + ": " + device.label + " id = " + device.deviceId);
