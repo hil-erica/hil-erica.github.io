@@ -19,16 +19,21 @@
     <input id="TAB-Device" type="radio" name="TAB" class="tab-switch" checked="checked" /><label class="tab-label" for="TAB-Device">devices</label>
     <div class="tab-content">
       <button id="devices_button" onclick="getDeviceList()"><font size="3">get devices</font></button><br>
-      mic:
-      <select id="mic_list" size="1" style="width:160pt;">
-        <option>(audio)</option>
-      </select>
-      mic delay[sec]:
-      <input type="number" id="micdelayinput" value="0" min="0" max="1" step="0.01">
-      speaker:
-      <select id="speaker_list" size="1" style="width:160pt;">
-        <option>(speaker)</option>
-      </select>
+      <div class="box-text-mic">
+        device:
+        <select id="mic_list" size="1" style="width:160pt;">
+          <option>(audio)</option>
+        </select>
+        &nbsp;additional transmit delay[sec]:
+        <input type="number" id="micdelayinput" value="0" min="0" max="1" step="0.01">
+        &nbsp;mute:<input type="checkbox" id="mutecheckbox" value="1">
+      </div>
+      <div class="box-text-speaker">
+        device:
+        <select id="speaker_list" size="1" style="width:160pt;">
+          <option>(speaker)</option>
+        </select>
+      </div>
     </div>
     
     <input id="TAB-Communication" type="radio" name="TAB" class="tab-switch"><label class="tab-label" for="TAB-Communication">communication</label>

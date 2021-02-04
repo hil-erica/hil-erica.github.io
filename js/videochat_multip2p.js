@@ -697,7 +697,7 @@ function speakerSelectEvent(event){
 	})();
 	
 }
-function addSoundOnly(stream, remoterPeerID, trackID) {
+function addSoundOnly(stream, remoterPeerID, trackID, muteMode) {
 	var contentID = 'remote_audio_'+remoterPeerID+'_' + trackID;
 	numAudio++;
 	var content;
@@ -727,6 +727,7 @@ function addSoundOnly(stream, remoterPeerID, trackID) {
 	audioObj.setAttribute('name', 'remote_audio_source_'+remoterPeerID);
 	audioObj.setAttribute('remotePeerId', remoterPeerID);
 	audioObj.setAttribute('trackID', trackID);
+	audioObj.setAttribute('mutemode', muteMode);
 	if(!teleOpeMode){
 		audioObj.controls=true;
 	}
@@ -734,6 +735,10 @@ function addSoundOnly(stream, remoterPeerID, trackID) {
 	if(trackID > 0){
 		//screenObj.setAttribute('muted', 'true');
 		audioObj.muted = true;
+	}
+	if(muteMode=="true"){
+		audioObj.muted = true;
+		audioObj.controls = false;
 	}
 	audioObj.setAttribute('autoplay', '1');
 	
@@ -936,7 +941,9 @@ function teleOpeModeChanged() {
 			
 			elements = document.getElementsByName('remote_audio_source_'+key);
 			for (var i = 0; i < elements.length; i++) {
-				elements[i].controls=false;
+				if(elements[i].getAttribute("mutemode")=="false"){
+					elements[i].controls=false;
+				}
 				//console.log('change '+elements[i].getAttribute("id")+ ' controls to '+elements[i].controls);
 			}
 		}
@@ -952,7 +959,9 @@ function teleOpeModeChanged() {
 			
 			elements = document.getElementsByName('remote_audio_source_'+key);
 			for (var i = 0; i < elements.length; i++) {
-				elements[i].controls=true;
+				if(elements[i].getAttribute("mutemode")=="false"){
+					elements[i].controls=true;
+				}
 				//console.log('change '+elements[i].getAttribute("id")+ ' controls to '+elements[i].controls);
 			}
 		}
@@ -1229,9 +1238,16 @@ function closeRemote(peerID){
 function openConnection(remotePeerID, mediaConnection){
 	remotePeerIDMediaConMap.set(remotePeerID, mediaConnection);
 }
+
 function openStream(stream, remotePeerID, mediaConnection){
 	console.log(remotePeerID+ '('+mediaConnection.remoteId+') => remote stream videtrack = '+stream.getVideoTracks().length+', audiotrack = '+stream.getAudioTracks().length);
 	//AudioContextを使ってMediaStreamを作り直すとvideo.setSinkIDで別々に出力できるようになった，じゃないとどれか1つのsinkIDを書き換えるとすべてskywayからもらったMediaStreamの音声の出力先が連動して変わってしまう，多分そんなに音質悪化はないかな？
+	
+	////重要なのはVideoTrack＝２でAudioTrack＝１の場合２つ目のVideoTrackはhoge2の処理に入る，そうすると２つのVideoTrackで別々の音声出力をすることができるが，追加で別と通信した音声が再生できない（hoge1処理で）
+	////すべてstreamをそのまま表示するとおんせいはでるけどsetSinkIDが同期してしまう
+	////つまり最初以外はすべてAudioContextで作ったトラックにして最初だけそのまま？??stream.getAudioTracks()[i]がメインでないと無理，それ以外はAudioCotextで追加すれば操作可能，でも最初のstreamが切れたらそれまで聞こえているやつも聞こえなくなる
+	////違った，もとのAudioStreamを再生しないとそれをソースにしたAudioContextにデータが流れない，AudioContextがStreamするデータはSetSinkIdがちゃんと働くので実際に音を流すのはAudioContext経由にしたい，ってことでMuteでバックグラウンドでskywayでもらったstreamを再生しておく
+	//audio onlyは最初に決めたスピーカーデバイスからしかながれない（現状）
 	if(stream.getVideoTracks().length == 0){
 		if(stream.getAudioTracks().length > 0){
 			const audioContext = new AudioContext();
@@ -1240,41 +1256,51 @@ function openStream(stream, remotePeerID, mediaConnection){
 			source.connect(destination);
 			var audioStream = destination.stream;
 			
-			var _remoteVideo = new webkitMediaStream();
+			//var _remoteVideo = new webkitMediaStream();
+			var _remoteVideo = new MediaStream();
 			for(var i = 0; i<stream.getAudioTracks().length; i++){
 				//_remoteVideo.addTrack(audioStream.getAudioTracks()[i]);//これだとうまくsetSinkIdが働かないけどもとのStream直結だとうまくいくのはなぜ？でもAudioContextを通さないとだめなのもなぜ？
 				_remoteVideo.addTrack(stream.getAudioTracks()[i]);
 			}
-			/*
-			var _remoteVideo = new webkitMediaStream();
-			for(var i = 0; i<stream.getAudioTracks().length; i++){
-				_remoteVideo.addTrack(stream.getAudioTracks()[i]);
-			}
-			*/
+			
+			//var _remoteVideo = new webkitMediaStream();
+			//for(var i = 0; i<stream.getAudioTracks().length; i++){
+			//	_remoteVideo.addTrack(stream.getAudioTracks()[i]);
+			//}
 			//addView(_remoteVideo, remotePeerID,0);
-			addSoundOnly(_remoteVideo, remotePeerID,0);
+			addSoundOnly(_remoteVideo, remotePeerID,0, "false");
 		}
 	} else {
 		for(var i = 0; i<stream.getVideoTracks().length; i++){
-			var _remoteVideo = new webkitMediaStream();
+			//var _remoteVideo = new webkitMediaStream();
+			var _remoteVideo = new MediaStream();
 			_remoteVideo.addTrack(stream.getVideoTracks()[i]);
 			if(stream.getAudioTracks().length > i){
-				const audioContext = new AudioContext();
+				const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 				var source = audioContext.createMediaStreamSource(stream);
+				var gainNode = audioContext.createGain();
+				gainNode.gain.value = 1;
 				var destination = audioContext.createMediaStreamDestination();
-				source.connect(destination);
+				source.connect(gainNode);
+				gainNode.connect(destination);
 				var audioStream = destination.stream;
+				console.log("hoge1 " +audioStream.getAudioTracks().length);
+				_remoteVideo.addTrack(audioStream.getAudioTracks()[i]);//これだとうまくsetSinkIdが働かないけどもとのStream直結だとうまくいくのはなぜ？でもAudioContextを通さないとだめなのもなぜ？
+				//_remoteVideo.addTrack(stream.getAudioTracks()[i]);
 				
-				//_remoteVideo.addTrack(audioStream.getAudioTracks()[i]);//これだとうまくsetSinkIdが働かないけどもとのStream直結だとうまくいくのはなぜ？でもAudioContextを通さないとだめなのもなぜ？
-				_remoteVideo.addTrack(stream.getAudioTracks()[i]);
+				//無駄にStreamをそのまま流すAudioを作ってしまう，これはMute
+				var _remoteAudio = new MediaStream();
+				_remoteAudio.addTrack(stream.getAudioTracks()[i]);
+				addSoundOnly(_remoteAudio, remotePeerID,0, "true");
 			} else if(stream.getAudioTracks().length > 0){			
+				console.log("hoge2");
 				const audioContext = new AudioContext();
 				var source = audioContext.createMediaStreamSource(stream);
 				var destination = audioContext.createMediaStreamDestination();
 				source.connect(destination);
 				var audioStream = destination.stream;
-				//_remoteVideo.addTrack(audioStream.getAudioTracks()[audioStream.getAudioTracks().length - 1]);//これだとうまくsetSinkIdが働かないけどもとのStream直結だとうまくいくのはなぜ？でもAudioContextを通さないとだめなのもなぜ？
-				_remoteVideo.addTrack(stream.getAudioTracks()[stream.getAudioTracks().length - 1]);
+				_remoteVideo.addTrack(audioStream.getAudioTracks()[audioStream.getAudioTracks().length - 1]);//これだとうまくsetSinkIdが働かないけどもとのStream直結だとうまくいくのはなぜ？でもAudioContextを通さないとだめなのもなぜ？
+				//_remoteVideo.addTrack(stream.getAudioTracks()[stream.getAudioTracks().length - 1]);
 			}
 			addView(_remoteVideo, remotePeerID,i);
 		}
@@ -1358,8 +1384,11 @@ function closedConnection(remotePeerID){
 function getSelectedMicStream(){
 	var audioId = getSelectedAudio();
 	if(audioId == "don't send audio"){
-		console.log(audioId);
-		localMicStream = null;
+		console.log(audioId+", if send no audio track when call, the remote peer can't send audio track too.");
+		const audioContext = new AudioContext();
+		var destination = audioContext.createMediaStreamDestination();
+		localMicStream = destination.stream;
+		//localMicStream = null;
 		return;
 	}
 	var constraints = {
@@ -1377,30 +1406,39 @@ function getSelectedMicStream(){
 		//localMicStream = stream;
 		
 		var delayParam = document.getElementById("micdelayinput").value;
-		if(delayParam > 0){
-			console.log("set mic delay = "+delayParam +" sec");
-			const audioContext = new AudioContext();
-			// for legacy browsers
-			audioContext.createDelay = audioContext.createDelay || audioContext.createDelayNode;
-			// Create the instance of MediaStreamAudioSourceNode
-			var source = audioContext.createMediaStreamSource(stream);
-			// Create the instance of DelayNode
-			var delay = audioContext.createDelay();
-			// Set parameters
-			delay.delayTime.value = delayParam;  // sec
-			source.connect(delay);
-			//delay.connect(audioContext.destination);//これしちゃうとブラウザから音再生されちゃう
-			var destination = audioContext.createMediaStreamDestination();
-			delay.connect(destination);
-			localMicStream = destination.stream;
-			document.getElementById("micdelayinput").addEventListener('input', function( event ) {
-				delay.delayTime.value = document.getElementById("micdelayinput").value;
-				console.log("set mic delay = "+document.getElementById("micdelayinput").value +" sec");
-			} ) ;
-		} else {
-			localMicStream = stream;
-			document.getElementById("micdelayinput").setAttribute("disabled","true");
-		}		
+		const audioContext = new AudioContext();
+		// for legacy browsers
+		audioContext.createDelay = audioContext.createDelay || audioContext.createDelayNode;
+		// Create the instance of MediaStreamAudioSourceNode
+		var source = audioContext.createMediaStreamSource(stream);
+		// Create the instance of DelayNode
+		var delay = audioContext.createDelay();
+		// Set parameters
+		delay.delayTime.value = delayParam;  // sec
+		source.connect(delay);
+		var gain = audioContext.createGain();
+		delay.connect(gain);
+		//delay.connect(audioContext.destination);//これしちゃうとブラウザから音再生されちゃう
+		var destination = audioContext.createMediaStreamDestination();
+		//delay.connect(destination);
+		gain.connect(destination);
+		localMicStream = destination.stream;
+		if(document.getElementById("mutecheckbox").checked){
+			gain.gain.value=0; 
+		}
+		
+		document.getElementById("micdelayinput").addEventListener('input', function( event ) {
+			delay.delayTime.value = document.getElementById("micdelayinput").value;
+			console.log("set mic delay = "+document.getElementById("micdelayinput").value +" sec");
+		} ) ;
+		document.getElementById("mutecheckbox").addEventListener('change', function( event ) {
+			console.log("set mic mute = "+document.getElementById("mutecheckbox").checked);
+			if(document.getElementById("mutecheckbox").checked){
+				gain.gain.value=0; 
+			} else {
+				gain.gain.value=1; 
+			}
+		} ) ;
 	}).catch(function (err) {
 		console.error('getUserMedia Err:', err);
 	});
@@ -1590,7 +1628,7 @@ function startstoprecord(){
 			
 			elements = document.getElementsByName('remote_audio_source_'+key);
 			for (var i = 0; i < elements.length; i++) {
-				if(elements[i].srcObject != null){
+				if(elements[i].srcObject != null && elements[i].getAttribute("mutemode")=="false"){
 					recorder.push(new MediaRecorder(elements[i].srcObject));
 					recorderMap.set(recorderCount, recorder[recorderCount]);
 					chunks.push([]); // 格納場所をクリア
