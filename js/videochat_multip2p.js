@@ -815,6 +815,12 @@ function getDeviceList() {
 			/* ストリームを使用 */
 		} catch(err) {
 			console.error('enumerateDevide ERROR:', err);
+			 try {
+			await navigator.mediaDevices.getUserMedia({audio: true, video: false});
+				/* ストリームを使用 */
+			} catch(err) {
+				console.error('enumerateDevide ERROR:', err);
+			}
 		}
 		
 		await navigator.mediaDevices.enumerateDevices().then(function (devices) {
