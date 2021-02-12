@@ -39,17 +39,22 @@
     <input id="TAB-Communication" type="radio" name="TAB" class="tab-switch"><label class="tab-label" for="TAB-Communication">communication</label>
     <div class="tab-content">
       <h5>
-      tele-ope mode : <input type="checkbox" id="teleopemodecheckbox" value="2" onchange="teleOpeModeChanged();">
-      <br>
       <button id="step_button" onclick="gotoStandby()" disabled="true" style="width:80pt;"><font size="2">go to standby</font></button>
       my PeerID：<input type="text" id="myPeerID" name="peerID" size="10" maxlength="20" value="hoge">
-      accessible：<input type="text" id="accessible_list" style="width:150pt;" readonly="readonly">
+      accessible：<input type="text" id="accessible_list" style="width:250pt;" readonly="readonly">
       <br>
-      <div>remote PeerIDs</div><!--<input type="text" id="remotePeerID" name="peerID" size="15" maxlength="20" value="foo">-->
-     <div class="horizontal-list" style="width:600px">
+     <div class="box-text-remotePeerIDs" style="width:900px">
          <button class="item_addButton" id="addRemote_button" onclick="addRemotePeerId('foo')"><font size="2">add remote</font></button>
-        <div class="item_small"  id="remotePeers" style="width:300px;height:100px;">
-         </div>
+        <div class="item_small"  id="remotePeers" style="width:300px;height:150px;">
+        </div>
+        <div class="item_small"  id="chat" style="width:400px;height:150px;">
+          <input id="chatsendinput" style="width:225pt;" value="input text, select whom and click send"></input>
+          <button id="chatsendbutton" onclick="sendchat()"  style="width:40pt;"><font size="2">send</font></button>
+          <select name="chatsendtargets" id="chatsendtargetselect">
+            <option value="publish">publish</option>
+          </select>
+          <textarea id="chatoutput" style="width:340px;height:100px; resize:vertical;" readonly="readonly"></textarea>
+        </div>
        </div>
       <!--my PeerID for capture：<input type="text" id="myPeerID4Capture" name="peerID" size="10" maxlength="20" value="bar">-->
       </h5>
@@ -61,11 +66,16 @@
        url：<input type="text" id="socket_url" name="socket_url" size="50" maxlength="100" value="ws://127.0.0.1:8000">
      </div><!--tab-content-->
      
-     <input id="TAB-Record" type="radio" name="TAB" class="tab-switch"><label class="tab-label" for="TAB-Record">recorder</label>
+     <input id="TAB-Record" type="radio" name="TAB" class="tab-switch"><label class="tab-label" for="TAB-Record">record</label>
      <div class="tab-content">
        <button id="recorder_button" onclick="startstoprecord()" disabled="true" style="width:80pt;"><font size="2">record</font></button>
        <!--<a href="#" id="downloadlink">download all(large size zipping is not supportted)</a>-->
        <div id="download_each"></div>
+     </div><!--tab-content-->
+     
+     <input id="TAB-Mode" type="radio" name="TAB" class="tab-switch"><label class="tab-label" for="TAB-Mode">mode</label>
+     <div class="tab-content">
+       tele-ope mode : <input type="checkbox" id="teleopemodecheckbox" value="2" onchange="teleOpeModeChanged();">
      </div><!--tab-content-->
      
      <input id="TAB-Close" type="radio" name="TAB" class="tab-switch"><label class="tab-label" for="TAB-Close">tab close</label>

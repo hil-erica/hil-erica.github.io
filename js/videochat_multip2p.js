@@ -194,9 +194,23 @@ function addRemotePeerId(remotePeer){
 	removeButton.setAttribute('onclick', 'removePeer('+thisPeerCounterNumer+')');
 	removeButton.innerHTML = "<font size='2'>remove</font>";
 	
+	var sendButton = document.createElement('button');
+	sendButton.setAttribute('id', 'remotePeer_sendButton_'+thisPeerCounterNumer);
+	sendButton.setAttribute('name', 'remotePeer_sendButton');
+	sendButton.setAttribute('style', 'width:50pt;');
+	sendButton.setAttribute('onclick', 'sendPeer('+thisPeerCounterNumer+')');
+	sendButton.innerHTML = "<font size='2'>send</font>";
+	
 	content.appendChild(peerIDText);
+	var txt = document.createTextNode("\u00a0");
+	content.appendChild(txt);
 	content.appendChild(commuButton);
 	content.appendChild(removeButton);
+	/*
+	txt = document.createTextNode("\u00a0");
+	content.appendChild(txt);
+	content.appendChild(sendButton);
+	*/
 	remotePeers.appendChild(content);
 	return thisPeerCounterNumer;
 }
@@ -211,16 +225,44 @@ function getThisPeerCounterNumer(remotePeer){
 	return -1;
 }
 
-function updatePeerUI(thisPeerCounterNumer, enable){
+function updatePeerUI(thisPeerCounterNumer, thisPeerID, enable){
 	console.log(thisPeerCounterNumer +' to ' + enable);
 	var commuButton = document.getElementById('remotePeer_commuButton_'+thisPeerCounterNumer);
 	var peerIDText = document.getElementById('remotePeer_id_'+thisPeerCounterNumer);
+	var chatsendtargetSelector = document.getElementById('chatsendtargetselect');
+	
 	if(enable){
+		//disconnected
 		if(commuButton != null)commuButton.innerHTML = "<font size='2'>call</font>";
 		if(peerIDText != null)peerIDText.disabled= false;
+		
+		//delete chat target
+		var options = chatsendtargetSelector.options
+		for (var i = options.length - 1; 0 <= i; --i) {
+			if(options[i].value == thisPeerID){
+				if(options[i].selected) {
+					chatsendtargetSelector.selectedIndex = 0;
+				}
+				chatsendtargetSelector.removeChild(options[i]);
+			}
+		}
 	} else {
+		//connected
 		if(commuButton != null)commuButton.innerHTML = "<font size='2'>close</font>";
 		if(peerIDText != null)peerIDText.disabled= true;
+		
+		//add chat target
+		var options = chatsendtargetSelector.options
+		var foundTarget = false;
+		for (var i = options.length - 1; 0 <= i; --i) {
+			if(options[i].value == thisPeerID){
+				foundTarget = true;
+			}
+		}
+		if(!foundTarget){
+			var newElement = new Option( thisPeerID, thisPeerID) ;
+			chatsendtargetSelector.add(newElement);
+		}
 	}
 }
 
@@ -1122,7 +1164,7 @@ function gotoStandby() {
 			mediaConnection.answer(localMixedStream);
 			var thisPeerCounterNumer = addRemotePeerId(mediaConnection.remoteId);
 			openConnection(mediaConnection.remoteId, mediaConnection);
-			updatePeerUI(thisPeerCounterNumer, false);
+			updatePeerUI(thisPeerCounterNumer, mediaConnection.remoteId, false);
 			mediaConnection.on('stream', async stream => {
 				console.log("get stream = "+mediaConnection.remoteId +" "+mediaConnection.id);
 				openStream(stream, mediaConnection.remoteId, mediaConnection);
@@ -1131,7 +1173,7 @@ function gotoStandby() {
 			mediaConnection.once('close', () => {
 				console.log("close = "+mediaConnection.remoteId +" "+mediaConnection.id);
 				var thisPeerCounterNumer = getThisPeerCounterNumer(mediaConnection.remoteId);
-				updatePeerUI(thisPeerCounterNumer, true);
+				updatePeerUI(thisPeerCounterNumer, mediaConnection.remoteId, true);
 				closedConnection(mediaConnection.remoteId);
 				stepButton.setAttribute('onclick', 'callRemote()');
 				stepButton.innerHTML = "<font size='3'>call</font>";
@@ -1210,7 +1252,7 @@ function mediaCall(remotePeerID){
 	//var thisPeerCounterNumer = getThisPeerCounterNumer(mediaConnection.remoteId);
 	var thisPeerCounterNumer = addRemotePeerId(mediaConnection.remoteId);
 	openConnection(mediaConnection.remoteId, mediaConnection);
-	updatePeerUI(thisPeerCounterNumer, false);
+	updatePeerUI(thisPeerCounterNumer, mediaConnection.remoteId, false);
 	mediaConnection.on('stream', async stream => {
 		var thisPeerCounterNumer = getThisPeerCounterNumer(mediaConnection.remoteId);
 		console.log("get stream = "+mediaConnection.remoteId +" "+mediaConnection.id);
@@ -1222,7 +1264,7 @@ function mediaCall(remotePeerID){
 	mediaConnection.once('close', () => {
 		console.log("close = "+mediaConnection.remoteId +" "+mediaConnection.id);
 		var thisPeerCounterNumer = getThisPeerCounterNumer(mediaConnection.remoteId);
-		updatePeerUI(thisPeerCounterNumer, true);
+		updatePeerUI(thisPeerCounterNumer, mediaConnection.remoteId, true);
 		closedConnection(mediaConnection.remoteId);
 	});
 }
@@ -1542,6 +1584,23 @@ function getData(fromPeerID, receiveText, dataConnection){
 		if(wSocket != null){
 			wSocket.send(cmds);
 		}
+	} else if(receiveText.startsWith("chat=")){
+		var cmds = receiveText.slice(5);
+		var chatoutput = document.getElementById('chatoutput');
+		chatoutput.value = "<from>"+fromPeerID+"\n"+cmds+"\n"+chatoutput.value
+	}
+}
+
+function sendchat(){
+	var chatsendinput = document.getElementById('chatsendinput');
+	var sendText = "chat="+chatsendinput.value;
+	chatsendinput.value = "";
+	var chatsendtargetselect = document.getElementById('chatsendtargetselect');
+	var sendTarget = chatsendtargetselect.options[chatsendtargetselect.selectedIndex].value;
+	if(sendTarget == "publish"){
+		publishData(sendText);
+	} else {
+		sendData(sendTarget, sendText);
 	}
 }
 
