@@ -944,16 +944,16 @@ function startVideo(cameraID, video) {
 	if(captureSize == "720"){
 		constraints = {
 			video: {
-				width:1280,
-				height: 720,
+				width: {exact: 1280},
+				height: {exact: 720},
 	                  	deviceId: deviceId
 			}
 		};
 	}  else if(captureSize == "1080"){
 		constraints = {
 			video: {
-				width:1920,
-				height: 1080,
+				width: {exact: 1920},
+				height: {exact: 1080},
 	                  	deviceId: deviceId
 			}
 		};
