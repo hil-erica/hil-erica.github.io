@@ -33,6 +33,10 @@ https://hil-erica.github.io/SoraMichiChat_MultiP2P.html?myPeerID=hoge&remotePeer
 #### プロトコルサンプル
 {"peerid": "bar", "clickevent": {"remotepeerid":"hoge", "trackid":0, "x":614, "y": 27.75,"xRatio":0.959375, "yRatio": 0.07708333333333334}}  
 {"peerid": "bar", "dblclickevent": {"remotepeerid":"hoge", "trackid":0,"x":614, "y": 27.75,"xRatio":0.959375, "yRatio": 0.07708333333333334}}  
+#### websocketデータのトンネリングプロトコル
+"socket="をヘッダーに利用
+#### chatデータのトンネリングプロトコル
+"chat="をヘッダーに利用
 
 ## カメラについて
 ### <chromeでカメラのパラメータ一覧を得る>
