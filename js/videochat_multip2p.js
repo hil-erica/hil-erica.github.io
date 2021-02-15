@@ -186,6 +186,7 @@ function addRemotePeerId(remotePeer){
 	}
 	commuButton.setAttribute('onclick', 'commuButtonClicked('+thisPeerCounterNumer+')');
 	commuButton.innerHTML = "<font size='2'>call</font>";
+	commuButton.classList.toggle('small');
 	
 	var removeButton = document.createElement('button');
 	removeButton.setAttribute('id', 'remotePeer_removeButton_'+thisPeerCounterNumer);
@@ -193,24 +194,13 @@ function addRemotePeerId(remotePeer){
 	removeButton.setAttribute('style', 'width:50pt;');
 	removeButton.setAttribute('onclick', 'removePeer('+thisPeerCounterNumer+')');
 	removeButton.innerHTML = "<font size='2'>remove</font>";
-	
-	var sendButton = document.createElement('button');
-	sendButton.setAttribute('id', 'remotePeer_sendButton_'+thisPeerCounterNumer);
-	sendButton.setAttribute('name', 'remotePeer_sendButton');
-	sendButton.setAttribute('style', 'width:50pt;');
-	sendButton.setAttribute('onclick', 'sendPeer('+thisPeerCounterNumer+')');
-	sendButton.innerHTML = "<font size='2'>send</font>";
-	
+	removeButton.classList.toggle('small');
+		
 	content.appendChild(peerIDText);
 	var txt = document.createTextNode("\u00a0");
 	content.appendChild(txt);
 	content.appendChild(commuButton);
 	content.appendChild(removeButton);
-	/*
-	txt = document.createTextNode("\u00a0");
-	content.appendChild(txt);
-	content.appendChild(sendButton);
-	*/
 	remotePeers.appendChild(content);
 	return thisPeerCounterNumer;
 }

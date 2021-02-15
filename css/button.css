@@ -1,0 +1,46 @@
+button.small {
+  /* 縦方向に10px、
+     * 横方向に30pxの余白を指定 */
+  padding: 0px 10px;
+  /* 背景色を濃い青色に指定 */
+  background-color: White;
+  /* 文字色を白色に指定 */
+  color: DeepSkyBlue;
+  /* 角丸の指定 */
+  -moz-border-radius: 10px;
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
+  border-color: SkyBlue;
+  border-style: solid;
+  border-width: 2px;
+}
+
+button.small:hover {
+  /* 透明度を20%に指定 */
+  opacity: 0.8;
+  background-color: SkyBlue;
+  color: DeepSkyBlue;
+}
+
+button.small:focus {
+  /* 透明度を20%に指定 */
+  opacity: 1.0;
+  /* 背景色を濃い青色に指定 */
+  background-color: White;
+  /* 文字色を白色に指定 */
+  color: SkyBlue;
+}
+
+button.small:active {
+  opacity: 0.8;
+  background-color: DeepSkyBlue;
+  color: SkyBlue;
+}
+
+button.small:disabled {
+  opacity: 1.0;
+  background-image: none;
+  background-color: #ccc;
+  border-color: #ccc;
+  color: gray;
+}

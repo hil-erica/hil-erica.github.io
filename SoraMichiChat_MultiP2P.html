@@ -5,6 +5,7 @@
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <link rel="stylesheet" type="text/css" href="./css/style.css">
   <link rel="stylesheet" type="text/css" href="./css/tab.css">
+    <link rel="stylesheet" type="text/css" href="./css/button.css">
   <title>空道電話(Multi P2P)</title>
   <link rel="shortcut icon" href="./pics/denwa.ico" type="image/vnd.microsoft.icon">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
@@ -18,7 +19,7 @@
     
     <input id="TAB-Device" type="radio" name="TAB" class="tab-switch" checked="checked" /><label class="tab-label" for="TAB-Device">devices</label>
     <div class="tab-content">
-      <button id="devices_button" onclick="getDeviceList()"><font size="3">get devices</font></button><br>
+      <button id="devices_button" class="small" onclick="getDeviceList()"><font size="3">get devices</font></button><br>
       <div class="box-text-mic">
         device:
         <select id="mic_list" size="1" style="width:160pt;">
@@ -39,9 +40,10 @@
     <input id="TAB-Communication" type="radio" name="TAB" class="tab-switch"><label class="tab-label" for="TAB-Communication">communication</label>
     <div class="tab-content">
       <h5>
-      <button id="step_button" onclick="gotoStandby()" disabled="true" style="width:80pt;"><font size="2">go to standby</font></button>
+      <button id="step_button" class="small" onclick="gotoStandby()" disabled="true" style="width:80pt;"><font size="2">go to standby</font></button>
       my PeerID：<input type="text" id="myPeerID" name="peerID" size="10" maxlength="20" value="hoge">
-      accessible：<input type="text" id="accessible_list" style="width:250pt;" readonly="readonly">
+      accessible：<input type="text" id="accessible_list" style="width:300pt;" readonly="readonly">
+      <!--<textarea id="accessible_list" style="width:300px;height:20px;resize:horizontal;" readonly="readonly"></textarea>-->
       <br>
      <div class="box-text-remotePeerIDs" style="width:900px">
          <button class="item_addButton" id="addRemote_button" onclick="addRemotePeerId('foo')"><font size="2">add remote</font></button>
@@ -49,7 +51,7 @@
         </div>
         <div class="item_small"  id="chat" style="width:400px;height:150px;">
           <input id="chatsendinput" style="width:225pt;" value="input text, select whom and click send"></input>
-          <button id="chatsendbutton" onclick="sendchat()"  style="width:40pt;"><font size="2">send</font></button>
+          <button id="chatsendbutton"class="small"  onclick="sendchat()"  style="width:40pt;"><font size="2">send</font></button>
           <select name="chatsendtargets" id="chatsendtargetselect">
             <option value="publish">publish</option>
           </select>
@@ -62,13 +64,13 @@
      
      <input id="TAB-Socket" type="radio" name="TAB" class="tab-switch"><label class="tab-label" for="TAB-Socket">socket</label>
      <div class="tab-content">
-       <button id="socket_connect_button" onclick="socketconnection()" style="width:80pt;"><font size="2">connect</font></button>
+       <button id="socket_connect_button"class="small"  onclick="socketconnection()" style="width:80pt;"><font size="2">connect</font></button>
        url：<input type="text" id="socket_url" name="socket_url" size="50" maxlength="100" value="ws://127.0.0.1:8000">
      </div><!--tab-content-->
      
      <input id="TAB-Record" type="radio" name="TAB" class="tab-switch"><label class="tab-label" for="TAB-Record">record</label>
      <div class="tab-content">
-       <button id="recorder_button" onclick="startstoprecord()" disabled="true" style="width:80pt;"><font size="2">record</font></button>
+       <button id="recorder_button"class="small"  onclick="startstoprecord()" disabled="true" style="width:80pt;"><font size="2">record</font></button>
        <!--<a href="#" id="downloadlink">download all(large size zipping is not supportted)</a>-->
        <div id="download_each"></div>
      </div><!--tab-content-->

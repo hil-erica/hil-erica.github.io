@@ -30,22 +30,23 @@
   -webkit-overflow-scrolling: touch;
 }
 
-.item_large{
+.item_large {
   /* 横スクロール用 */
   display: inline-block;
   /*width: 90%;*/
- width: 320px;
+  width: 320px;
   /* 見た目調整 */
   height: 240px;
   margin: 5px;
   font-size: 10px;
   /*background: rgba(255, 0, 0, 0.4);*/
 }
-.item_small{
+
+.item_small {
   /* 横スクロール用 */
   display: inline-block;
   /*width: 90%;*/
- width: 180px;
+  width: 180px;
   /* 見た目調整 */
   height: 120px;
   margin: 5px;
@@ -54,22 +55,71 @@
   overflow-y: auto;
 }
 
-.item_addButton{
+.item_addButton {
   /* 横スクロール用 */
   display: inline-block;
   /*width: 90%;*/
- width: 95px;
+  width: 95px;
   /* 見た目調整 */
   height: 45px;
   margin: 5px;
   font-size: 10px;
   /*background: rgba(255, 0, 0, 0.4);*/
   vertical-align: top;
+  /* 縦方向に10px、
+     * 横方向に30pxの余白を指定 */
+  padding: 0px 10px;
+  /* 背景色を濃い青色に指定 */
+  background-color: White;
+  /* 文字色を白色に指定 */
+  color: DeepSkyBlue;
+  /* 角丸の指定 */
+  -moz-border-radius: 10px;
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
+  border-color: SkyBlue;
+  border-style: solid;
+  border-width: 2px;
 }
 
-* { box-sizing: border-box; }
+.item_addButton:hover {
+  /* 透明度を20%に指定 */
+  opacity: 0.8;
+  background-color: SkyBlue;
+  color: DeepSkyBlue;
+}
 
-body { font-family: sans-serif; }
+.item_addButton:focus {
+  /* 透明度を20%に指定 */
+  opacity: 1.0;
+  /* 背景色を濃い青色に指定 */
+  background-color: White;
+  /* 文字色を白色に指定 */
+  color: SkyBlue;
+}
+
+.item_addButton:active {
+  opacity: 0.8;
+  background-color: DeepSkyBlue;
+  color: SkyBlue;
+}
+
+.item_addButton:disabled {
+  opacity: 1.0;
+  background-image: none;
+  background-color: #ccc;
+  border-color: #ccc;
+  color: gray;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: sans-serif;
+}
+
 
 /* ---- grid ---- */
 
@@ -79,18 +129,21 @@ body { font-family: sans-serif; }
   max-width: 100%;
 }
 
+
 /* clearfix */
+
 .viwer_grid:after {
   content: '';
   display: block;
   clear: both;
 }
 
+
 /* ---- grid-item ---- */
 
 .viwer_grid-item {
   width: 320px;
-  height: 260px;//240-20
+  height: 260px; //240-20
   float: left;
   /*鼠色*/
   /*background: #838383;*/
@@ -103,100 +156,113 @@ body { font-family: sans-serif; }
 
 .viwer_grid-item--144 {
   width: 256px;
-  height: 184px;//144+40
+  height: 184px; //144+40
 }
+
 .viwer_grid-item--240 {
   width: 427px;
-  height: 284px;//240+40
+  height: 284px; //240+40
 }
+
 .viwer_grid-item--360 {
   width: 640px;
-  height: 400px;//360+40
+  height: 400px; //360+40
 }
+
 .viwer_grid-item--480 {
   width: 720px;
-  height: 520px;//480+40
+  height: 520px; //480+40
 }
+
 .viwer_grid-item--720 {
   width: 1280px;
-  height: 760px;//720+40
+  height: 760px; //720+40
 }
+
 .viwer_grid-item--1080 {
   width: 1920px;
-  height: 1120px;//1080+40
+  height: 1120px; //1080+40
 }
+
 .viwer_grid-item--1440 {
   width: 2560px;
-  height: 1480px;//1440+40
+  height: 1480px; //1440+40
 }
+
 .viwer_grid-item--2160 {
   width: 3840px;
-  height: 2200px;//2160+40
+  height: 2200px; //2160+40
 }
 
 button {
   font-size: 20px;
 }
 
+
 /* canvas */
+
 .canvas {
   position: absolute;
-  top: 20;/*サイズプルダウンのマージン*/
+  top: 20;
+  /*サイズプルダウンのマージン*/
   left: 0;
   z-index: 10;
   /*background-color:rgba(255,0,0,0.5);*/
 }
 
 .box-text-mic {
-    position: relative;
-    border: 3px solid SkyBlue;
-    border-radius: 5px;
-    margin: 20px 0;
-    padding: 20px 20px 5px 20px;
+  position: relative;
+  border: 3px solid SkyBlue;
+  border-radius: 5px;
+  margin: 20px 0;
+  padding: 20px 20px 5px 20px;
 }
+
 .box-text-mic::before {
-    content: "microphone";
-    position: absolute;
-    background-color: White;
-    color: SkyBlue;
-    font-weight: bold;
-    left: 20px;
-    top: -23px;
-    padding: 10px;
+  content: "microphone";
+  position: absolute;
+  background-color: White;
+  color: SkyBlue;
+  font-weight: bold;
+  left: 20px;
+  top: -23px;
+  padding: 10px;
 }
 
 .box-text-speaker {
-    position: relative;
-    border: 3px solid SkyBlue;
-    border-radius: 5px;
-    margin: 20px 0;
-    padding: 20px 20px 5px 20px;
+  position: relative;
+  border: 3px solid SkyBlue;
+  border-radius: 5px;
+  margin: 20px 0;
+  padding: 20px 20px 5px 20px;
 }
+
 .box-text-speaker::before {
-    content: "speaker";
-    position: absolute;
-    background-color: White;
-    color: SkyBlue;
-    font-weight: bold;
-    left: 20px;
-    top: -23px;
-    padding: 10px;
+  content: "speaker";
+  position: absolute;
+  background-color: White;
+  color: SkyBlue;
+  font-weight: bold;
+  left: 20px;
+  top: -23px;
+  padding: 10px;
 }
 
 .box-text-remotePeerIDs {
-    position: relative;
-    border: 3px solid SkyBlue;
-    border-radius: 5px;
-    margin: 20px 0;
-    padding: 20px 20px 5px 20px;
+  position: relative;
+  border: 3px solid SkyBlue;
+  border-radius: 5px;
+  margin: 20px 0;
+  padding: 20px 20px 5px 20px;
 }
+
 .box-text-remotePeerIDs::before {
-    content: "remotePeerIDs";
-    position: absolute;
-    background-color: White;
-    color: SkyBlue;
-    font-weight: bold;
-    left: 20px;
-    top: -23px;
-    padding: 10px;
+  content: "remotePeerIDs";
+  position: absolute;
+  background-color: White;
+  color: SkyBlue;
+  font-weight: bold;
+  left: 20px;
+  top: -23px;
+  padding: 10px;
 }
