@@ -19,9 +19,9 @@ var numAudio = 1;
 var viewersize = '360';
 var captureSize = "none";
 var default_width = 320;
-var defualt_heigt = 240;
+var defualt_heigt = 191;
 var small_width = 180;
-var small_height = 120;
+var small_height = 101;
 var button_size = 16;
 var thisPeer = window.thisPeer;
 var checkMemberTimerId;
@@ -290,6 +290,7 @@ function addCamera(deviceID, deviceLabel) {
 	var screenObj;
 	screenObj = document.createElement('video');
 	screenObj.setAttribute('id', 'local_camera_video_' + deviceID);
+	screenObj.setAttribute('videoid', deviceID);
 	screenObj.setAttribute('name', 'local_camera_video');
 	screenObj.setAttribute('width', String(width) + 'px');
 	screenObj.setAttribute('height', String(height) + 'px');
@@ -309,6 +310,7 @@ function addCamera(deviceID, deviceLabel) {
 	screenObj2.setAttribute('style', 'border: 1px solid;');
 	*/
 	var checkBoxLabelObj = document.createElement('label');
+	checkBoxLabelObj.setAttribute('id', 'local_camera_label_' + deviceID);
 	checkBoxLabelObj.innerHTML = deviceLabel;
 	var checkBoxObj;
 	//<input type="checkbox" name="os" value="win7">Windows7
@@ -1130,6 +1132,16 @@ function gotoStandby() {
 				elements[i].srcObject.addTrack(localMicStream.getAudioTracks()[0]);
 			} else {
 				console.log('local mic stream is null');
+			}
+			
+			//check boxとcamera labelを削除
+			var removeItem = document.getElementById('local_camera_checkBox_'+elements[i].getAttribute('videoid'));
+			if(removeItem != null){
+				removeItem.parentNode.removeChild(removeItem);
+			}
+			removeItem = document.getElementById('local_camera_label_'+elements[i].getAttribute('videoid'));
+			if(removeItem != null){
+				removeItem.parentNode.removeChild(removeItem);
 			}
 		}
 		elements = document.getElementsByName('local_camera_view');

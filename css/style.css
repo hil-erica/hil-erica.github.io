@@ -33,10 +33,9 @@
 .item_large {
   /* 横スクロール用 */
   display: inline-block;
-  /*width: 90%;*/
+  /* 16 : 9 */
   width: 320px;
-  /* 見た目調整 */
-  height: 240px;
+  height: 191px;
   margin: 5px;
   font-size: 10px;
   /*background: rgba(255, 0, 0, 0.4);*/
@@ -45,10 +44,18 @@
 .item_small {
   /* 横スクロール用 */
   display: inline-block;
-  /*width: 90%;*/
+    /* 16 : 9 */
   width: 180px;
-  /* 見た目調整 */
-  height: 120px;
+  height: 101px;
+  margin: 5px;
+  font-size: 10px;
+  /*background: rgba(255, 0, 0, 0.4);*/
+  /*overflow-y: auto; */
+}
+
+.item_small_overflow {
+  /* 横スクロール用 */
+  display: inline-block;
   margin: 5px;
   font-size: 10px;
   /*background: rgba(255, 0, 0, 0.4);*/
