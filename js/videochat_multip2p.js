@@ -268,6 +268,25 @@ function removePeer(thisPeerCounterNumer){
 	}
 }
 
+function updateCommuButton(){
+	var buttons = document.getElementsByName("remotePeer_commuButton");
+	for(var j = 0; j < buttons.length; j++){
+		if(buttons[j].value == "call"){
+			buttons[j].disabled= true;
+		}
+	}
+	for (var i = 0; i < accessibleMembers.length; i++) {
+		for(var j = 0; j < buttons.length; j++){
+			var thisPeerCounterNumber = buttons[j].getAttribute("thisPeerCounterNumer");
+			var peerTextID = document.getElementById('remotePeer_id_'+thisPeerCounterNumber);
+			var peerID = peerTextID.value;
+			if(accessibleMembers[i] == peerID){
+				buttons[j].disabled= false;
+			}
+		}
+	}
+}
+
 function commuButtonClicked(thisPeerCounterNumer){
 	var commuButtonID = document.getElementById('remotePeer_commuButton_'+thisPeerCounterNumer);
 	var peerTextID = document.getElementById('remotePeer_id_'+thisPeerCounterNumer);
@@ -1047,6 +1066,7 @@ function gotoStandby() {
 				accessibleList.value += peers[i]+";";
 				accessibleMembers.push(peers[i]);
 			}
+			//updateCommuButton();
 			console.log(peers);
 		});
 		
@@ -1072,6 +1092,7 @@ function gotoStandby() {
 					accessibleList.value += peers[i]+";";
 					accessibleMembers.push(peers[i]);
 				}
+				//updateCommuButton();
 				//console.log(peers);
 			});
 		}
@@ -1165,7 +1186,7 @@ function gotoStandby() {
 			if(localMixedStream == null){
 				makeLocalStream();
 			}
-			console.log('local stream videtrack = '+localMixedStream.getVideoTracks().length+', audiotrack = '+localMixedStream.getAudioTracks().length);
+			console.log('local stream videotrack = '+localMixedStream.getVideoTracks().length+', audiotrack = '+localMixedStream.getAudioTracks().length);
 			mediaConnection.answer(localMixedStream);
 			var thisPeerCounterNumer = addRemotePeerId(mediaConnection.remoteId);
 			openConnection(mediaConnection.remoteId, mediaConnection);
@@ -1220,7 +1241,7 @@ function callRemoteOne(remotePeerID) {
 		makeLocalStream();
 	}
 	
-	console.log('local stream videtrack = '+localMixedStream.getVideoTracks().length+', audiotrack = '+localMixedStream.getAudioTracks().length);
+	console.log('local stream videotrack = '+localMixedStream.getVideoTracks().length+', audiotrack = '+localMixedStream.getAudioTracks().length);
 	if(remotePeerID == "" || remotePeerID == " ")return false;
 	if(remotePeerIDMediaConMap.has(remotePeerID))return true;
 	console.log("remotePeerID = "+ remotePeerID);
@@ -1300,7 +1321,7 @@ function openConnection(remotePeerID, mediaConnection){
 }
 
 function openStream(stream, remotePeerID, mediaConnection){
-	console.log(remotePeerID+ '('+mediaConnection.remoteId+') => remote stream videtrack = '+stream.getVideoTracks().length+', audiotrack = '+stream.getAudioTracks().length);
+	console.log(remotePeerID+ '('+mediaConnection.remoteId+') => remote stream videotrack = '+stream.getVideoTracks().length+', audiotrack = '+stream.getAudioTracks().length);
 	//AudioContextを使ってMediaStreamを作り直すとvideo.setSinkIDで別々に出力できるようになった，じゃないとどれか1つのsinkIDを書き換えるとすべてskywayからもらったMediaStreamの音声の出力先が連動して変わってしまう，多分そんなに音質悪化はないかな？
 	
 	////重要なのはVideoTrack＝２でAudioTrack＝１の場合２つ目のVideoTrackはhoge2の処理に入る，そうすると２つのVideoTrackで別々の音声出力をすることができるが，追加で別と通信した音声が再生できない（hoge1処理で）
@@ -1394,7 +1415,13 @@ function closedConnection(remotePeerID){
 	var elements = document.getElementsByName('remote_camera_video_'+remotePeerID);
 	//取得した一覧から全てのvalue値を表示する
 	for (var i = 0; i < elements.length; i++) {
-		elements[i].srcObject.getTracks().forEach(track => track.stop());
+		//elements[i].srcObject.getTracks().forEach(track => track.stop());
+		var tracks = elements[i].srcObject.getTracks();
+		if(tracks != null){
+			for(var j = 0; j < tracks.length; j++){
+				tracks[j].stop();
+			}
+		}
 		elements[i].srcObject = null;
 	}
 	const remote_cameras = document.getElementById("remote_cameras");
@@ -1425,7 +1452,13 @@ function closedConnection(remotePeerID){
 	var elements = document.getElementsByName('remote_audio_source_'+remotePeerID);
 	//取得した一覧から全てのvalue値を表示する
 	for (var i = 0; i < elements.length; i++) {
-		elements[i].srcObject.getTracks().forEach(track => track.stop());
+		//elements[i].srcObject.getTracks().forEach(track => track.stop());
+		var tracks = elements[i].srcObject.getTracks();
+		if(tracks != null){
+			for(var j = 0; j < tracks.length; j++){
+				tracks[j].stop();
+			}
+		}
 		elements[i].srcObject = null;
 	}
 	const remote_audios = document.getElementById("remote_audios");
