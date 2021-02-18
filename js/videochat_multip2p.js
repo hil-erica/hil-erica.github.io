@@ -218,6 +218,7 @@ function getThisPeerCounterNumer(remotePeer){
 function updatePeerUI(thisPeerCounterNumer, thisPeerID, enable){
 	console.log(thisPeerCounterNumer +' to ' + enable);
 	var commuButton = document.getElementById('remotePeer_commuButton_'+thisPeerCounterNumer);
+	var removeButton = document.getElementById('remotePeer_removeButton_'+thisPeerCounterNumer);
 	var peerIDText = document.getElementById('remotePeer_id_'+thisPeerCounterNumer);
 	var chatsendtargetSelector = document.getElementById('chatsendtargetselect');
 	
@@ -225,6 +226,7 @@ function updatePeerUI(thisPeerCounterNumer, thisPeerID, enable){
 		//disconnected
 		if(commuButton != null)commuButton.innerHTML = "<font size='2'>call</font>";
 		if(peerIDText != null)peerIDText.disabled= false;
+		if(removeButton != null)removeButton.disabled= false;
 		
 		//delete chat target
 		var options = chatsendtargetSelector.options
@@ -240,6 +242,7 @@ function updatePeerUI(thisPeerCounterNumer, thisPeerID, enable){
 		//connected
 		if(commuButton != null)commuButton.innerHTML = "<font size='2'>close</font>";
 		if(peerIDText != null)peerIDText.disabled= true;
+		if(removeButton != null)removeButton.disabled= true;
 		
 		//add chat target
 		var options = chatsendtargetSelector.options
