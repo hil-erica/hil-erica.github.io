@@ -1596,11 +1596,12 @@ function getData(fromPeerID, receiveText, dataConnection){
 function sendchat(){
 	var chatsendinput = document.getElementById('chatsendinput');
 	var sendText = "chat="+chatsendinput.value;
+	var sendRawText = chatsendinput.value;
 	chatsendinput.value = "";
 	var chatsendtargetselect = document.getElementById('chatsendtargetselect');
 	var sendTarget = chatsendtargetselect.options[chatsendtargetselect.selectedIndex].value;
 	var chatoutput = document.getElementById('chatoutput');
-	chatoutput.value = "<from>"+myPeerID.value+"<to>"+sendTarget+"\n"+sendText+"\n"+chatoutput.value
+	chatoutput.value = "<from>"+myPeerID.value+"<to>"+sendTarget+"\n"+sendRawText+"\n"+chatoutput.value
 	if(sendTarget == "publish"){
 		publishData(sendText);
 	} else {
