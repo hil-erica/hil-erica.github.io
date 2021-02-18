@@ -1599,6 +1599,8 @@ function sendchat(){
 	chatsendinput.value = "";
 	var chatsendtargetselect = document.getElementById('chatsendtargetselect');
 	var sendTarget = chatsendtargetselect.options[chatsendtargetselect.selectedIndex].value;
+	var chatoutput = document.getElementById('chatoutput');
+	chatoutput.value = "<from>"+myPeerID.value+"<to>"+sendTarget+"\n"+cmds+"\n"+chatoutput.value
 	if(sendTarget == "publish"){
 		publishData(sendText);
 	} else {
