@@ -1600,7 +1600,7 @@ function sendchat(){
 	var chatsendtargetselect = document.getElementById('chatsendtargetselect');
 	var sendTarget = chatsendtargetselect.options[chatsendtargetselect.selectedIndex].value;
 	var chatoutput = document.getElementById('chatoutput');
-	chatoutput.value = "<from>"+myPeerID.value+"<to>"+sendTarget+"\n"+cmds+"\n"+chatoutput.value
+	chatoutput.value = "<from>"+myPeerID.value+"<to>"+sendTarget+"\n"+sendText+"\n"+chatoutput.value
 	if(sendTarget == "publish"){
 		publishData(sendText);
 	} else {
