@@ -1464,7 +1464,7 @@ function closedConnection(remotePeerID){
 	const remote_audios = document.getElementById("remote_audios");
 	elements = document.getElementsByName("remote_audio_"+remotePeerID);
 	for (var i = 0; i < elements.length; i++) {
-		remote_audios.removeChild(elements[i]);
+		elements[i].parentNode.removeChild(elements[i]);
 	}
 	
 	remotePeerIDMediaConMap.delete(remotePeerID);
