@@ -149,6 +149,12 @@ function inputKeyDialogue(){
 	}
 }
 
+window.addEventListener('beforeunload', (event) => {
+	logout();
+	//event.preventDefault();
+	//event.returnValue = '';
+});
+
 function addRemotePeerId(remotePeer){
 	var elements = document.getElementsByName('remotePeer_id');
 	if(elements != null){
@@ -1076,7 +1082,7 @@ function gotoStandby() {
 				accessibleList.value += peers[i]+";";
 				accessibleMembers.push(peers[i]);
 			}
-			//updateCommuButton();
+			updateCommuButton();
 			console.log(peers);
 		});
 		
@@ -1102,7 +1108,7 @@ function gotoStandby() {
 					accessibleList.value += peers[i]+";";
 					accessibleMembers.push(peers[i]);
 				}
-				//updateCommuButton();
+				updateCommuButton();
 				//console.log(peers);
 			});
 		}
