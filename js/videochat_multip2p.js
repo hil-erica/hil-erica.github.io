@@ -1702,6 +1702,9 @@ function startstoprecord(){
 		
 		isRecording = false;
 		recordButton.innerHTML = "<font size='2'>record</font>";
+		
+		var recorder_button = document.getElementById('recorder_button');
+		recorder_button.disabled = true;
 	} else {
 		//start
 		isRecording = true;
@@ -1883,6 +1886,10 @@ function createCallbackOnstop(recorderCount) {
 				*/
 				folder.file(fileNames[i], videoBlob[i]);
 			}
+			
+			//次のレコードを可能にする
+			var recorder_button = document.getElementById('recorder_button');
+			recorder_button.disabled = false;
 			
 			/*
 			console.log("start zip");			
