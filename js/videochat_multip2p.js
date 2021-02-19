@@ -271,7 +271,7 @@ function removePeer(thisPeerCounterNumer){
 function updateCommuButton(){
 	var buttons = document.getElementsByName("remotePeer_commuButton");
 	for(var j = 0; j < buttons.length; j++){
-		if(buttons[j].value == "call"){
+		if(buttons[j].innerHTML.indexOf('call') >= 0){
 			buttons[j].disabled= true;
 		}
 	}
@@ -1038,6 +1038,7 @@ function teleOpeModeChanged() {
 }
 
 function gotoStandby() {
+	console.log("gotostandby clicked");
 	thisPeer = (window.peer = new Peer(myPeerID.value,{
 		//key: window.__SKYWAY_KEY__,
 		key: skywaykey,
@@ -1050,6 +1051,15 @@ function gotoStandby() {
 		alert(error);
 	});
 	
+	thisPeer.on("close", () => {
+		var buttons = document.getElementsByName("remotePeer_commuButton");
+		for(var j = 0; j < buttons.length; j++){
+			buttons[j].disabled = true;
+		}
+		stepButton.innerHTML = "<font size='2'>go to standby</font>";
+		stepButton.disabled = false;
+		isReady = false;
+	});
 	
 	/*
 	for(var[key, value] of remotePeerIDMediaConMap){
@@ -1097,6 +1107,7 @@ function gotoStandby() {
 			});
 		}
 		checkMemberTimerId = setInterval(checkAccessibleMember, 5000);
+		//clearInterval(checkMemberTimerId);
 		
 		var width = small_width;
 		var height = small_height;
@@ -1201,8 +1212,6 @@ function gotoStandby() {
 				var thisPeerCounterNumer = getThisPeerCounterNumer(mediaConnection.remoteId);
 				updatePeerUI(thisPeerCounterNumer, mediaConnection.remoteId, true);
 				closedConnection(mediaConnection.remoteId);
-				stepButton.setAttribute('onclick', 'callRemote()');
-				stepButton.innerHTML = "<font size='3'>call</font>";
 			});
 		});//end of call media connection
 		
@@ -1223,6 +1232,28 @@ function gotoStandby() {
 			});//end of open dataconnection
 		});//end of call dataconnection
 	});//end of thisPeer.once('open', id => {
+}
+
+function logout(){
+	console.log("try to log out");
+	//close all connection
+	var buttons = document.getElementsByName("remotePeer_commuButton");
+	for(var j = 0; j < buttons.length; j++){
+		if(buttons[j].innerHTML.indexOf('close') >= 0){
+			buttons[j].click();
+		}
+	}
+	clearInterval(checkMemberTimerId);	
+	//sleep(3000);
+	if(thisPeer != null){
+		thisPeer.destroy();
+	}
+}
+
+function sleep(waitMsec) {
+	var startMsec = new Date();
+	// 指定ミリ秒間だけループさせる（CPUは常にビジー状態）
+	while (new Date() - startMsec < waitMsec);
 }
 
 function callRemoteOne(remotePeerID) {
@@ -1416,13 +1447,15 @@ function closedConnection(remotePeerID){
 	//取得した一覧から全てのvalue値を表示する
 	for (var i = 0; i < elements.length; i++) {
 		//elements[i].srcObject.getTracks().forEach(track => track.stop());
-		var tracks = elements[i].srcObject.getTracks();
-		if(tracks != null){
-			for(var j = 0; j < tracks.length; j++){
-				tracks[j].stop();
+		if(elements[i].srcObject != null){
+			var tracks = elements[i].srcObject.getTracks();
+			if(tracks != null){
+				for(var j = 0; j < tracks.length; j++){
+					tracks[j].stop();
+				}
 			}
+			elements[i].srcObject = null;
 		}
-		elements[i].srcObject = null;
 	}
 	const remote_cameras = document.getElementById("remote_cameras");
 	/*
@@ -1453,13 +1486,15 @@ function closedConnection(remotePeerID){
 	//取得した一覧から全てのvalue値を表示する
 	for (var i = 0; i < elements.length; i++) {
 		//elements[i].srcObject.getTracks().forEach(track => track.stop());
-		var tracks = elements[i].srcObject.getTracks();
-		if(tracks != null){
-			for(var j = 0; j < tracks.length; j++){
-				tracks[j].stop();
+		if(elements[i].srcObject != null){
+			var tracks = elements[i].srcObject.getTracks();
+			if(tracks != null){
+				for(var j = 0; j < tracks.length; j++){
+					tracks[j].stop();
+				}
 			}
+			elements[i].srcObject = null;
 		}
-		elements[i].srcObject = null;
 	}
 	const remote_audios = document.getElementById("remote_audios");
 	elements = document.getElementsByName("remote_audio_"+remotePeerID);
@@ -1624,8 +1659,16 @@ function getData(fromPeerID, receiveText, dataConnection){
 		}
 	} else if(receiveText.startsWith("chat=")){
 		var cmds = receiveText.slice(5);
-		var chatoutput = document.getElementById('chatoutput');
-		chatoutput.value = "<from>"+fromPeerID+"\n"+cmds+"\n"+chatoutput.value
+		if(cmds.startsWith("forcelogout=")){
+			var logoutid = cmds.slice(12);
+			console.log("force logout command = "+logoutid);
+			if(logoutid == myPeerID.value){
+				logout();
+			}
+		} else {
+			var chatoutput = document.getElementById('chatoutput');
+			chatoutput.value = "<from>"+fromPeerID+"\n"+cmds+"\n"+chatoutput.value
+		}
 	}
 }
 
