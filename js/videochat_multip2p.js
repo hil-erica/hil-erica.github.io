@@ -723,6 +723,25 @@ function addView(stream, remoterPeerID, trackID) {
 		content.setAttribute('class', 'viwer_grid-item viwer_grid-item--1080');
 	}
 	
+	//もし録画中だったらリストに加える
+	if(isRecording){
+		recorder.push(new MediaRecorder(screenObj.srcObject));
+		recorderMap.set(recorderCount, recorder[recorderCount]);
+		chunks.push([]); // 格納場所をクリア
+		fileNames.push(remoterPeerID+"_"+screenObj.getAttribute("trackid")+".webm");
+		// 録画進行中に、インターバルに合わせて発生するイベント
+		console.log(fileNames+":"+screenObj.getAttribute("trackid"));
+		recorder[recorderCount].ondataavailable = createCallbackOndataavailable(recorderCount);	
+		
+		// 録画停止時のイベント
+		recorder[recorderCount].onstop = createCallbackOnstop(recorderCount);
+		// 録画スタート
+		recorder[recorderCount].start(1000); // インターバルは1000ms
+		console.log('start recording : '+recorderCount);
+		recorderCount++;
+	}
+	
+	
 	//make jQuery object
 	var $content = $( content );
 	$grid.append( $content ).masonry( 'appended', $content ).masonry();
@@ -803,6 +822,28 @@ function addSoundOnly(stream, remoterPeerID, trackID, muteMode) {
 		audioObj.controls = false;
 	}
 	audioObj.setAttribute('autoplay', '1');
+	
+	//録画中ならリストに加える
+	if(isRecording){
+		if(audioObj.srcObject != null && audioObj.getAttribute("mutemode")=="false"){
+			recorder.push(new MediaRecorder(audioObj.srcObject));
+			recorderMap.set(recorderCount, recorder[recorderCount]);
+			chunks.push([]); // 格納場所をクリア
+			fileNames.push(remoterPeerID+"_audioonly_"+audioObj.getAttribute("trackid")+".webm");
+			// 録画進行中に、インターバルに合わせて発生するイベント
+			console.log(fileNames+":"+audioObj.getAttribute("trackid"));
+			recorder[recorderCount].ondataavailable = createCallbackOndataavailable(recorderCount);	
+			
+			// 録画停止時のイベント
+			recorder[recorderCount].onstop = createCallbackOnstop(recorderCount);
+			// 録画スタート
+			recorder[recorderCount].start(1000); // インターバルは1000ms
+			console.log('start recording : '+recorderCount);
+			recorderCount++;
+		} else {
+			//console.log('remote_audio_source_'+key +' srcObjec is null');
+		}
+	}
 	
 	content.appendChild(audioObj);
 	const remote_audios = document.getElementById("remote_audios");
@@ -1694,10 +1735,15 @@ function sendchat(){
 	}
 }
 
+var recorderCount = 0;
 function startstoprecord(){
 	if(isRecording){
 		for(var i  = 0; i < recorder.length; i++){
-			if(recorder[i] != null) recorder[i].stop();
+			if(recorder[i] != null){
+				recorder[i].stop();
+			} else {
+				console.error('not found recorder index = '+i);
+			}
 		}
 		
 		isRecording = false;
@@ -1713,7 +1759,7 @@ function startstoprecord(){
 		recorder.splice(0);
 		chunks.splice(0);
 		fileNames.splice(0);
-		var recorderCount = 0;
+		recorderCount = 0;
 		var elements = document.getElementsByName('local_camera_video');
 		if(elements.length == 0){
 			//record sound only
