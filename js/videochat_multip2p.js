@@ -1697,7 +1697,7 @@ function sendchat(){
 function startstoprecord(){
 	if(isRecording){
 		for(var i  = 0; i < recorder.length; i++){
-			recorder[i].stop();
+			if(recorder[i] != null) recorder[i].stop();
 		}
 		
 		isRecording = false;
