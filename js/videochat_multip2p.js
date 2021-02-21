@@ -39,6 +39,7 @@ var remotePeerCounter = 0;
 var isReady = false;
 var skywaykey = null;
 var teleOpeMode = false;
+var videoMuteMode = false;
 
 var isRecording = false;
 var recorder =  [];
@@ -125,6 +126,11 @@ function getQueryParams() {
 			}
 			if(key == "micdelay"){
 				document.getElementById("micdelayinput").value = parseFloat(value);
+			}
+			if(key == "videomutemode"){
+				if(value == "true" || value == "TRUE" || value == "True"){
+					videoMuteMode = true;
+				}
 			}
 		}
 		return result;
@@ -1324,6 +1330,14 @@ function callRemoteOne(remotePeerID) {
 	if(remotePeerIDMediaConMap.has(remotePeerID))return true;
 	console.log("remotePeerID = "+ remotePeerID);
 	//var mediaConnection = thisPeer.call(remotePeerIDs[i], localMixedStream);
+	if(videoMuteMode){
+		console.log("call to "+ remotePeerID+" with video mute mode");
+		//dataConnection.send("numvideo=-1");
+		if(localMixedStream == null){
+			makeLocalStream();
+		}
+		mediaCall(remotePeerID);
+	} 
 	
 	//make data connection
 	 const dataConnection = thisPeer.connect(remotePeerID);
@@ -1331,7 +1345,11 @@ function callRemoteOne(remotePeerID) {
 		remotePeerIDDataConMap.set(dataConnection.remoteId, dataConnection);
 		console.log(dataConnection.remoteId +" data connection opened" );
 		//dataConnection.send("hello I'm "+myPeerID.value);
-		dataConnection.send("numvideo="+localMixedStream.getVideoTracks().length);
+		if(videoMuteMode){
+			
+		} else {
+			dataConnection.send("numvideo="+localMixedStream.getVideoTracks().length);
+		}
 	});
 	
 	dataConnection.on('data', data => {
