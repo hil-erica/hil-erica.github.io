@@ -1820,6 +1820,7 @@ function micTestRecord(event){
 					});
 					micTestAudio.play();
 				}
+				stream.getTracks().forEach(track => track.stop());
 				micTestMediaRecorder = null;
 			});
 
