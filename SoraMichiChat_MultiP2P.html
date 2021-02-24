@@ -5,7 +5,8 @@
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <link rel="stylesheet" type="text/css" href="./css/style.css">
   <link rel="stylesheet" type="text/css" href="./css/tab.css">
-    <link rel="stylesheet" type="text/css" href="./css/button.css">
+  <link rel="stylesheet" type="text/css" href="./css/button.css">
+  <script src="https://d3js.org/d3.v6.min.js"></script>
   <title>空道電話(Multi P2P)</title>
   <link rel="shortcut icon" href="./pics/denwa.ico" type="image/vnd.microsoft.icon">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
@@ -20,7 +21,7 @@
     <input id="TAB-Device" type="radio" name="TAB" class="tab-switch" checked="checked" /><label class="tab-label" for="TAB-Device">devices</label>
     <div class="tab-content">
       <button id="devices_button" class="small" onclick="getDeviceList()"><font size="3">get devices</font></button><br>
-      <div class="box-text-mic">
+      <div class="box-text-mic" id="box-text-mic">
         device:
         <select id="mic_list" size="1" style="width:160pt;">
           <option>(audio)</option>
@@ -28,12 +29,16 @@
         &nbsp;additional transmit delay[sec]:
         <input type="number" id="micdelayinput" value="0" min="0" max="1" step="0.01">
         &nbsp;mute:<input type="checkbox" id="mutecheckbox" value="1">
+        <br>
+        <button id="mic_test" class="small" onclick="micTestRecord()" disabled="true"><font size="3">mic test(start recording)</font></button><br>
       </div>
       <div class="box-text-speaker">
         device:
         <select id="speaker_list" size="1" style="width:160pt;">
           <option>(speaker)</option>
         </select>
+        <br>
+        <button id="speaker_test" class="small" onclick="speakerTest()" disabled="true"><font size="3">speaker test</font></button><br>
       </div>
     </div>
     

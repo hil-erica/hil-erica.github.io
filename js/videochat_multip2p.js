@@ -41,6 +41,10 @@ var skywaykey = null;
 var teleOpeMode = false;
 var videoMuteMode = false;
 
+var micTestMediaRecorder = null;
+var micTestAudio = null;
+var speakerTestAudio = null;
+
 var isRecording = false;
 var recorder =  [];
 var blobUrl = null;
@@ -781,8 +785,7 @@ function speakerSelectEvent(event){
 		.catch(function(err) {
 			console.error('setSinkId Err:', err);
 		});
-	})();
-	
+	})();	
 }
 function addSoundOnly(stream, remoterPeerID, trackID, muteMode) {
 	var contentID = 'remote_audio_'+remoterPeerID+'_' + trackID;
@@ -948,6 +951,14 @@ function getDeviceList() {
 			
 			stepButton.disabled = false;
 			//tabCommunication.setAttribute("disable",false);
+			
+			//デバイス選択イベント
+			micList.addEventListener('change', micSelectEvent);
+			speakerList.addEventListener('change', mainSpeakerSelectEvent);
+			var micTestButton = document.getElementById("mic_test");
+			micTestButton.disabled = false;
+			var speakerTestButton = document.getElementById("speaker_test");
+			speakerTestButton.disabled = false;
 		}).catch(function (err) {
 			console.error('enumerateDevide ERROR:', err);
 		});
@@ -1138,6 +1149,8 @@ function gotoStandby() {
 		micList.setAttribute("disabled","true");
 		speakerList.setAttribute("disabled","true");
 		myPeerID.setAttribute("disabled","true");
+		
+		finishTestMode();
 		
 		isReady = true;
 		var elements = document.getElementsByName('remotePeer_commuButton');
@@ -1677,6 +1690,206 @@ function makeLocalStream(){
 	}
 }
 
+function setMicAnalysis(selector){
+	var micSelector = selector;
+	var micId = micSelector.options[micSelector.selectedIndex].value;
+	console.log("selected mic id = "+micId);
+	
+	if(micId == "don't send audio"){
+		return;
+	}
+	var constraints = {
+		audio: {
+			deviceId: micId,
+			sampleRate: {ideal: 48000},
+			sampleSize: 16,
+			echoCancellation: false,
+			noiseSuppression: false,
+			channelCount: {ideal: 2, min: 1}
+		}
+	};
+	console.log('mediaDevice.getMedia() constraints:', constraints);
+	navigator.mediaDevices.getUserMedia(constraints).then(function (stream) {
+		var delayParam = document.getElementById("micdelayinput").value;
+		audioContextForMicAnalysis = new AudioContext();
+		// for legacy browsers
+		audioContextForMicAnalysis.createDelay = audioContextForMicAnalysis.createDelay || audioContextForMicAnalysis.createDelayNode;
+		var scriptProcessor = audioContextForMicAnalysis.createScriptProcessor(bufferSize, 1, 1);
+		var localScriptProcessor = scriptProcessor;
+		var mediastreamsource = audioContextForMicAnalysis.createMediaStreamSource(stream);
+		mediastreamsource.connect(scriptProcessor);
+		scriptProcessor.onaudioprocess = onAudioProcess;
+		scriptProcessor.connect(audioContextForMicAnalysis.destination);
+
+		// 音声解析関連
+		audioAnalyser = audioContextForMicAnalysis.createAnalyser();
+		audioAnalyser.fftSize = 2048;
+		frequencyData = new Uint8Array(audioAnalyser.frequencyBinCount);
+		timeDomainData = new Uint8Array(audioAnalyser.frequencyBinCount);
+		mediastreamsource.connect(audioAnalyser);
+		
+	}).catch(function (err) {
+		console.error('getUserMedia Err:', err);
+	});
+}
+
+function micSelectEvent(event){
+	//setMicAnalysis(this);
+	var micId = getSelectedAudio();
+	console.log("selected mic id = "+micId);
+}
+
+function finishTestMode(){
+	if(micTestMediaRecorder != null){
+		micTestMediaRecorder.stop();
+	}
+	if(micTestAudio != null){
+		micTestAudio.pause();
+		micTestAudio.currentTime = 0;
+	}
+	if(speakerTestAudio != null){
+		speakerTestAudio.pause();
+		speakerTestAudio.currentTime = 0;
+	}
+	var micTestButton = document.getElementById("mic_test");
+	micTestButton.innerHTML = "<font size='3'>mic test(start recording)</font>";
+	micTestButton.disabled = true;
+	var speakerTestButton = document.getElementById("speaker_test");
+	speakerTestButton.disabled = true;
+}
+
+function micTestRecord(event){
+	if(micTestAudio != null){
+		micTestAudio.pause();
+		micTestAudio.currentTime = 0;
+	}
+	var micTestButton = document.getElementById("mic_test");
+	
+	if(micTestButton.innerHTML.indexOf('mic test(start recording)') >= 0){
+		console.log("start mic record test");
+		micTestButton.innerHTML = "<font size='3'>stop mic test and play back</font>";
+		var micSelector = micList;
+		var micId = micSelector.options[micSelector.selectedIndex].value;
+		console.log("selected mic id = "+micId);
+		
+		if(micId == "don't send audio"){
+			return;
+		}
+		var constraints = {
+			audio: {
+				deviceId: micId,
+				sampleRate: {ideal: 48000},
+				sampleSize: 16,
+				echoCancellation: false,
+				noiseSuppression: false,
+				channelCount: {ideal: 2, min: 1}
+			}
+		};
+		console.log('mediaDevice.getMedia() constraints:', constraints);
+		navigator.mediaDevices.getUserMedia(constraints).then(function (stream) {
+			
+			micTestMediaRecorder = new MediaRecorder(stream, {
+				mimeType: 'video/webm;codecs=vp9'
+			});
+
+			//音を拾い続けるための配列。chunkは塊という意味
+			var chunks = [];
+
+			//集音のイベントを登録する
+			micTestMediaRecorder.addEventListener('dataavailable', function(ele) {
+				if (ele.data.size > 0) {
+					chunks.push(ele.data);
+				}
+			});
+
+			// recorder.stopが実行された時のイベント
+			micTestMediaRecorder.addEventListener('stop', function() {
+				console.log("stop record event");
+				var url = URL.createObjectURL(new Blob(chunks));
+				if(isReady == false){
+					micTestAudio = document.createElement('audio');
+					micTestAudio.src = url;
+					micTestAudio.load();
+					var speakerId = getSelectedSpeaker();
+					micTestAudio.setSinkId(speakerId)
+						.then(function() {
+						console.log('setSinkID Success, audio is being played on '+speakerId +' for mic test');
+					})
+					.catch(function(err) {
+						console.error('setSinkId Err:', err);
+					});
+					micTestAudio.play();
+				}
+				micTestMediaRecorder = null;
+			});
+
+			micTestMediaRecorder.start();
+			console.log("start mic test recording");
+		}).catch(function (err) {
+			console.error('getUserMedia Err:', err);
+		});
+	} else {
+		console.log("stop mic record test");
+		micTestButton.innerHTML = "<font size='3'>mic test(start recording)</font>";
+		if(micTestMediaRecorder != null){
+			micTestMediaRecorder.stop();
+		}
+	}
+}
+
+function speakerTest(event){
+	var speakerId = getSelectedSpeaker();
+	console.log("start speaker test : "+speakerId);
+	if(speakerTestAudio != null){
+		speakerTestAudio.pause();
+		speakerTestAudio.currentTime = 0;
+	} else {
+		speakerTestAudio = document.createElement('audio');
+		speakerTestAudio.src = ".\\resources\\そらみち電話のスピーカーのテストです.wav";
+		speakerTestAudio.load();
+	}
+	
+	speakerTestAudio.setSinkId(speakerId)
+		.then(function() {
+		console.log('setSinkID Success, audio is being played on '+speakerId +' at speaker test');
+	})
+	.catch(function(err) {
+		console.error('setSinkId Err:', err);
+	});
+	speakerTestAudio.play();
+}
+
+var onAudioProcess = function(e) {
+	// 音声のバッファを作成
+	var input = e.inputBuffer.getChannelData(0);
+	var bufferData = new Float32Array(bufferSize);
+	for (var i = 0; i < bufferSize; i++) {
+	bufferData[i] = input[i];
+	}
+
+	// オーディオデータ取得
+	var fsDivN = audioContextForMicAnalysis.sampleRate / audioAnalyser.fftSize;
+	var spectrums = new Uint8Array(audioAnalyser.frequencyBinCount);
+	audioAnalyser.getByteFrequencyData(spectrums);
+
+	//...spectrumsというUint8Arrayデータをあとは解析する
+	//例えば、Circular Audio WaveのようなUint8Arrayを扱っているオーディオビジュアライザにわたすとマイクの音声を視覚化できる
+	var volume = 0;
+	for(var i = 0; i<spectrums.length; i++){
+		volume += spectrums[i];
+	}
+	var size = (140 + volume/1000); // 1000は適当(小さくすると円が大きくなる)
+	var adj = (128-size)/2 - 4; // 4はborderの大きさ
+	console.log(volume);
+	
+}
+
+   
+function mainSpeakerSelectEvent(event){
+	var mainSpeakerSelector = this;
+	var mainSpeakerId = mainSpeakerSelector.options[mainSpeakerSelector.selectedIndex].value;
+	console.log("selected main speaker id = "+mainSpeakerId);
+}
 
 function getSelectedAudio() {
 	var id = micList.options[micList.selectedIndex].value;
