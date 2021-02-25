@@ -1597,12 +1597,17 @@ function getSelectedMicStream(){
 		//localMicStream = null;
 		return;
 	}
+	var echocancel = false;
+	
+	if(document.getElementById("echocancelcheckbox").checked){
+		echocancel = true; 
+	}
 	var constraints = {
 		audio: {
 			deviceId: audioId,
 			sampleRate: {ideal: 48000},
 			sampleSize: 16,
-			echoCancellation: false,
+			echoCancellation: echocancel,
 			noiseSuppression: false,
 			channelCount: {ideal: 2, min: 1}
 		}
@@ -1645,6 +1650,7 @@ function getSelectedMicStream(){
 				gain.gain.value=1; 
 			}
 		} ) ;
+		document.getElementById("echocancelcheckbox").disabled = true;
 	}).catch(function (err) {
 		console.error('getUserMedia Err:', err);
 	});
