@@ -1204,9 +1204,13 @@ function gotoStandby() {
 				for(var i = 0; i < removeItem.children.length; i++){
 					if(removeItem.children[i].getAttribute("name") == "local_camera_video"){
 						if(removeItem.children[i].srcObject != null){
+							console.log("close camera : "+value);
 							removeItem.children[i].srcObject.getTracks().forEach(track => track.stop());
 						}
 						break;
+					} else {
+						console.log("close camera : "+removeItem.children[i].getAttribute("name"));
+							
 					}
 				}
 				
