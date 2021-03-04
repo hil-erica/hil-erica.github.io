@@ -882,6 +882,10 @@ function clearDeviceList() {
 	while (local_cameras.lastChild) {
 		local_cameras.removeChild(local_cameras.lastChild);
 	}
+	var echoSelector = document.getElementById("echocancelselector");
+	while (echoSelector.lastChild) {
+		echoSelector.removeChild(echoSelector.lastChild);
+	}
 }
 
 function addDevice(device) {
@@ -936,6 +940,29 @@ function getDeviceList() {
 		}
 		
 		await navigator.mediaDevices.enumerateDevices().then(function (devices) {
+			var supportedConstraints = navigator.mediaDevices.getSupportedConstraints();
+			console.log("supported media constraints : echoCancellation = "+supportedConstraints.echoCancellation);
+			console.log(supportedConstraints);
+			if(supportedConstraints.echoCancellation == true){
+				// <option value="none">no echo canel</option>          <option value="system">system echo canel</option>          <option value="browser">browser echo canel</option>
+				var echoSelector = document.getElementById("echocancelselector");
+				echoSelector.disabled = false;
+				var echoOption = document.createElement('option');
+				echoOption.setAttribute('value', 'none');
+				echoOption.innerHTML = 'no echo canel';
+				echoSelector.appendChild(echoOption);
+				echoOption = document.createElement('option');
+				echoOption.setAttribute('value', 'system');
+				echoOption.innerHTML = 'system echo canel';
+				echoSelector.appendChild(echoOption);
+				echoOption = document.createElement('option');
+				echoOption.setAttribute('value', 'browser');
+				echoOption.innerHTML = 'browser echo canel';
+				echoSelector.appendChild(echoOption);
+			} else {
+				var echoSelector = document.getElementById("echocancelselector");
+				echoSelector.disabled = true;
+			}
 			devices.forEach(function (device) {
 				console.log(device.kind + ": " + device.label + " id = " + device.deviceId);
 				addDevice(device);
@@ -955,6 +982,8 @@ function getDeviceList() {
 			//デバイス選択イベント
 			micList.addEventListener('change', micSelectEvent);
 			speakerList.addEventListener('change', mainSpeakerSelectEvent);
+			var echoCancelInput = document.getElementById("echocancelselector");
+			echoCancelInput.addEventListener('change', micSelectEvent);
 			var micTestButton = document.getElementById("mic_test");
 			micTestButton.disabled = false;
 			var speakerTestButton = document.getElementById("speaker_test");
@@ -1146,7 +1175,7 @@ function gotoStandby() {
 		
 		recordButton.disabled = "";
 		getDeviceButton.setAttribute("disabled","true");
-		micList.setAttribute("disabled","true");
+		//micList.setAttribute("disabled","true");
 		speakerList.setAttribute("disabled","true");
 		myPeerID.setAttribute("disabled","true");
 		
@@ -1209,20 +1238,18 @@ function gotoStandby() {
 						}
 						break;
 					} else {
-						console.log("close camera : "+removeItem.children[i].getAttribute("name"));
-							
+						console.log("close camera : "+removeItem.children[i].getAttribute("name"));							
 					}
 				}
-				
 				removeItem.parentNode.removeChild(removeItem);
 			}
 		});
 		
 		
 		//mic
-		getSelectedMicStream();
-		
-		var elements = document.getElementsByName('local_camera_video');
+		//getSelectedMicStream();
+		getSelectedMicStream().then(() => { 
+			var elements = document.getElementsByName('local_camera_video');
 		//取得した一覧から全てのvalue値を表示する
 		for (var i = 0; i < elements.length; i++) {
 			//elements[i].setAttribute('width', String(width)+'px');
@@ -1254,6 +1281,8 @@ function gotoStandby() {
 		for (var i = 0; i < elements.length; i++) {
 			elements[i].setAttribute('class', 'item_small');
 		}
+		});
+		
 		
 		//stepButton.setAttribute('onclick', 'callRemote()');
 		stepButton.setAttribute('disabled', 'true');
@@ -1442,6 +1471,7 @@ function openStream(stream, remotePeerID, mediaConnection){
 	////つまり最初以外はすべてAudioContextで作ったトラックにして最初だけそのまま？??stream.getAudioTracks()[i]がメインでないと無理，それ以外はAudioCotextで追加すれば操作可能，でも最初のstreamが切れたらそれまで聞こえているやつも聞こえなくなる
 	////違った，もとのAudioStreamを再生しないとそれをソースにしたAudioContextにデータが流れない，AudioContextがStreamするデータはSetSinkIdがちゃんと働くので実際に音を流すのはAudioContext経由にしたい，ってことでMuteでバックグラウンドでskywayでもらったstreamを再生しておく
 	//audio onlyは最初に決めたスピーカーデバイスからしかながれない（現状）
+	
 	if(stream.getVideoTracks().length == 0){
 		if(stream.getAudioTracks().length > 0){
 			const audioContext = new AudioContext();
@@ -1591,7 +1621,7 @@ function closedConnection(remotePeerID){
 	
 }
 
-function getSelectedMicStream(){
+async function getSelectedMicStream(){
 	var audioId = getSelectedAudio();
 	if(audioId == "don't send audio"){
 		console.log(audioId+", if send no audio track when call, the remote peer can't send audio track too.");
@@ -1602,24 +1632,57 @@ function getSelectedMicStream(){
 		return;
 	}
 	var echocancel = false;
-	
-	if(document.getElementById("echocancelcheckbox").checked){
+	var echocancelType = "browser";
+	var constraints = null;
+	var echocanelValue = document.getElementById("echocancelselector").value;
+	console.log("echo cancel selector value = "+echocanelValue);
+	if(echocanelValue == "none"){
+		constraints = {
+			audio: {
+				deviceId: audioId,
+				sampleRate: {ideal: 48000},
+				sampleSize: 16,
+				echoCancellation: echocancel,
+				noiseSuppression: false,
+				channelCount: {ideal: 2, min: 1}
+			}
+		};
+	} else if(echocanelValue == "system"){
 		echocancel = true; 
+		echocancelType = "system";
+		constraints = {
+			audio: {
+				deviceId: audioId,
+				sampleRate: {ideal: 48000},
+				sampleSize: 16,
+				echoCancellation: echocancel,
+				echoCancellationType: echocancelType,
+				noiseSuppression: false,
+				channelCount: {ideal: 2, min: 1}
+			}
+		};
+	}  else if(echocanelValue == "browser"){
+		echocancel = true; 
+		echocancelType = "browser";
+		constraints = {
+			audio: {
+				deviceId: audioId,
+				sampleRate: {ideal: 48000},
+				sampleSize: 16,
+				echoCancellation: echocancel,
+				echoCancellationType: echocancelType,
+				noiseSuppression: false,
+				channelCount: {ideal: 2, min: 1}
+			}
+		};
 	}
-	var constraints = {
-		audio: {
-			deviceId: audioId,
-			sampleRate: {ideal: 48000},
-			sampleSize: 16,
-			echoCancellation: echocancel,
-			noiseSuppression: false,
-			channelCount: {ideal: 2, min: 1}
-		}
-	};
 	console.log('mediaDevice.getMedia() constraints:', constraints);
-	navigator.mediaDevices.getUserMedia(constraints).then(function (stream) {
+	await navigator.mediaDevices.getUserMedia(constraints).then(function (stream) {
 		//localMicStream = stream;
-		
+		if(stream.getAudioTracks().length > 0){
+			console.log("mic setting : ");
+			console.log(stream.getAudioTracks()[0].getSettings());
+		}
 		var delayParam = document.getElementById("micdelayinput").value;
 		const audioContext = new AudioContext();
 		// for legacy browsers
@@ -1654,7 +1717,7 @@ function getSelectedMicStream(){
 				gain.gain.value=1; 
 			}
 		} ) ;
-		document.getElementById("echocancelcheckbox").disabled = true;
+		//document.getElementById("echocancelselector").disabled = true;
 	}).catch(function (err) {
 		console.error('getUserMedia Err:', err);
 	});
@@ -1669,33 +1732,84 @@ function makeLocalStream(){
 		console.log("no audio track to send");
 	}
 	var elements = document.getElementsByName('local_camera_video');
-	for (var i = 0; i < elements.length; i++) {
-		//elements[i].srcObject.getTracks().forEach(track => track.stop());
-		//elements[i].srcObject = null;
-		if(elements[i].srcObject.getVideoTracks().length > 0){
-			localMixedStream.addTrack(elements[i].srcObject.getVideoTracks()[0]);
+	if(elements.length == 0){
+		if(isRecording){
+			//record sound only
+			if(localMicStream != null && localMicStream.getAudioTracks().length > 0){
+				recorder.push(new MediaRecorder(localMicStream));
+				recorderMap.set(recorderCount, recorder[recorderCount]);
+				chunks.push([]); // 格納場所をクリア
+				fileNames.push(myPeerID.value+"_audioonly.webm");
+				// 録画進行中に、インターバルに合わせて発生するイベント
+				console.log(fileNames+":"+"audiolny");
+				recorder[recorderCount].ondataavailable = createCallbackOndataavailable(recorderCount);	
+				
+				// 録画停止時のイベント
+				recorder[recorderCount].onstop = createCallbackOnstop(recorderCount);
+				// 録画スタート
+				recorder[recorderCount].start(1000); // インターバルは1000ms
+				console.log('start recording : '+recorderCount);
+				recorderCount++;
+			}
 		}		
-		if(elements[i].srcObject.getAudioTracks().length == 0){
+	} else {
+		for (var i = 0; i < elements.length; i++) {
+			//elements[i].srcObject.getTracks().forEach(track => track.stop());
+			//elements[i].srcObject = null;
+			if(elements[i].srcObject.getVideoTracks().length > 0){
+				localMixedStream.addTrack(elements[i].srcObject.getVideoTracks()[0]);
+			}
+			console.log('remove audio track from local mic stream');
+			for(var j = elements[i].srcObject.getAudioTracks().length-1; j>=0; j--){
+				elements[i].srcObject.removeTrack(elements[i].srcObject.getAudioTracks()[j]);
+			}
 			console.log('add audio track to local mic stream');
 			if(localMicStream != null){
 				elements[i].srcObject.addTrack(localMicStream.getAudioTracks()[0]);
-				/*
-				//test: same mediastream can be played at different speakers
-				var speakerId = speakerList.options[speakerList.length -1 - i].value;
-				//screenObj.volume = 0;
-				(async () => {
-					await elements[i].setSinkId(speakerId)
-						.then(function() {
-						console.log('setSinkID Success, audio is being played on '+speakerId);
-					})
-					.catch(function(err) {
-						console.error('setSinkId Err:', err);
-					});
-				})();
-				*/
 			}
-		} else {
-			//console.log('local mic stream is null');
+			if(isRecording){
+				if(elements[i].srcObject != null){
+					recorder.push(new MediaRecorder(elements[i].srcObject));
+					recorderMap.set(recorderCount, recorder[recorderCount]);
+					chunks.push([]); // 格納場所をクリア
+					fileNames.push(myPeerID.value+"_"+i+".webm");
+					// 録画進行中に、インターバルに合わせて発生するイベント
+					console.log(fileNames+":"+recorderCount);
+					recorder[recorderCount].ondataavailable = createCallbackOndataavailable(recorderCount);	
+					/*
+					recorder[recorderCount].ondataavailable = function(evt) {
+						console.log(fileNamesp[recorderCount]+":"+recorderCount);
+						console.log("data available: evt.data.type=" + evt.data.type + " size=" + evt.data.size);
+						chunks[recorderCount].push(evt.data);
+					};
+					*/
+
+					// 録画停止時のイベント
+					recorder[recorderCount].onstop = createCallbackOnstop(recorderCount);
+					/*
+					recorder[recorder.length-1].onstop = function(evt) {
+						console.log('recorder.onstop()');
+						recorder[recorderCount] = null;
+					};
+					*/
+					// 録画スタート
+					recorder[recorderCount].start(1000); // インターバルは1000ms
+					console.log('start recording : '+recorderCount);
+					recorderCount++;
+				} else {
+					console.log('local_camera_video'+' srcObjec is null');
+				}
+			}
+			/*
+			if(elements[i].srcObject.getAudioTracks().length == 0){
+				console.log('add audio track to local mic stream');
+				if(localMicStream != null){
+					elements[i].srcObject.addTrack(localMicStream.getAudioTracks()[0]);
+				}
+			} else {
+				//console.log('local mic stream is null');
+			}
+			*/
 		}
 	}
 }
@@ -1745,8 +1859,18 @@ function setMicAnalysis(selector){
 
 function micSelectEvent(event){
 	//setMicAnalysis(this);
-	var micId = getSelectedAudio();
-	console.log("selected mic id = "+micId);
+	if(isReady){
+		var micId = getSelectedAudio();
+		console.log("selected mic id = "+micId);
+		getSelectedMicStream().then(() => { 
+			makeLocalStream();
+		}).then(() => { 
+			for(var[key, value] of remotePeerIDMediaConMap){
+				console.log("replace media stream of "+key);
+				value.replaceStream(localMixedStream);
+			}
+		});
+	}
 }
 
 function finishTestMode(){
@@ -1955,6 +2079,12 @@ function getData(fromPeerID, receiveText, dataConnection){
 				logout();
 			}
 		} else {
+			var comTab = document.getElementById('TAB-Communication');
+			console.log("TAB-Communication = "+comTab.checked);
+			if(!comTab.checked){
+				//alert(fromPeerID+"\n"+cmds);
+				comTab.checked = true;
+			}
 			var chatoutput = document.getElementById('chatoutput');
 			chatoutput.value = "<from>"+fromPeerID+"\n"+cmds+"\n"+chatoutput.value
 		}
