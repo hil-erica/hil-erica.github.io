@@ -28,7 +28,10 @@
         </select>
         &nbsp;additional transmit delay[sec]:
         <input type="number" id="micdelayinput" value="0" min="0" max="1" step="0.01">
-        &nbsp;echo cancel:<input type="checkbox" id="echocancelcheckbox" value="1">
+        &nbsp;echo cancel:
+        <select id="echocancelselector" size="1" style="width:110pt;">
+        </select>
+        <!--<input type="checkbox" id="echocancelcheckbox" value="1">-->
         &nbsp;mute:<input type="checkbox" id="mutecheckbox" value="1">
         <br>
         <button id="mic_test" class="small" onclick="micTestRecord()" disabled="true"><font size="3">mic test(start recording)</font></button><br>
