@@ -1,0 +1,66 @@
+@charset "UTF-8";
+
+body	{
+  font-family: 'メイリオ', 'Hiragino Kaku Gothic Pro', sans-serif;
+  margin: 0;
+}
+
+.header {
+  text-align: center;
+}
+
+.header h1 {
+  font-size: 2em;
+}
+.contents {
+  text-align: center;
+}
+
+.setting {
+  margin: 10px 0 0 0;
+}
+
+.synthesis {
+  margin: 10px 0 0 0;
+}
+
+#synthesisText {
+  height: 6em;
+  font-size: 1.4em;
+}
+
+#synthesisButton {
+  width: 100%;
+}
+
+.recognition {
+  margin: 10px 0 0 0;
+}
+
+#recognitionText {
+  height: 12em;
+  font-size: 1.0em;
+}
+
+#recognitionStartButton {
+  width: 100%;
+}
+
+#recognitionStopButton {
+  width: 100%;
+  margin: 10px 0 0 0;
+}
+
+.message {
+  margin: 10px 0 0 0;
+}
+
+#messageArea p {
+  padding: 10px;
+  text-align: left;
+}
+
+.isNotFinal {
+  color: #888;
+  background-color: #ffc
+}

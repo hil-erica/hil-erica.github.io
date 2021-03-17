@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>
+			Google Speech Recogntion
+		</title>
+		<link rel="stylesheet" href=
+		"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+		<link href=
+		"//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css"
+		rel="stylesheet">
+		<link href="style.css" rel="stylesheet">
+	</head>
+	<body>
+		<!--
+		<textarea id="recognitionText" cols="100" rows="10">
+		</textarea>
+		<br>
+		<textarea id="status" cols="100" rows="1">
+		</textarea>
+		<br>
+		<input type="button" onClick="vr_function();" value="音認開始">
+-->
+		<!--
+		<div id="google_translate_element"></div> 
+		<script type="text/javascript"> 
+			function googleTranslateElementInit() { 
+				new google.translate.TranslateElement({pageLanguage: 'en'}, 'google_translate_element'); 
+			} 
+		</script> 
+		<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script> 
+		-->
+		<br>
+		<div class="contents">
+			<div class="container">
+				<div id="socket-container">
+					<div class="row">
+						<div class="col-sm-10 text-left">
+							websocket:&nbsp;<button id="socket_connect_button" onclick="socketconnection()" style="width:80pt;"><font size="2">connect</font></button>
+							url：<input type="text" id="socket_url" name="socket_url" size="50" maxlength="100" value="ws://127.0.0.1:8000">
+							<br>
+							<a href="WebSocketBridge2.zip">Websocket TCP socket bridge Tool</a>
+						</div>
+					</div>
+				</div>
+				<br>
+				<div id="setting-container">
+					<div class="row">
+						<div class="col-sm-4">
+							<select id="selectLang" class="form-control pull-left">
+								<option value="ja-JP">日本語</option>
+								<option value="en-US">English</option>
+								<option value="es-MX">Español (México)</option>
+							</select>
+						</div>
+					</div>
+				</div>
+				<div id="recognition-container">
+					<div class="row">
+						<div class="col-sm-8">
+							<!--
+							<textarea id="recognitionText" type="text" class=
+							"form-control pull-left" placeholder=
+							"ここに音声認識結果が表示されます" readonly></textarea>
+							-->
+							<fieldset>
+							<legend>認識結果2.2</legend>
+							<p><div id="result type"></div></p>
+							<p><div id="confidence"></div></p>
+							<p><div id="recognitionText"></div></p>
+							</fieldset>
+							
+						</div>
+						<div class="col-sm-4">
+							<button id="recognitionStartButton" class="btn btn-default" type=
+							"button" value="recognitionStart" onclick=
+							"asr_start_function();">話してみる</button>
+							<button id=
+							"recognitionStopButton" class="btn btn-default" type="button"
+							value="recognitionStop" onclick=
+							"asr_stop_function();">話すの中断 </button>
+							
+							
+							<div id="google_translate_element"></div> 
+							<script type="text/javascript"> 
+								function googleTranslateElementInit() { 
+									new google.translate.TranslateElement({pageLanguage: 'en'}, 'google_translate_element');
+								} 
+							</script> 
+							<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script> 
+							
+						</div>
+					</div>
+				</div>
+				<div id="message-container">
+					<div class="row">
+						<div class="col-sm-12">
+							<div id="messageArea"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<script>
+			var flag_speech = 0;
+			var flag_start = false;
+			recognitionFormControl(false);
+			var recognition = new webkitSpeechRecognition();
+			
+			var rawText = "";
+			var confidenceLevel = -1;
+			
+			var isTranslating = false;
+			
+			var wSocket = null;
+			
+			function asr_start_function() {
+					flag_start = true;
+					window.SpeechRecognition = window.SpeechRecognition || webkitSpeechRecognition;
+					//var recognition = new webkitSpeechRecognition();
+					recognition = new webkitSpeechRecognition();
+					var num = document.getElementById('selectLang').selectedIndex;
+					var selectLang = document.getElementById('selectLang').options[num].value;
+					//recognition.lang = 'ja';
+					//console.log(selectLang);
+					recognition.lang = selectLang;
+					recognition.interimResults = true;
+					recognition.continuous = true;
+
+					
+					recognition.onsoundstart = function() {
+						document.getElementById('messageArea').innerHTML = "認識中";
+						console.log("startrecog:");
+					};
+					recognition.onnomatch = function() {
+						document.getElementById('messageArea').innerHTML = "もう一度試してください";
+					};
+					recognition.onerror = function() {
+						document.getElementById('messageArea').innerHTML = "エラー";
+						if(flag_speech == 0 && flag_start)
+							asr_start_function();
+					};
+					recognition.onsoundend = function() {
+						document.getElementById('messageArea').innerHTML = "停止中";
+						if(flag_start)asr_start_function();
+					};
+
+					recognition.onresult = function(event) {
+						var results = event.results;
+						
+						//check transtation flag
+						var translatedForm = document.getElementsByClassName('translated-ltr');
+						//console.log(translatedForm.length);
+						if(translatedForm.length == 0){
+							isTranslating = false;
+						} else {
+							isTranslating = true;
+						}
+						
+						for (var i = event.resultIndex; i < results.length; i++) {
+								if (results[i].isFinal)
+								{
+									rawText = results[i][0].transcript;
+									confidenceLevel = results[i][0].confidence;
+									if(!isTranslating){
+										if(wSocket != null){
+											wSocket.send("result:"+rawText + "\nconfidence:" + confidenceLevel+"\n");
+										}
+										console.log( "result:"+rawText + "\nconfidence:" + confidenceLevel);
+									}
+									document.getElementById('result type').innerHTML = "[final]";
+									document.getElementById('confidence').innerHTML = confidenceLevel;
+									document.getElementById('recognitionText').innerHTML = results[i][0].transcript;
+									document.getElementById('recognitionText').classList.remove('isNotFinal');
+									if(flag_start)asr_start_function();
+									
+								}
+								else
+								{
+									rawText = results[i][0].transcript;
+									confidenceLevel = -1;
+									
+									if(!isTranslating){
+										if(wSocket != null){
+											wSocket.send("interimresult:"+rawText+"\n");
+										}
+										console.log( "interimresult:"+rawText);
+									}
+									document.getElementById('result type').innerHTML = "[interim]";
+									document.getElementById('confidence').innerHTML = "-1";
+									document.getElementById('recognitionText').innerHTML = results[i][0].transcript;
+									document.getElementById('recognitionText').classList.add('isNotFinal');
+									flag_speech = 1;
+								}
+						}
+						
+						//if(!flag_start)recognition.stop();
+					}
+					
+					flag_speech = 0;
+					document.getElementById('messageArea').innerHTML = "start";
+					recognition.start();
+					recognitionFormControl(true);
+			}
+			
+			function asr_stop_function() {
+				recognition.stop();
+				document.getElementById('messageArea').innerHTML = "stop";
+				flag_start = false;
+				recognitionFormControl(false);
+			}
+			
+			function recognitionFormControl(start){
+				if(start){
+					document.getElementById('recognitionStartButton').setAttribute('disabled','true');
+					document.getElementById('recognitionStopButton').setAttribute('disabled','false');
+					document.getElementById('recognitionStopButton').removeAttribute('disabled');
+				}else{
+					document.getElementById('recognitionStopButton').setAttribute('disabled','true');
+					document.getElementById('recognitionStartButton').setAttribute('disabled','false');
+					document.getElementById('recognitionStartButton').removeAttribute('disabled');
+				}
+			}
+			
+	           	
+			document.getElementById("recognitionText").addEventListener("DOMSubtreeModified", translationResultCallback, false);
+			//document.getElementById("recognitionText").addEventListener("change", translationCallback, false);
+			function translationResultCallback() {
+				// This function needs to be called when Google translates this web page.
+				var currentHTML = document.getElementById("recognitionText").innerHTML;
+				var currentValue = document.getElementById("recognitionText").innerText;
+				
+				var currentTranslated = currentValue;
+				/*
+				var parser = new DOMParser();
+				var dom = parser.parseFromString(currentHTML, "text/xml");
+				var fonts = dom.getElementsByTagName("font");
+				for (var i=0; i<fonts.length; i++){
+					//console.log("font = "+fonts[i].getElementsByTagName("font")[0].textContent);
+					console.log("font = "+ fonts[i].innerHTML+", "+fonts[i].textContent);
+
+				}
+				*/
+				var startString = "<font style=\"vertical-align: inherit;\">";
+				var endString = "</font>";
+				var searchedHTML = currentHTML;
+				var foundText = false;
+				var startIndex = 0;
+				while(searchedHTML.indexOf(startString) != -1){
+					//startIndex = searchedHTML.indexOf(startString)+startString.length;
+					var tmpIndex= searchedHTML.indexOf(startString)+startString.length;
+					//console.log(tmpIndex +" ++ "+startIndex);
+					startIndex += tmpIndex;
+					searchedHTML = searchedHTML.substring(tmpIndex);
+					foundText = true;
+				}
+				if(foundText){
+					var endIndexOf = currentHTML.indexOf(endString);
+					var endIndex = endIndexOf;
+					//console.log(startIndex +" => "+endIndex);
+					if(startIndex <= endIndex){
+						currentTranslated = currentHTML.substring(startIndex, endIndex);
+					}
+				}
+				
+				/*
+				if(searchedHTML.indexOf(startString) != -1){
+					var startIndexOf = currentHTML.indexOf(startString);
+					var endIndexOf = currentHTML.indexOf(endString);
+					var startIndex = startIndexOf[1]+startString.length;
+					var endIndex = endIndexOf[0] - 1;
+					console.log(startIndexOf +" => "+endIndexOf);
+					if(startIndex <= endIndex){
+						currentTranslated = currentHTML.substring(startIndex, endIndex);
+					}
+				}
+				*/
+				//console.log(rawText+" -> "+currentHTML + " = "+currentValue+ " = "+currentTranslated);
+				if(currentTranslated == ""){
+					//
+				} else {
+					//error example
+					//webspeechapi_transtlateapi_test.html:214  My name is -> <font style="vertical-align: inherit;"><font style="vertical-align: inherit;"> My name is</font></font> My name is = My name is My name is
+					//webspeechapi_transtlateapi_test.html:224 interimresult:My name is My name is
+					if(rawText.indexOf(currentTranslated) !== -1 || currentTranslated.indexOf(rawText) !== -1 || currentTranslated == rawText){
+						//console.log("Translating : " + currentValue);
+					} else {
+						//console.log("Translated : " + currentValue);
+						if(isTranslating){
+							if(confidenceLevel < 0){
+								if(wSocket != null){
+									wSocket.send("interimresult:"+currentTranslated+"\n");
+								}
+								console.log( "interimresult:"+currentTranslated);
+							} else {
+								if(wSocket != null){
+									wSocket.send("result:"+currentTranslated + "\nconfidence:" + confidenceLevel+"\n");
+								}
+								console.log( "result:"+currentTranslated + "\nconfidence:" + confidenceLevel);
+							}
+						}
+					}
+				}
+				//console.log("Translated : " + currentValue);
+			}
+			
+			/*
+			//document.getElementById("google_translate_element").addEventListener("DOMSubtreeModified", translationStartCallback, false);
+			document.addEventListener("DOMSubtreeModified", translationStartCallback, false);
+			function translationStartCallback() {
+				var translatedForm = document.getElementsByClassName('translated-ltr');
+				//console.log(translatedForm.length);
+				if(translatedForm.length == 0){
+					isTranslating = false;
+				} else {
+					isTranslating = true;
+				}
+			}
+			*/
+			
+			
+			function socketconnection(){
+				var url = document.getElementById('socket_url').value;
+				console.log("clicked "+url);
+				if(wSocket == null){
+					wSocket = new WebSocket(url);
+					//接続通知
+					wSocket.onopen = function(event) {
+						console.log("open socket "+event.data);
+						document.getElementById('socket_connect_button').innerHTML = "<font size='2'>disconnect</font>";
+						/*
+						var msg = {
+							type : "hoge",
+							text: "text"
+						};
+						wSocket.send("thank you\r\n\r\n");
+						wSocket.send(JSON.stringify(msg));
+						*/
+					};
+					
+					//エラー発生
+					wSocket.onerror = function(error) {
+						console.log(error.data);
+					};
+					
+					//メッセージ受信
+					wSocket.onmessage = function(event) {
+						console.log(event.data);
+						//publishData("socket="+event.data);
+						if(event.data.indexOf('start') >= 0){
+							if(flag_start){
+								asr_stop_function();
+							}
+							asr_start_function();
+						} else if(event.data.indexOf('stop') >= 0){
+							if(flag_start){
+								asr_stop_function();
+							}
+						}
+					};
+					
+					//切断
+					wSocket.onclose = function() {
+						console.log("closed socket");
+						wSocket = null;
+						document.getElementById('socket_connect_button').innerHTML = "<font size='2'>connect</font>";
+					};
+					console.log("connected to "+url);
+				} else {
+					if(wSocket.readyState == 1){
+						wSocket.close();
+						console.log("close socket");
+					}
+				}
+			}
+		 </script>
+        
+        
+        
+        
+	</body>
+</html>
