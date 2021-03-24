@@ -1015,7 +1015,7 @@ function logStream(msg, stream) {
 		console.log('videoTracks.length=' + videoTracks.length);
 		for (var i = 0; i < videoTracks.length; i++) {
 			var track = videoTracks[i];
-			console.log(' track.id=' + track.id);
+			console.log(' track.id=' + track.id+', '+track.getSettings());
 		}
 	}
 	var audioTracks = stream.getAudioTracks();
@@ -1023,7 +1023,7 @@ function logStream(msg, stream) {
 		console.log('audioTracks.length=' + audioTracks.length);
 		for (var i = 0; i < audioTracks.length; i++) {
 			var track = audioTracks[i];
-			console.log(' track.id=' + track.id);
+			console.log(' track.id=' + track.id+', '+track.getSettings());
 		}
 	}
 }
@@ -1053,7 +1053,7 @@ function startVideo(cameraID, video) {
 			video: {
 				deviceId: {exact: deviceId},
 				aspectRatio: {ideal: 1.7777777778},
-				width: { min: 640, exact: 1280 },
+				width: { min: 640, ideal: 1280 },
 				height: { min: 400, ideal: 720 }
 			}
 		};
@@ -1062,7 +1062,7 @@ function startVideo(cameraID, video) {
 			video: {
 				deviceId: {exact: deviceId},
 				aspectRatio: {ideal: 1.7777777778},
-				width: { min: 640, exact: 1920 },
+				width: { min: 640, ideal: 1920 },
 				height: { min: 400, ideal: 1080 }
 			}
 		};
