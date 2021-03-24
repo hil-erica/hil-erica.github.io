@@ -1015,7 +1015,7 @@ function logStream(msg, stream) {
 		console.log('videoTracks.length=' + videoTracks.length);
 		for (var i = 0; i < videoTracks.length; i++) {
 			var track = videoTracks[i];
-			console.log(' track.id=' + track.id+', '+track.getSettings());
+			console.log(' track.id=' + track.id+', '+track.getSettings().height+'*'+track.getSettings().width+', '+track.getSettings().frameRate+' fps');
 		}
 	}
 	var audioTracks = stream.getAudioTracks();
@@ -1023,7 +1023,7 @@ function logStream(msg, stream) {
 		console.log('audioTracks.length=' + audioTracks.length);
 		for (var i = 0; i < audioTracks.length; i++) {
 			var track = audioTracks[i];
-			console.log(' track.id=' + track.id+', '+track.getSettings());
+			console.log(' track.id=' + track.id+', '+track.getSettings().sampleRate+' echo cancel = '+track.getSettings().echoCancellation);
 		}
 	}
 }
