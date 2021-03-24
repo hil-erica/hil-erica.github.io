@@ -1052,7 +1052,7 @@ function startVideo(cameraID, video) {
 		constraints = {
 			video: {
 				deviceId: {exact: deviceId},
-				aspectRatio: {exact: 1.7777777778},
+				aspectRatio: {ideal: 1.7777777778},
 				width: { exact: 1280 },
 				height: { exact: 720 }
 			}
@@ -1061,7 +1061,7 @@ function startVideo(cameraID, video) {
 		constraints = {
 			video: {
 				deviceId: {exact: deviceId},
-				aspectRatio: {exact: 1.7777777778},
+				aspectRatio: {ideal: 1.7777777778},
 				width: { exact: 1920 },
 				height: { exact: 1080 }
 			}
