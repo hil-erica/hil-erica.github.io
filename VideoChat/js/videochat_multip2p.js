@@ -1051,26 +1051,26 @@ function startVideo(cameraID, video) {
 	if(captureSize == "720"){
 		constraints = {
 			video: {
-	                  	width: { min: 640, ideal: 1280 },
-    				height: { min: 400, ideal: 720 },
-	                  	aspectRatio: {ideal: 1.7777777778},
-				deviceId: deviceId
+				deviceId: {exact: deviceId},
+				width: { min: 640, ideal: 1280 },
+				height: { min: 400, ideal: 720 },
+				aspectRatio: {ideal: 1.7777777778}
 			}
 		};
 	}  else if(captureSize == "1080"){
 		constraints = {
 			video: {
+				deviceId: {exact: deviceId},
 				width: { min: 640, ideal: 1920 },
-    				height: { min: 400, ideal: 1080 },
-    				aspectRatio: {ideal: 1.7777777778},
-	                  	deviceId: deviceId
+				height: { min: 400, ideal: 1080 },
+				aspectRatio: {ideal: 1.7777777778}
 			}
 		};
 	} else {
 		constraints = {
 			video: {
-				aspectRatio: {ideal: 1.7777777778},
-	                  	deviceId: deviceId
+				deviceId: {exact: deviceId},
+				aspectRatio: {ideal: 1.7777777778}
 			}
 		};
 	}
