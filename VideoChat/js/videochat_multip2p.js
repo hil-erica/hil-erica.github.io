@@ -1053,8 +1053,8 @@ function startVideo(cameraID, video) {
 			video: {
 				deviceId: {exact: deviceId},
 				aspectRatio: {exact: 1.7777777778},
-				width: { ideal: 1280 },
-				height: { ideal: 720 }
+				width: { exact: 1280 },
+				height: { exact: 720 }
 			}
 		};
 	}  else if(captureSize == "1080"){
@@ -1062,8 +1062,8 @@ function startVideo(cameraID, video) {
 			video: {
 				deviceId: {exact: deviceId},
 				aspectRatio: {exact: 1.7777777778},
-				width: { ideal: 1920 },
-				height: { ideal: 1080 }
+				width: { exact: 1920 },
+				height: { exact: 1080 }
 			}
 		};
 	} else {
