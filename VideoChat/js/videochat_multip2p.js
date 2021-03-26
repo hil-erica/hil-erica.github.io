@@ -314,7 +314,7 @@ function commuButtonClicked(thisPeerCounterNumer){
 	}
 }
 
-function addCamera(deviceID, deviceLabel) {
+async function addCamera(deviceID, deviceLabel) {
 	var width = default_width;
 	var height = defualt_heigt;
 	numView++;
@@ -367,7 +367,7 @@ function addCamera(deviceID, deviceLabel) {
 	content.appendChild(checkBoxLabelObj);
 	const local_cameras = document.getElementById("local_cameras");
 	local_cameras.appendChild(content);
-	startVideo(deviceID, screenObj);
+	await startVideo(deviceID, screenObj);
 	//startVideos(deviceID, screenObj, screenObj2);
 }
 
@@ -888,7 +888,7 @@ function clearDeviceList() {
 	}
 }
 
-function addDevice(device) {
+async function addDevice(device) {
 	if (device.kind === 'audioinput') {
 		var id = device.deviceId;
 		var label = device.label || 'microphone'; // label is available for https 
@@ -905,7 +905,7 @@ function addDevice(device) {
 		option.innerHTML = label + '(' + id + ')';
 		cameraList.appendChild(option);
 		*/
-		addCamera(id, label);
+		await addCamera(id, label);
 	} else if (device.kind === 'audiooutput') {
 		var id = device.deviceId;
 		var label = device.label || 'speaker'; // label is available for https 
@@ -926,18 +926,20 @@ function getDeviceList() {
 		//await navigator.mediaDevices.getUserMedia({audio: true, video: true});
 		//let devices = await navigator.mediaDevices.enumerateDevices();   
 		//console.log(devices); 
-		 try {
-			await navigator.mediaDevices.getUserMedia({audio: true, video: true});
-			/* ストリームを使用 */
-		} catch(err) {
-			console.error('enumerateDevide ERROR:', err);
-			 try {
-			await navigator.mediaDevices.getUserMedia({audio: true, video: false});
-				/* ストリームを使用 */
-			} catch(err) {
-				console.error('enumerateDevide ERROR:', err);
-			}
-		}
+		await navigator.mediaDevices.getUserMedia({audio: true, video: true}).then(function (stream) {
+			stream.getTracks().forEach((track) => {
+				track.stop();
+			});
+		}).catch(function (err) {
+			navigator.mediaDevices.getUserMedia({audio: true, video: false}).then(function (stream) {
+				stream.getTracks().forEach((track) => {
+					track.stop();
+				});
+			}).catch(function (err) {
+				consol.err(err);
+			});
+		});
+		
 		
 		await navigator.mediaDevices.enumerateDevices().then(function (devices) {
 			var supportedConstraints = navigator.mediaDevices.getSupportedConstraints();
@@ -963,31 +965,32 @@ function getDeviceList() {
 				var echoSelector = document.getElementById("echocancelselector");
 				echoSelector.disabled = true;
 			}
-			devices.forEach(function (device) {
-				console.log(device.kind + ": " + device.label + " id = " + device.deviceId);
-				addDevice(device);
-			});
-			
-			//option to not send audio
-			var id = "don't send audio";
-			var label = "don't send audio"; // label is available for https 
-			var option = document.createElement('option');
-			option.setAttribute('value', id);
-			option.innerHTML = label + '(' + id + ')';;
-			micList.appendChild(option);
-			
-			stepButton.disabled = false;
-			//tabCommunication.setAttribute("disable",false);
-			
-			//デバイス選択イベント
-			micList.addEventListener('change', micSelectEvent);
-			speakerList.addEventListener('change', mainSpeakerSelectEvent);
-			var echoCancelInput = document.getElementById("echocancelselector");
-			echoCancelInput.addEventListener('change', micSelectEvent);
-			var micTestButton = document.getElementById("mic_test");
-			micTestButton.disabled = false;
-			var speakerTestButton = document.getElementById("speaker_test");
-			speakerTestButton.disabled = false;
+			(async () => {   
+				for(var i = 0; i<devices.length; i++){
+					console.log("call add device :"+devices[i].kind + ": " + devices[i].label + " id = " + devices[i].deviceId);
+					await addDevice(devices[i]);
+				}
+				//option to not send audio
+				var id = "don't send audio";
+				var label = "don't send audio"; // label is available for https 
+				var option = document.createElement('option');
+				option.setAttribute('value', id);
+				option.innerHTML = label + '(' + id + ')';;
+				micList.appendChild(option);
+				
+				stepButton.disabled = false;
+				//tabCommunication.setAttribute("disable",false);
+				
+				//デバイス選択イベント
+				micList.addEventListener('change', micSelectEvent);
+				speakerList.addEventListener('change', mainSpeakerSelectEvent);
+				var echoCancelInput = document.getElementById("echocancelselector");
+				echoCancelInput.addEventListener('change', micSelectEvent);
+				var micTestButton = document.getElementById("mic_test");
+				micTestButton.disabled = false;
+				var speakerTestButton = document.getElementById("speaker_test");
+				speakerTestButton.disabled = false;
+			})();
 		}).catch(function (err) {
 			console.error('enumerateDevide ERROR:', err);
 		});
@@ -1028,25 +1031,13 @@ function logStream(msg, stream) {
 	}
 }
 
-function startVideo(cameraID, video) {
+async function startVideo(cameraID, video) {
 	//var audioId = getSelectedAudio();
 	var deviceId = cameraID;
 	console.log('selected video device id=' + deviceId);
-	/*
-	var constraints = {
-		video: {
-			aspectRatio: {exact: 1.7777777778},
-                  	deviceId: deviceId
-		}
-	};
-	*/
-	/*
-	var constraints = {
-		video: {
-			deviceId: deviceId
-		}
-	};
-	*/
+	
+	
+	//default camera はID指定するとうまくconstraintが反映されない
 	var constraints;
 	if(captureSize == "720"){
 		constraints = {
@@ -1054,16 +1045,16 @@ function startVideo(cameraID, video) {
 				deviceId: {exact: deviceId},
 				aspectRatio: {ideal: 1.7777777778},
 				width: { min: 640, ideal: 1280 },
-				height: { min: 400, ideal: 720 }
+				height: { min: 360, ideal: 720 }
 			}
 		};
 	}  else if(captureSize == "1080"){
 		constraints = {
 			video: {
-				deviceId: {exact: deviceId},
+				deviceId: deviceId ? {exact: deviceId} : undefined,
 				aspectRatio: {ideal: 1.7777777778},
 				width: { min: 640, ideal: 1920 },
-				height: { min: 400, ideal: 1080 }
+				height: { min: 360, ideal: 1080 }
 			}
 		};
 	} else {
@@ -1076,9 +1067,10 @@ function startVideo(cameraID, video) {
 	}
 	
 	console.log('mediaDevice.getMedia() constraints:', constraints);
-	navigator.mediaDevices.getUserMedia(constraints).then(function (stream) {
+	await navigator.mediaDevices.getUserMedia(constraints).then(function (stream) {
 		logStream('selectedVideo', stream);
 		video.srcObject = stream;
+		console.log('got camera stream of '+stream.getVideoTracks()[0].getSettings().deviceId);
 	}).catch(function (err) {
 		console.error('getUserMedia Err:', err);
 		var checkBoxObj = document.getElementById('local_camera_checkBox_' + cameraID);
