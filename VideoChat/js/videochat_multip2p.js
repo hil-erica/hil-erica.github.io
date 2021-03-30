@@ -569,7 +569,7 @@ function addView(stream, remoterPeerID, trackID) {
 	var sizeSelector = document.createElement('select');
 	sizeSelector.setAttribute('id', 'remote_camera_sizeselector_' +remoterPeerID+'_'+ trackID);
 	sizeSelector.setAttribute('size', '1');
-	sizeSelector.setAttribute('style', 'width:100pt;');
+	sizeSelector.setAttribute('style', 'width:80pt;');
 	var option = document.createElement('option');
 	option.setAttribute('value', '144');
 	option.innerHTML = '256x144px';
@@ -612,8 +612,10 @@ function addView(stream, remoterPeerID, trackID) {
 	//メインのスピーカーに設定
 	speakerSelector.selectedIndex = speakerList.selectedIndex;
 	
-	var openWindowButton = document.createElement("button");
-	openWindowButton.innerHTML = "<font size='3'>open window</font>";
+	var openWindowButton = document.createElement("input");
+	openWindowButton.setAttribute('type', 'image');
+	openWindowButton.setAttribute('src', './pics/popup.png');
+	openWindowButton.setAttribute('alt', 'Open Window');
 	openWindowButton.onclick = function() {
 		//openWindowButton.innerText = "close window";
 		var obj_window = window.open("FloatingVideoWindow.html?contentid="+screenObj.id+"&remoterPeerID="+remoterPeerID+"&trackID="+trackID, "remoterPeerID="+remoterPeerID+"&trackID="+trackID, "width="+screenObj.width+",height="+screenObj.height+",scrollbars=no");
@@ -621,7 +623,7 @@ function addView(stream, remoterPeerID, trackID) {
 		//window.open("SubWindows.html", "サブ検索画面", "width=300,height=200,scrollbars=yes");
 	};
 	//openWindowButton.setAttribute('style', 'width:50pt;');
-	openWindowButton.classList.toggle('small');
+	//openWindowButton.classList.toggle('small');
 	content.appendChild(openWindowButton);
 	
 	content.appendChild(sizeSelector);
@@ -1170,7 +1172,7 @@ function gotoStandby() {
 		var speakerList = document.getElementById("speaker_list");
 		speakerList.disabled = false;
 		var myPeerID = document.getElementById("myPeerID");
-		myPeerID.disabled = false;
+		myPeerID.disabled = true;
 		
 		finishTestMode();
 		
