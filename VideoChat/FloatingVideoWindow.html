@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<!-- saved from url=(0058)https://mganeko.github.io/webrtcexpjp/tool/devicelist.html -->
+<html data-minimalscrollbar="yes" style="">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" type="text/css" href="./css/button.css">
+  <link rel="stylesheet" type="text/css" href="./css/video.css">
+  <link rel="stylesheet" type="text/css" href="./css/style.css">
+ <title>空道操作さぶ</title>
+  <link rel="shortcut icon" href="./pics/sousa.ico" type="image/vnd.microsoft.icon">
+</head>
+
+<body>
+<script type = "text/javascript" >
+var parantExistanceFlag = true;
+
+var contentID = "";
+var trackID;
+var remoterPeerID;
+var canvasObj;
+var screenObj;
+
+window.onload = ()=> {
+	getQueryParams();
+	if (!window.opener || !Object.keys(window.opener).length) {
+			window.alert('親画面が存在しません')
+			parantExistanceFlag = false
+	}
+	//親画面に値を挿入
+	if (parantExistanceFlag) {
+		document.title="空道操作: "+remoterPeerID+" : track = "+trackID;
+		var speakerList = window.opener.document.getElementById("speaker_list");
+		console.log(contentID);
+		content = document.createElement('div');
+		content.setAttribute('id', "remote_camera");
+		content.setAttribute('name', 'remote_camera');
+		content.classList.toggle('video-wrap');
+		
+		screenObj = document.createElement('video');
+		screenObj.setAttribute('id', contentID);
+		screenObj.setAttribute('controls', '1');
+		screenObj.setAttribute('autoplay', '1');
+		//screenObj.classList.toggle('video');
+		screenObj.muted = true;
+		
+		var stream = window.opener.document.getElementById(contentID).srcObject;
+		var _remoteVideo = new webkitMediaStream();
+		_remoteVideo.addTrack(stream.getVideoTracks()[0]);
+		//_remoteVideo.addTrack(stream.getAudioTracks()[0]);
+		
+		screenObj.srcObject = _remoteVideo;
+		
+		screenObj.playsInline = true;
+		//screenObj.width = 720;
+		//screenObj.height = 480;
+		
+		canvasObj = document.createElement('canvas');
+		canvasObj.setAttribute('class', 'canvas');
+		canvasObj.setAttribute('id', 'remote_camera_canvas_' +remoterPeerID+'_'+ trackID);
+		canvasObj.setAttribute('name', 'remote_camera_canvas_'+remoterPeerID);
+		canvasObj.setAttribute('remotePeerId', remoterPeerID);
+		canvasObj.setAttribute('trackID', trackID);
+		
+		canvasObj.addEventListener( "click", window.opener.videoCanvasClicked);
+		/*
+		//https://qiita.com/sashim1343/items/e3728bea913cadab677d
+		if(window.opener.teleOpeMode){
+			canvasObj.addEventListener( "click", window.opener.videoCanvasClicked);
+		} else {
+			canvasObj.style.display ="none";
+		}
+		*/
+		
+		/*
+		var speakerSelector = document.createElement('select');
+		//speakerSelector.setAttribute('id', 'remote_camera_speakerselector_' +remoterPeerID+'_'+ trackID);
+		speakerSelector.setAttribute('speakerid', screenObj.id);
+		speakerSelector.setAttribute('size', '1');
+		speakerSelector.setAttribute('style', 'width:100pt;');
+		for(var i = 0; i <speakerList.length; i++){
+			option = document.createElement('option');
+			option.setAttribute('value', speakerList[i].value);
+			option.innerHTML = speakerList[i].innerHTML;
+			speakerSelector.appendChild(option);
+		}
+		//メインのスピーカーに設定
+		speakerSelector.selectedIndex = speakerList.selectedIndex;
+		content.appendChild(speakerSelector);
+		*/
+		content.appendChild(screenObj);
+		content.appendChild(canvasObj);
+		
+		document.body.appendChild(content);
+		
+		setVideoSize();
+	}
+}
+
+window.addEventListener("resize", function(event) {
+	setVideoSize();
+});
+
+window.addEventListener('load', function(){
+	setVideoSize();
+}, false);
+
+window.addEventListener('beforeunload', (event) => {
+	
+});
+
+function setVideoSize(){
+	var videosDiv =document.body;
+	//console.log("ブラウザのウィンドウサイズが変更されました "+videosDiv.clientWidth+"/"+videosDiv.clientHeight);
+	if(canvasObj != null && screenObj != null){
+		//解像度
+		//canvasObj.width = 1200;
+		//canvasObj.height = 800;
+		if(videosDiv.clientWidth/videosDiv.clientHeight >= 16/9){
+			//横長
+			screenObj.height = videosDiv.clientHeight;
+			screenObj.width = videosDiv.clientHeight * 16 / 9;
+			screenObj.style.position = 'absolute';
+			screenObj.style.top = 0+'px';
+			screenObj.style.left = (videosDiv.clientWidth - screenObj.width)/2+'px';
+			
+			canvasObj.height = videosDiv.clientHeight;
+			canvasObj.width = videosDiv.clientHeight * 16 / 9;
+			canvasObj.style.position = 'absolute';
+			canvasObj.style.top = 0+'px';
+			canvasObj.style.left = (videosDiv.clientWidth - screenObj.width)/2+'px';
+			//console.log("left = "+(videosDiv.clientWidth - screenObj.width)/2);
+		} else {
+			//縦長
+			screenObj.width = videosDiv.clientWidth;
+			screenObj.height = videosDiv.clientWidth * 9 / 16;
+			screenObj.style.position = 'absolute';
+			screenObj.style.top = (videosDiv.clientHeight - screenObj.height)/2+'px';
+			screenObj.style.left = 0+'px';
+			
+			canvasObj.width = videosDiv.clientWidth;
+			canvasObj.height = videosDiv.clientWidth * 9 / 16;
+			canvasObj.style.position = 'absolute';
+			canvasObj.style.top = (videosDiv.clientHeight - screenObj.height)/2+'px';
+			canvasObj.style.left = 0+'px';
+			//console.log("top = "+(videosDiv.clientHeight - screenObj.height)/2);
+		}
+		//console.log(screenObj.clientWidth + ", " +screenObj.clientHeight);
+	}
+}
+
+function getQueryParams() {
+	if (document.location.search.length > 1) {
+		const query = document.location.search.substring(1);
+		const params = query.split('&');
+		const result = {};
+		for (var param of params) {
+			const element = param.split('=');
+			const key = decodeURIComponent(element[0]);
+			const value = decodeURIComponent(element[1]);
+			result[key] = value;
+			if (key == "contentid") {
+				contentID = value;
+			} else if(key == "remoterPeerID"){
+				remoterPeerID = value;
+			} else if(key == "trackID"){
+				trackID = value;
+			}
+		}
+		return result;
+	}
+	return null;
+}
+</script>
+</div>
+</body>
+</html>

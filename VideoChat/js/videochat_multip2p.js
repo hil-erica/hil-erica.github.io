@@ -1,17 +1,7 @@
-var micList = document.getElementById("mic_list");
-var speakerList = document.getElementById("speaker_list");
-var myPeerID = document.getElementById("myPeerID");
-var remotePeers = document.getElementById("remotePeers");
-//var remotePeerID = document.getElementById("remotePeerID");
 var remotePeerIDs = [];
 var remotePeerIDMediaConMap = new Map();
 var remotePeerIDDataConMap = new Map();
-var accessibleList = document.getElementById("accessible_list");
 var accessibleMembers = [];
-var getDeviceButton = document.getElementById("devices_button");
-var tabCommunication = document.getElementById("TAB-Communication");
-var stepButton = document.getElementById("step_button");
-var recordButton = document.getElementById("recorder_button");
 var localMicStream;
 var localMixedStream;
 var numView = 1;
@@ -54,7 +44,6 @@ var fileNames = [];
 var videoBlob =[]
 var dataUrls =[];
 var recorderMap = new Map();
-const anchor = document.getElementById('downloadlink');
 
 var wSocket = null;
 
@@ -93,6 +82,7 @@ function getQueryParams() {
 			result[key] = value;
 
 			if(key == "myPeerID"){
+				var myPeerID = document.getElementById("myPeerID");
 				myPeerID.value = value;
 			}
 			if(key == "remotePeerID"){
@@ -217,6 +207,7 @@ function addRemotePeerId(remotePeer){
 	content.appendChild(txt);
 	content.appendChild(commuButton);
 	content.appendChild(removeButton);
+	var remotePeers = document.getElementById("remotePeers");
 	remotePeers.appendChild(content);
 	return thisPeerCounterNumer;
 }
@@ -377,6 +368,8 @@ function videoCanvasClicked(event){
 	var canvasObj = this;
 	var clickX = event.pageX ;
 	var clickY = event.pageY ;
+	console.log(clickX +", "+clickY+"/"+canvasObj.width+","+canvasObj.height);
+	var myPeerID = document.getElementById("myPeerID");
 
 	// 要素の位置を取得
 	var clientRect = this.getBoundingClientRect() ;
@@ -393,7 +386,7 @@ function videoCanvasClicked(event){
 	
 	if (clicked) {
 		clicked = false;
-		var eventName = "dblclickevent";			
+		var eventName = "dblclickevent";		
 		var sendText = "{\"peerid\": \""+myPeerID.value+"\", \""+eventName+"\": {\"remotepeerid\":\""+canvasObj.getAttribute('remotePeerId')+"\", \"trackid\":"+canvasObj.getAttribute('trackID')+",\"x\":"+x+", \"y\": "+y+",\"xratio\":"+xRatio+", \"yratio\": "+yRatio+"}}";
 		console.log("clicked event "+sendText);
 		publishData(sendText);
@@ -604,6 +597,7 @@ function addView(stream, remoterPeerID, trackID) {
 	option.innerHTML = '1920x1080px';
 	sizeSelector.appendChild(option);
 	
+	var speakerList = document.getElementById("speaker_list");
 	var speakerSelector = document.createElement('select');
 	speakerSelector.setAttribute('id', 'remote_camera_speakerselector_' +remoterPeerID+'_'+ trackID);
 	speakerSelector.setAttribute('speakerid', screenObj.id);
@@ -618,17 +612,18 @@ function addView(stream, remoterPeerID, trackID) {
 	//メインのスピーカーに設定
 	speakerSelector.selectedIndex = speakerList.selectedIndex;
 	
-	/*
 	var openWindowButton = document.createElement("button");
-	openWindowButton.innerText = "Open";
+	openWindowButton.innerHTML = "<font size='3'>open window</font>";
 	openWindowButton.onclick = function() {
-		openWindowButton.innerText += " クリックされました!";
-		var obj_window = window.open("SubWindows.html?contentid="+screenObj.id, "サブ検索画面", "width=300,height=200,scrollbars=yes");
+		//openWindowButton.innerText = "close window";
+		var obj_window = window.open("FloatingVideoWindow.html?contentid="+screenObj.id+"&remoterPeerID="+remoterPeerID+"&trackID="+trackID, "remoterPeerID="+remoterPeerID+"&trackID="+trackID, "width="+screenObj.width+",height="+screenObj.height+",scrollbars=no");
 		//obj_window.document.getElementById("hogehoge").srcObject = stream;
 		//window.open("SubWindows.html", "サブ検索画面", "width=300,height=200,scrollbars=yes");
-	};	
+	};
+	//openWindowButton.setAttribute('style', 'width:50pt;');
+	openWindowButton.classList.toggle('small');
 	content.appendChild(openWindowButton);
-	*/
+	
 	content.appendChild(sizeSelector);
 	content.appendChild(speakerSelector);
 	content.appendChild(screenObj);
@@ -872,9 +867,11 @@ function clearView() {
 }
 
 function clearDeviceList() {
+	var micList = document.getElementById("mic_list");
 	while (micList.lastChild) {
 		micList.removeChild(micList.lastChild);
 	}
+	var speakerList = document.getElementById("speaker_list");
 	while (speakerList.lastChild) {
 		speakerList.removeChild(speakerList.lastChild);
 	}
@@ -889,6 +886,8 @@ function clearDeviceList() {
 }
 
 async function addDevice(device) {
+	var micList = document.getElementById("mic_list");
+	var speakerList = document.getElementById("speaker_list");
 	if (device.kind === 'audioinput') {
 		var id = device.deviceId;
 		var label = device.label || 'microphone'; // label is available for https 
@@ -919,8 +918,12 @@ async function addDevice(device) {
 }
 
 function getDeviceList() {
+	var micList = document.getElementById("mic_list");
+	var speakerList = document.getElementById("speaker_list");
 	clearDeviceList();
 	
+	var getDeviceButton = document.getElementById("devices_button");
+	getDeviceButton.disabled=true;
 	//https://stackoverflow.com/questions/60297972/navigator-mediadevices-enumeratedevices-returns-empty-labels
 	(async () => {   
 		//await navigator.mediaDevices.getUserMedia({audio: true, video: true});
@@ -978,8 +981,8 @@ function getDeviceList() {
 				option.innerHTML = label + '(' + id + ')';;
 				micList.appendChild(option);
 				
+				var stepButton = document.getElementById("step_button");
 				stepButton.disabled = false;
-				//tabCommunication.setAttribute("disable",false);
 				
 				//デバイス選択イベント
 				micList.addEventListener('change', micSelectEvent);
@@ -990,24 +993,15 @@ function getDeviceList() {
 				micTestButton.disabled = false;
 				var speakerTestButton = document.getElementById("speaker_test");
 				speakerTestButton.disabled = false;
+				
+				getDeviceButton.disabled = false;
 			})();
 		}).catch(function (err) {
 			console.error('enumerateDevide ERROR:', err);
+				
+			getDeviceButton.disabled = false;
 		});
 	})();
-	
-	/*
-	navigator.mediaDevices.enumerateDevices().then(function (devices) {
-		devices.forEach(function (device) {
-			console.log(device.kind + ": " + device.label + " id = " + device.deviceId);
-			addDevice(device);
-		});
-		stepButton.disabled = false;
-		//tabCommunication.setAttribute("disable",false);
-	}).catch(function (err) {
-		console.error('enumerateDevide ERROR:', err);
-	});
-	*/
 }
 
 //こんな感じで映像のトラック数と音のトラック数がわかる，相手から複数映像トラックがある場合は分割しよう
@@ -1126,6 +1120,7 @@ function teleOpeModeChanged() {
 
 function gotoStandby() {
 	console.log("gotostandby clicked");
+	var myPeerID = document.getElementById("myPeerID");
 	thisPeer = (window.peer = new Peer(myPeerID.value,{
 		//key: window.__SKYWAY_KEY__,
 		key: skywaykey,
@@ -1143,6 +1138,7 @@ function gotoStandby() {
 		for(var j = 0; j < buttons.length; j++){
 			buttons[j].disabled = true;
 		}
+		var stepButton = document.getElementById("step_button");
 		stepButton.innerHTML = "<font size='2'>go to standby</font>";
 		stepButton.disabled = false;
 		isReady = false;
@@ -1157,6 +1153,7 @@ function gotoStandby() {
 	remotePeerIDMediaConMap.clear();
 	thisPeer.once('open', id => {
 		let peers = thisPeer.listAllPeers(peers => {
+			var accessibleList = document.getElementById("accessible_list");
 			accessibleList.value = "";
 			accessibleMembers = [];
 			for(var i = 0; i< peers.length; i++){
@@ -1166,12 +1163,14 @@ function gotoStandby() {
 			updateCommuButton();
 			console.log(peers);
 		});
-		
+		var recordButton = document.getElementById("recorder_button");
 		recordButton.disabled = "";
-		getDeviceButton.setAttribute("disabled","true");
-		//micList.setAttribute("disabled","true");
-		speakerList.setAttribute("disabled","true");
-		myPeerID.setAttribute("disabled","true");
+		var getDeviceButton = document.getElementById("devices_button");
+		getDeviceButton.disabled = true;
+		var speakerList = document.getElementById("speaker_list");
+		speakerList.disabled = false;
+		var myPeerID = document.getElementById("myPeerID");
+		myPeerID.disabled = false;
 		
 		finishTestMode();
 		
@@ -1185,6 +1184,7 @@ function gotoStandby() {
 		//https://techacademy.jp/magazine/5537
 		var checkAccessibleMember = function(){
 			thisPeer.listAllPeers(peers => {
+				var accessibleList = document.getElementById("accessible_list");
 				accessibleList.value = "";
 				accessibleMembers = [];
 				for(var i = 0; i< peers.length; i++){
@@ -1279,6 +1279,7 @@ function gotoStandby() {
 		
 		
 		//stepButton.setAttribute('onclick', 'callRemote()');
+		var stepButton = document.getElementById("step_button");
 		stepButton.setAttribute('disabled', 'true');
 		stepButton.innerHTML = "<font size='3'>connected</font>";
 		
@@ -1384,7 +1385,6 @@ function callRemoteOne(remotePeerID) {
 	dataConnection.once('open', async () => {
 		remotePeerIDDataConMap.set(dataConnection.remoteId, dataConnection);
 		console.log(dataConnection.remoteId +" data connection opened" );
-		//dataConnection.send("hello I'm "+myPeerID.value);
 		if(videoMuteMode){
 			
 		} else {
@@ -1434,10 +1434,6 @@ function mediaCall(remotePeerID){
 
 //自分で切ったイベント
 function closeRemote(peerID){
-	//自分で切った
-	//mediaConnection.close(true);
-	//stepButton.setAttribute('onclick', 'callRemote()');
-	//stepButton.innerHTML = "call";
 	
 	//mapからの削除はcloseイベントが発生してから
 	for(var[key, value] of remotePeerIDMediaConMap){
@@ -1609,10 +1605,6 @@ function closedConnection(remotePeerID){
 	}
 	
 	remotePeerIDMediaConMap.delete(remotePeerID);
-	//クエリを編集
-	//window.location.search = "myPeerID="+myPeerID.value+"&remotePeerID="+remotePeerID.value ;
-	
-	
 }
 
 async function getSelectedMicStream(){
@@ -1718,6 +1710,7 @@ async function getSelectedMicStream(){
 }
 
 function makeLocalStream(){
+	var myPeerID = document.getElementById("myPeerID");
 	localMixedStream = new webkitMediaStream();
 	//取得した一覧から全てのvalue値を表示する
 	if(localMicStream != null){
@@ -1887,6 +1880,7 @@ function finishTestMode(){
 }
 
 function micTestRecord(event){
+	var micList = document.getElementById("mic_list");
 	if(micTestAudio != null){
 		micTestAudio.pause();
 		micTestAudio.currentTime = 0;
@@ -2021,12 +2015,14 @@ function mainSpeakerSelectEvent(event){
 }
 
 function getSelectedAudio() {
+	var micList = document.getElementById("mic_list");
 	var id = micList.options[micList.selectedIndex].value;
 	console.log('selected mic '+micList.selectedIndex+' '+id);
 	return id;
 }
 
 function getSelectedSpeaker() {
+	var speakerList = document.getElementById("speaker_list");
 	var id = speakerList.options[speakerList.selectedIndex].value;
 	console.log('selected speaker '+speakerList.selectedIndex+' '+id);
 	return id;
@@ -2048,6 +2044,7 @@ function sendData(toPeerID, sendText){
 
 function getData(fromPeerID, receiveText, dataConnection){
 	//console.log(fromPeerID+ " : " + receiveText);
+	var myPeerID = document.getElementById("myPeerID");
 	if(receiveText.startsWith("numvideo")){
 		if(localMixedStream == null){
 			makeLocalStream();
@@ -2087,6 +2084,7 @@ function getData(fromPeerID, receiveText, dataConnection){
 
 function sendchat(){
 	var chatsendinput = document.getElementById('chatsendinput');
+	var myPeerID = document.getElementById("myPeerID");
 	var sendText = "chat="+chatsendinput.value;
 	var sendRawText = chatsendinput.value;
 	chatsendinput.value = "";
@@ -2103,6 +2101,7 @@ function sendchat(){
 
 var recorderCount = 0;
 function startstoprecord(){
+	var recordButton = document.getElementById("recorder_button");
 	if(isRecording){
 		for(var i  = 0; i < recorder.length; i++){
 			if(recorder[i] != null){
@@ -2127,6 +2126,7 @@ function startstoprecord(){
 		fileNames.splice(0);
 		recorderCount = 0;
 		var elements = document.getElementsByName('local_camera_video');
+		var myPeerID = document.getElementById("myPeerID");
 		if(elements.length == 0){
 			//record sound only
 			if(localMicStream != null && localMicStream.getAudioTracks().length > 0){
@@ -2205,7 +2205,9 @@ function startstoprecord(){
 			
 			elements = document.getElementsByName('remote_audio_source_'+key);
 			for (var i = 0; i < elements.length; i++) {
-				if(elements[i].srcObject != null && elements[i].getAttribute("mutemode")=="false"){
+				if(elements[i].srcObject == null){
+					console.log('remote_audio_source_'+key +' srcObjec is null');
+				} else if(elements[i].getAttribute("mutemode")=="false"){
 					recorder.push(new MediaRecorder(elements[i].srcObject));
 					recorderMap.set(recorderCount, recorder[recorderCount]);
 					chunks.push([]); // 格納場所をクリア
@@ -2221,7 +2223,7 @@ function startstoprecord(){
 					console.log('start recording : '+recorderCount);
 					recorderCount++;
 				} else {
-					console.log('remote_audio_source_'+key +' srcObjec is null');
+					console.log('remote_audio_source_'+key +' srcObjec is mutemode, not record');
 				}
 			}
 		}
@@ -2309,6 +2311,7 @@ function createCallbackOnstop(recorderCount) {
 				console.log("zip generated");
 				// blob から URL を生成
 				const dataUrl = URL.createObjectURL(blob);
+				const anchor = document.getElementById('downloadlink');
 				anchor.download = `${folderName}.zip`;
 				anchor.href = dataUrl;
 				// オブジェクト URL の開放
