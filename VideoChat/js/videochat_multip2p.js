@@ -2099,6 +2099,13 @@ function getData(fromPeerID, receiveText, dataConnection){
 	}
 }
 
+function chatInputKeyPress(){
+	console.log(event.keyCode);
+	if (event.keyCode === 13) {
+		sendchat();
+	}  
+}
+
 function sendchat(){
 	var chatsendinput = document.getElementById('chatsendinput');
 	var myPeerID = document.getElementById("myPeerID");

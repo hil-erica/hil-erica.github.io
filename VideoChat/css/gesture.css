@@ -1,0 +1,23 @@
+body {
+  color: white;
+  background-color: SkyBlue;
+  position: absolute;
+  top: 0px;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;  
+}
+
+.left-hand {
+ float: left;
+  width:49.5%;
+  height:100%;
+   background-color: DeepSkyBlue;
+}
+
+.right-hand {
+ float: right;
+  width:49.5%;
+   background-color: DeepSkyBlue;
+   height:100%;
+}
