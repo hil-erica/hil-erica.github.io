@@ -18,13 +18,7 @@ var checkMemberTimerId;
 var gazePics;
 var gazePicsX;
 var gazePicsY;
-var pointingPicsRightup;
-var pointingPicsRightdown;
-var pointingPicsLeftup;
-var pointingPicsLeftdown;
-var pointingPicsX;
-var pointingPicsY;
-var pointingPicsMargin;
+var gesturePics;
 var remotePeerCounter = 0;
 var isReady = false;
 var skywaykey = null;
@@ -47,25 +41,18 @@ var recorderMap = new Map();
 
 var wSocket = null;
 
+var currentgesture = "";
+
 window.onload = ()=> {
 	getQueryParams();
-	pointingPicsRightup = new Image();
-	pointingPicsRightup.src = "./pics/pointing-right-up.png";
-	pointingPicsRightdown = new Image();
-	pointingPicsRightdown.src = "./pics/pointing-right-down.png";
-	pointingPicsLeftup = new Image();
-	pointingPicsLeftup.src = "./pics/pointing-left-up.png";
-	pointingPicsLeftdown = new Image();
-	pointingPicsLeftdown.src = "./pics/pointing-left-down.png";
-	
-	pointingPicsX = 126;
-	pointingPicsY = 126;
-	pointingPicsMargin = 20;
+	gesturePics = new Image();
 	
 	gazePics = new Image();
 	gazePics.src = "./pics/eye-free.png";
 	gazePicsX = 75;
 	gazePicsY = 30;
+	
+	gestureSelected("handgesture");
 }
 
 //連想配列
@@ -370,7 +357,7 @@ function videoCanvasClicked(event){
 	var canvasObj = this;
 	var clickX = event.pageX ;
 	var clickY = event.pageY ;
-	console.log(clickX +", "+clickY+"/"+canvasObj.width+","+canvasObj.height);
+	//console.log(clickX +", "+clickY+"/"+canvasObj.width+","+canvasObj.height);
 	var myPeerID = document.getElementById("myPeerID");
 
 	// 要素の位置を取得
@@ -381,8 +368,20 @@ function videoCanvasClicked(event){
 	// 要素内におけるクリック位置を計算
 	var x = clickX - positionX ;
 	var y = clickY - positionY ;
+	// キャンバス中心座標
+	var xC = (x-canvasObj.width/2);
+	var yC = (y-canvasObj.height/2);
+	var directionRad = 0;
+	if(xC == 0){
+		if(yC >= 0) directionRad = Math.PI/2;
+		else directionRad = -Math.PI/2;
+	} else {
+		directionRad = Math.atan2(yC, xC);
+	}
+	
 	var xRatio = x/canvasObj.width;
 	var yRatio = y/canvasObj.height;
+	
 	var dblClickDuration = 300;//msec
 	var drawMarkDuration = 1000;//msec
 	
@@ -393,7 +392,7 @@ function videoCanvasClicked(event){
 			singleClickTimerMap.delete(canvasObj.id)
 		}
 		var eventName = "dblclickevent";		
-		var sendText = "{\"peerid\": \""+myPeerID.value+"\", \""+eventName+"\": {\"remotepeerid\":\""+canvasObj.getAttribute('remotePeerId')+"\", \"trackid\":"+canvasObj.getAttribute('trackID')+",\"x\":"+x+", \"y\": "+y+",\"xratio\":"+xRatio+", \"yratio\": "+yRatio+"}}";
+		var sendText = "{\"peerid\": \""+myPeerID.value+"\", \""+eventName+"\": {\"remotepeerid\":\""+canvasObj.getAttribute('remotePeerId')+"\", \"trackid\":"+canvasObj.getAttribute('trackID')+",\"x\":"+x+", \"y\": "+y+",\"xratio\":"+xRatio+", \"yratio\": "+yRatio+", \"gesture\": \""+currentgesture+"\"}}";
 		console.log("clicked event "+sendText);
 		publishData(sendText);
 
@@ -407,23 +406,28 @@ function videoCanvasClicked(event){
 		context.lineWidth = 1 ;
 		context.stroke() ;
 		*/
+		var imgWidth = gesturePics.naturalWidth;
+		var imgHeight = gesturePics.naturalHeight;
+		context.save();
+		context.translate(x, y);
+		context.rotate(directionRad+Math.PI);
 		if(xRatio >= 0.5){
+			//上下反転
+			context.scale(1, -1);
 			if(yRatio >= 0.5){
-				//right down
-				context.drawImage(pointingPicsRightdown, x-pointingPicsX+pointingPicsMargin, y-pointingPicsY+pointingPicsMargin, pointingPicsX, pointingPicsY);
+				//right down			
 			} else {
 				//right up
-				context.drawImage(pointingPicsRightup, x-pointingPicsX+pointingPicsMargin, y-pointingPicsMargin, pointingPicsX, pointingPicsY);
 			}
 		} else {
 			if(yRatio >= 0.5){
 				//left down
-				context.drawImage(pointingPicsLeftdown, x-pointingPicsMargin, y+pointingPicsMargin-pointingPicsY, pointingPicsX, pointingPicsY);
 			} else {
 				//left up
-				context.drawImage(pointingPicsLeftup, x-pointingPicsMargin, y-pointingPicsMargin, pointingPicsX, pointingPicsY);
 			}
 		}
+		context.drawImage(gesturePics, 0, -imgHeight/2, imgWidth, imgHeight);
+		context.restore();
 		
 		//return;
 	} else {
@@ -2383,6 +2387,21 @@ function socketconnection(){
 		if(wSocket.readyState == 1){
 			wSocket.close();
 			console.log("close socket");
+		}
+	}
+}
+
+/* gesture selectorの結果、画像を変える */
+function gestureSelected(id) {
+	var gestureButtons = document.getElementsByName("gesture");
+	for(var i = 0; i<gestureButtons.length; i++){
+		if(gestureButtons[i].id == id){
+			//selected
+			gestureButtons[i].setAttribute("src", "pics/gestures/"+gestureButtons[i].id+"-r.png");
+			currentgesture = id;
+			gesturePics.src = "pics/gestures/"+gestureButtons[i].id+"-r.png";
+		} else {
+			gestureButtons[i].setAttribute("src", "pics/gestures/"+gestureButtons[i].id+"-g.png");
 		}
 	}
 }

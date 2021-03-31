@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<!-- saved from url=(0058)https://mganeko.github.io/webrtcexpjp/tool/devicelist.html -->
+<html data-minimalscrollbar="yes" style="">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" type="text/css" href="./css/style.css">
+  <link rel="stylesheet" type="text/css" href="./css/tab.css">
+  <link rel="stylesheet" type="text/css" href="./css/button.css">
+  <script src="https://d3js.org/d3.v6.min.js"></script>
+  <title>空道操作</title>
+  <link rel="shortcut icon" href="./pics/denwa.ico" type="image/vnd.microsoft.icon">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://unpkg.com/imagesloaded@4/imagesloaded.pkgd.min.js"></script>
+<script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.2.1/dist/jszip.js"></script><!-- zipでかためてダウンロードhttps://r17n.page/2020/01/12/js-download-zipped-images-to-local/-->
+</head>
+<body style="">
+  <div class="tab-wrap">
+    <input id="TAB-Device" type="radio" name="TAB" class="tab-switch" checked="checked" /><label class="tab-label" for="TAB-Device">devices</label>
+    <div class="tab-content">
+      <button id="devices_button" class="small" onclick="getDeviceList()"><font size="3">get devices</font></button><br>
+      <div class="box-text-mic" id="box-text-mic">
+        device:
+        <select id="mic_list" size="1" style="width:160pt;">
+          <option>(audio)</option>
+        </select>
+        &nbsp;additional transmit delay[sec]:
+        <input type="number" id="micdelayinput" value="0" min="0" max="1" step="0.01">
+        &nbsp;echo cancel:
+        <select id="echocancelselector" size="1" style="width:110pt;">
+        </select>
+        <!--<input type="checkbox" id="echocancelcheckbox" value="1">-->
+        &nbsp;mute:<input type="checkbox" id="mutecheckbox" value="1">
+        <br>
+        <button id="mic_test" class="small" onclick="micTestRecord()" disabled="true"><font size="3">mic test(start recording)</font></button><br>
+      </div>
+      <div class="box-text-speaker">
+        device:
+        <select id="speaker_list" size="1" style="width:160pt;">
+          <option>(speaker)</option>
+        </select>
+        <br>
+        <button id="speaker_test" class="small" onclick="speakerTest()" disabled="true"><font size="3">speaker test</font></button><br>
+      </div>
+    </div>
+    
+    <input id="TAB-Communication" type="radio" name="TAB" class="tab-switch"><label class="tab-label" for="TAB-Communication">communication</label>
+    <div class="tab-content">
+      <h5>
+      <button id="step_button" class="small" onclick="gotoStandby()" disabled="true" style="width:80pt;"><font size="2">go to standby</font></button>
+      my PeerID：<input type="text" id="myPeerID" name="peerID" size="10" maxlength="20" value="hoge">
+      accessible：<input type="text" id="accessible_list" style="width:300pt;" readonly="readonly">
+      <!--<textarea id="accessible_list" style="width:300px;height:20px;resize:horizontal;" readonly="readonly"></textarea>-->
+      <br>
+     <div class="box-text-remotePeerIDs" style="width:900px">
+        <button class="item_addButton" id="addRemote_button" onclick="addRemotePeerId('foo')"><font size="2">add remote</font></button>
+        <div class="item_small_overflow"  id="remotePeers" style="width:300px;height:150px;">
+        </div>
+        <div class="item_small_overflow"  id="chat" style="width:400px;height:150px;">
+          <input id="chatsendinput" style="width:225pt;" value="input text, select whom and click send"></input>
+          <button id="chatsendbutton"class="small"  onclick="sendchat()"  style="width:40pt;"><font size="2">send</font></button>
+          <select name="chatsendtargets" id="chatsendtargetselect">
+            <option value="publish">publish</option>
+          </select>
+          <textarea id="chatoutput" style="width:340px;height:100px; resize:vertical;" readonly="readonly"></textarea>
+        </div>
+       </div>
+      <!--my PeerID for capture：<input type="text" id="myPeerID4Capture" name="peerID" size="10" maxlength="20" value="bar">-->
+      </h5>
+     </div><!--tab-content-->
+     
+     <input id="TAB-Socket" type="radio" name="TAB" class="tab-switch"><label class="tab-label" for="TAB-Socket">socket</label>
+     <div class="tab-content">
+       <button id="socket_connect_button"class="small"  onclick="socketconnection()" style="width:80pt;"><font size="2">connect</font></button>
+       url：<input type="text" id="socket_url" name="socket_url" size="50" maxlength="100" value="ws://127.0.0.1:8000">
+     </div><!--tab-content-->
+     
+     <input id="TAB-Record" type="radio" name="TAB" class="tab-switch"><label class="tab-label" for="TAB-Record">record</label>
+     <div class="tab-content">
+       <button id="recorder_button"class="small"  onclick="startstoprecord()" disabled="true" style="width:80pt;"><font size="2">record</font></button>
+       <a href="./utils/MediaTools.zip">WebM Tools</a>
+       <!--<a href="#" id="downloadlink">download all(large size zipping is not supportted)</a>-->
+       <div id="download_each"></div>
+     </div><!--tab-content-->
+     
+     <input id="TAB-Mode" type="radio" name="TAB" class="tab-switch"><label class="tab-label" for="TAB-Mode">mode</label>
+     <div class="tab-content">
+       tele-ope mode : <input type="checkbox" id="teleopemodecheckbox" value="2" onchange="teleOpeModeChanged()">
+       <br>
+       <div id="gestures" class="box-text-gestures">
+         <br>
+         <!--gesture画像は左向きでg,b,r3種類64*64サイズ用意すること，以下に追加するだけでスクリプトの修正は不要-->
+         <input type="image" id="handgesture" src="pics/gestures/handgesture-g.png" name="gesture" alt="handgesture" onclick="gestureSelected('handgesture')">
+         <input type="image" id="pointing" src="pics/gestures/pointing-g.png" name="gesture" alt="pointing" onclick="gestureSelected('pointing')">
+         <input type="image" id="handshake" src="pics/gestures/handshake-g.png" name="gesture" alt="handshake" onclick="gestureSelected('handshake')">
+       </div>
+     </div><!--tab-content-->
+     
+     <input id="TAB-Close" type="radio" name="TAB" class="tab-switch"><label class="tab-label" for="TAB-Close">tab close</label>
+     <div class="tab-content">
+     </div><!--tab-content-->
+  </div><!--tab-wrap-->
+  <h2>
+  remote videos<br>
+  <p>
+  <div id="remote_cameras" class="viwer_grid" data-masonry='{ "itemSelector": ".viwer_grid-item"}'></div>
+  <!-- appending video here -->
+  <br>
+  <div id="remote_audios"></div>
+  </p>
+  </h2>
+  <h3>
+  local videos <font size="2">(chrome://settings/content/camera)</font><br>
+  <p>
+  <div id="local_cameras" class="horizontal-list"></div>
+  <!-- appending video here -->
+  </p>
+  </h3>
+
+<!--
+<video id="videotest" autoplay="1" width = "320" height="240" controls>
+	<source src="fhana「星屑のインターリュード」 .mp4" type="video/mp4">
+</video>
+-->
+
+  <!--<script src="//cdn.webrtc.ecl.ntt.com/skyway-latest.js"></script>-->
+  <script src="https://cdn.webrtc.ecl.ntt.com/skyway-4.3.0.js"></script>
+  <!--<script src="./js/key.js"></script>-->
+  <script src="./js/teleope_multip2p.js"></script>
+  <!--
+  <script>
+    var $grid = jQuery('.grid').imagesLoaded(function(){
+      $grid.masonry({
+        itemSelector: '.grid-item'
+      });
+    });
+  </script>
+  -->
+  <script>
+  //https://yizm.work/sample_code/javascript/sortablejs_howto/
+  var local_cameras_div = document.getElementById('local_cameras');
+  var local_cameras_sortable = Sortable.create(local_cameras_div);
+  
+  jQuery.event.add(window,"load",function() {
+    $('#viwer_grid').masonry({
+        itemSelector: '.grid-item',//整理される要素のclassを指定
+        columnWidth: 200,     //一列の幅サイズを指定
+        isAnimated: true,     //スムースアニメーション設定
+        isFitWidth: true,     //親要素の幅サイズがピッタリ
+        isRTL: false,         //整理される要素が左右逆になる（読み言語などに）
+        gutterWidth: 0,       //整理される要素間の溝の幅を指定
+        containerStyle: { position: 'relative' }, //親要素にスタイルを追加できる
+        isResizable: true     //ウィンドウサイズが変更された時に並び替え
+    });
+});
+</script>
+</body>
+</html>
