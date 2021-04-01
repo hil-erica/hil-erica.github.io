@@ -73,4 +73,5 @@ forcelogout=peerid
 ## 空道操作
 ### 使い方
 https://hil-erica.github.io/VideoChat/SoraMichiTeleOpe_MultiP2P.html
+
 基本的に空道電話と同じだが，エージェントの遠隔操作ようにインタフェースが増えている
