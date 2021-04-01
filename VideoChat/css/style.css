@@ -294,7 +294,7 @@ button {
   padding: 10px;
 }
 
-.box-text-command {
+.box-text-tts {
   position: relative;
   border: 3px solid SkyBlue;
   border-radius: 5px;
@@ -302,8 +302,8 @@ button {
   padding: 20px 20px 5px 20px;
 }
 
-.box-text-command::before {
-  content: "command";
+.box-text-tts::before {
+  content: "TTS";
   position: absolute;
   background-color: White;
   color: SkyBlue;

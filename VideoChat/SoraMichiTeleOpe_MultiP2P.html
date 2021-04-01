@@ -97,13 +97,13 @@
          <input type="image" id="pointing" src="pics/gestures/pointing-g.png" name="gesture" alt="pointing" onclick="gestureSelected('pointing')">
          <input type="image" id="handshake" src="pics/gestures/handshake-g.png" name="gesture" alt="handshake" onclick="gestureSelected('handshake')">
        </div>
-       <div id="teleopecommand" class="box-text-command">
-       <input id="commandinput" style="width:100%;" value="input text, select whom and click send" onkeypress="commandInputKeyPress()"></input>
+       <div id="tts" class="box-text-tts">
+       <input id="ttsinput" style="width:100%;" value="こんにちは" onkeypress="ttsInputKeyPress()"></input>
        <br>
-       <select name="commandsendtargets" id="commandsendtargetselect">
+       <select name="ttssendtargets" id="ttssendtargetselect">
          <option value="publish">publish</option>
        </select>
-       <button id="commandsendbutton"class="small"  onclick="sendCommand()"  style="width:40pt;"><font size="2">send</font></button>
+       <button id="ttssendbutton"class="small"  onclick="sendTTS()"  style="width:40pt;"><font size="2">say</font></button>
        <!--<textarea id="chatoutput" style="width:340px;height:100px; resize:vertical;" readonly="readonly"></textarea>-->
        </div>
      </div><!--tab-content-->

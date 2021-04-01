@@ -2082,6 +2082,11 @@ function getData(fromPeerID, receiveText, dataConnection){
 		if(wSocket != null){
 			wSocket.send(cmds);
 		}
+	} else if(receiveText.startsWith("tts=")){
+		var cmds = receiveText.slice(4);
+		if(wSocket != null){
+			wSocket.send(cmds);
+		}
 	} else if(receiveText.startsWith("chat=")){
 		var cmds = receiveText.slice(5);
 		if(cmds.startsWith("forcelogout=")){
@@ -2103,20 +2108,20 @@ function getData(fromPeerID, receiveText, dataConnection){
 	}
 }
 
-function commandInputKeyPress(){
+function ttsInputKeyPress(){
 	if (event.keyCode === 13) {
-		sendCommand();
+		sendTTS();
 	}  
 }
 
-function sendCommand(){
-	var commandsendinput = document.getElementById('commandinput');
+function sendTTS(){
+	var commandsendinput = document.getElementById('ttsinput');
 	var myPeerID = document.getElementById("myPeerID");
-	var sendText = "socket="+commandsendinput.value;
+	var sendText = "tts={\"tts\": \""+commandsendinput.value+"\"}";
 	var sendRawText = commandsendinput.value;
 	commandsendinput.value = "";
-	var commantsendtargetselect = document.getElementById('commandsendtargetselect');
-	var sendTarget = commantsendtargetselect.options[commantsendtargetselect.selectedIndex].value;
+	var ttssendtargetselect = document.getElementById('ttssendtargetselect');
+	var sendTarget = ttssendtargetselect.options[ttssendtargetselect.selectedIndex].value;
 	if(sendTarget == "publish"){
 		publishData(sendText);
 	} else {
