@@ -58,7 +58,7 @@
         <div class="item_small_overflow"  id="remotePeers" style="width:300px;height:150px;">
         </div>
         <div class="item_small_overflow"  id="chat" style="width:400px;height:150px;">
-          <input id="chatsendinput" style="width:225pt;" value="input text, select whom and click send"></input>
+          <input id="chatsendinput" style="width:225pt;" value="input text, select whom and click send" onkeypress="chatInputKeyPress()"></input>
           <button id="chatsendbutton"class="small"  onclick="sendchat()"  style="width:40pt;"><font size="2">send</font></button>
           <select name="chatsendtargets" id="chatsendtargetselect">
             <option value="publish">publish</option>
@@ -88,12 +88,23 @@
      <div class="tab-content">
        tele-ope mode : <input type="checkbox" id="teleopemodecheckbox" value="2" onchange="teleOpeModeChanged()">
        <br>
+       <button id="analoggesture_button"class="small"  onclick="openAnalogGestureWindow()" style="width:150pt;"><font size="2">analog gesture</font></button>
+       <br>
        <div id="gestures" class="box-text-gestures">
          <br>
          <!--gesture画像は左向きでg,b,r3種類64*64サイズ用意すること，以下に追加するだけでスクリプトの修正は不要-->
          <input type="image" id="handgesture" src="pics/gestures/handgesture-g.png" name="gesture" alt="handgesture" onclick="gestureSelected('handgesture')">
          <input type="image" id="pointing" src="pics/gestures/pointing-g.png" name="gesture" alt="pointing" onclick="gestureSelected('pointing')">
          <input type="image" id="handshake" src="pics/gestures/handshake-g.png" name="gesture" alt="handshake" onclick="gestureSelected('handshake')">
+       </div>
+       <div id="teleopecommand" class="box-text-command">
+       <input id="commandinput" style="width:100%;" value="input text, select whom and click send" onkeypress="commandInputKeyPress()"></input>
+       <br>
+       <select name="commandsendtargets" id="commandsendtargetselect">
+         <option value="publish">publish</option>
+       </select>
+       <button id="commandsendbutton"class="small"  onclick="sendCommand()"  style="width:40pt;"><font size="2">send</font></button>
+       <!--<textarea id="chatoutput" style="width:340px;height:100px; resize:vertical;" readonly="readonly"></textarea>-->
        </div>
      </div><!--tab-content-->
      

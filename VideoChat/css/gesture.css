@@ -9,15 +9,15 @@ body {
 }
 
 .left-hand {
- float: left;
+  float: left;
   width:49.5%;
   height:100%;
-   background-color: DeepSkyBlue;
+  background-color: DeepSkyBlue;
 }
 
 .right-hand {
- float: right;
+  float: right;
   width:49.5%;
-   background-color: DeepSkyBlue;
-   height:100%;
+  background-color: DeepSkyBlue;
+  height:100%;
 }

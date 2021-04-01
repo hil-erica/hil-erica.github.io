@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<!-- saved from url=(0058)https://mganeko.github.io/webrtcexpjp/tool/devicelist.html -->
+<html data-minimalscrollbar="yes" style="">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" type="text/css" href="./css/gesture.css">
+ <title>空道操作:アナログジェスチャ</title>
+  <link rel="shortcut icon" href="./pics/sousa.ico" type="image/vnd.microsoft.icon">
+</head>
+
+<body>
+<div id="left-hand" class="left-hand">
+  <!--<img src="./pics/gestures/hand-g-left.png"></img>-->
+  <canvas id="left-hand-canvas"></canvas>
+</div>
+<div id="right-hand" class="right-hand">
+  <!--<img src="./pics/gestures/hand-g-right.png"></img>-->
+  <canvas id="right-hand-canvas"></canvas>
+</div>
+
+<script type = "text/javascript" >
+var parantExistanceFlag = true;
+var leftHandImg = new Image();
+var rightHandImg = new Image();
+leftHandImg.src = "./pics/gestures/hand-g-left.png";
+rightHandImg.src = "./pics/gestures/hand-g-right.png";
+var leftContent = document.getElementById("left-hand");
+var rightContent = document.getElementById("right-hand");
+var leftCanvas = document.getElementById("left-hand-canvas");
+var rightCanvas = document.getElementById("right-hand-canvas");
+
+window.onload = ()=> {
+	getQueryParams();
+	if (!window.opener || !Object.keys(window.opener).length) {
+			//window.alert('親画面が存在しません')
+			parantExistanceFlag = false
+	}
+	//親画面に値を挿入
+	if (parantExistanceFlag) {
+		setVideoSize();
+	}
+	
+	
+	setVideoSize();
+	defaultLeftHand();
+	defaultRightHand();
+}
+
+window.addEventListener("resize", function(event) {
+	setVideoSize();
+});
+
+window.addEventListener('load', function(){
+	setVideoSize();
+}, false);
+
+window.addEventListener('beforeunload', (event) => {
+	
+});
+
+////start of left
+var leftTracking = false;
+var leftBackTimer = null;
+var leftTouchId = -1;
+var lastLeftX = -1;
+var lastLeftY = -1;
+leftCanvas.addEventListener( "touchstart", function(event) {
+	if(leftTracking == false){
+		var touch = event.touches[0];
+		var clickX = touch.pageX ;
+		var clickY = touch.pageY ;
+		
+		// 要素の位置を取得
+		var clientRect = this.getBoundingClientRect() ;
+		var positionX = clientRect.left + window.pageXOffset ;
+		var positionY = clientRect.top + window.pageYOffset ;
+
+		// 要素内におけるクリック位置を計算
+		var x = clickX - positionX ;
+		var y = clickY - positionY ;
+		if(x>leftCanvas.width)x = leftCanvas.width;
+		else if(x < 0) x= 0;
+		if(y>leftCanvas.height)y = leftCanvas.height;
+		else if(y < 0) y = 0;
+		//最初は正面に手を持ってこないと危ないから
+		var xC= leftCanvas.width/2;
+		var yC = leftCanvas.height/2;
+		var dis = Math.sqrt(Math.pow(x-xC, 2)+Math.pow(y-yC, 2));
+		if(dis <= 40){
+			leftTracking = true;
+			leftTouchId = touch.identifier;
+			setLeftHand(x, y, x/leftCanvas.width, x/leftCanvas.height);
+		}
+	}
+	/*
+	for (var i = 0; i < event.touches.length; i++) {
+		var touch = event.touches[i];
+		console.log("left : touch start = "+touch.identifier+":"+touch.target.id +";"+touch.pageX +"/"+touch.pageY);
+	}
+	*/
+}, false );
+
+leftCanvas.addEventListener( "touchmove", function(event) {
+	if(leftTracking == true){
+		for (var i = 0; i < event.touches.length; i++) {
+			var touch = event.touches[i];
+			if(touch.identifier == leftTouchId){
+				//console.log("left : touch move = "+touch.identifier+":"+touch.target.id +";"+touch.pageX +"/"+touch.pageY);
+				if(leftBackTimer != null){
+					clearTimeout(leftBackTimer);
+					leftBackTimer = null;
+				}
+				var clickX = touch.pageX ;
+				var clickY = touch.pageY ;
+
+				// 要素の位置を取得
+				var clientRect = this.getBoundingClientRect() ;
+				var positionX = clientRect.left + window.pageXOffset ;
+				var positionY = clientRect.top + window.pageYOffset ;
+
+				// 要素内におけるクリック位置を計算
+				var x = clickX - positionX ;
+				var y = clickY - positionY ;
+				if(x>leftCanvas.width)x = leftCanvas.width;
+				else if(x < 0) x= 0;
+				if(y>leftCanvas.height)y = leftCanvas.height;
+				else if(y < 0) y = 0;
+				
+				//console.log("left : mousemove "+x +"/"+y);
+				moveLeftHand(x, y, x/leftCanvas.width, y/leftCanvas.height);
+			}
+		}
+	}
+}, false );
+
+leftCanvas.addEventListener( "touchend", function(event) {
+	if(leftTracking == true){
+		for (var i = 0; i < event.changedTouches.length; i++) {
+			var touch = event.changedTouches[i];
+			if(touch.identifier == leftTouchId){
+				//console.log("left : touch end = "+touch.identifier+":"+touch.target.id +";"+touch.pageX +"/"+touch.pageY);
+				if(leftBackTimer != null){
+					clearTimeout(leftBackTimer);
+					leftBackTimer = null;
+				}
+				leftBackTimer = setTimeout(function () {
+					defaultLeftHand();
+				}, 1000);
+			}
+		}
+	}
+}, false );
+
+leftCanvas.addEventListener( "touchcancel", function(event) {
+	for (var i = 0; i < event.touches.length; i++) {
+		var touch = event.touches[i];
+		console.log("left : touch cancel = "+touch.identifier+":"+touch.target.id +";"+touch.pageX +"/"+touch.pageY);
+	}
+}, false );
+
+// PC用 mousemove イベントでの動作確認コード
+leftCanvas.addEventListener( "click",  function(event) {
+	var clickX = event.pageX ;
+	var clickY = event.pageY ;
+	
+	// 要素の位置を取得
+	var clientRect = this.getBoundingClientRect() ;
+	var positionX = clientRect.left + window.pageXOffset ;
+	var positionY = clientRect.top + window.pageYOffset ;
+
+	// 要素内におけるクリック位置を計算
+	var x = clickX - positionX ;
+	var y = clickY - positionY ;
+	
+	//console.log("left : click "+event.pageX +"/"+event.pageY);
+	if(!leftTracking){
+		//最初は正面に手を持ってこないと危ないから
+		var xC= leftCanvas.width/2;
+		var yC = leftCanvas.height/2;
+		var dis = Math.sqrt(Math.pow(x-xC, 2)+Math.pow(y-yC, 2));
+		if(dis <= 40){
+			leftCanvas.addEventListener( "mousemove",  onLeftMouseMove, false );
+			leftTracking = true;
+			setLeftHand(x, y, x/leftCanvas.width, x/leftCanvas.height);
+		}
+	} else {
+		defaultLeftHand();
+	}
+}, false );
+
+leftCanvas.addEventListener( "mouseout",  function(event) {
+	//console.log("left : mouseout "+event.pageX +"/"+event.pageY);
+	if(leftTracking){
+		if(leftBackTimer != null){
+			clearTimeout(leftBackTimer);
+			leftBackTimer = null;
+		}
+		leftBackTimer = setTimeout(function () {
+			defaultLeftHand();
+		}, 1000);
+	} else {
+		
+	}
+}, false );
+
+function onLeftMouseMove(event){
+	if(leftBackTimer != null){
+		clearTimeout(leftBackTimer);
+		leftBackTimer = null;
+	}
+	var clickX = event.pageX ;
+	var clickY = event.pageY ;
+
+	// 要素の位置を取得
+	var clientRect = this.getBoundingClientRect() ;
+	var positionX = clientRect.left + window.pageXOffset ;
+	var positionY = clientRect.top + window.pageYOffset ;
+
+	// 要素内におけるクリック位置を計算
+	var x = clickX - positionX ;
+	var y = clickY - positionY ;
+	
+	//console.log("left : mousemove "+x +"/"+y);
+	moveLeftHand(x, y, x/leftCanvas.width, y/leftCanvas.height);
+}
+
+function setLeftHand(x, y, xRatio, yRatio){
+	//start
+	lastLeftX = x;
+	lastLeftY = y;
+	if(leftBackTimer != null){
+		clearTimeout(leftBackTimer);
+		leftBackTimer = null;
+	}
+	leftHandImg.src = "./pics/gestures/hand-r-left.png";
+	leftHandImg.onload = function(){
+		drawHand(leftCanvas, leftHandImg, x, y);
+	}
+	//command
+	if(parantExistanceFlag){
+		window.opener.leftHandAnalogGestureStart(xRatio, yRatio);
+	}
+}
+function moveLeftHand(x, y, xRatio, yRatio){
+	lastLeftX = x;
+	lastLeftY = y;
+	drawHand(leftCanvas, leftHandImg, x, y);
+	//command
+	if(parantExistanceFlag){
+		window.opener.leftHandAnalogGestureMove(xRatio, yRatio);
+	}
+}
+function defaultLeftHand(){
+	//end
+	leftCanvas.removeEventListener( "mousemove",  onLeftMouseMove, false );
+	leftTracking = false;
+	leftTouchId = -1;
+	leftHandImg.src = "./pics/gestures/hand-g-left.png";
+	var x= leftCanvas.width/2;
+	var y = leftCanvas.height/2;
+	lastLeftX = -1;
+	lastLeftY = -1;
+	leftHandImg.onload = function(){
+		drawHand(leftCanvas, leftHandImg, x, y);
+	}
+	//command
+	if(parantExistanceFlag){
+		window.opener.leftHandAnalogGestureEnd();
+	}
+}
+////end of left
+
+////start of right
+var rightTracking = false;
+var rightBackTimer = null;
+var rightTouchId = -1;
+var lastRightX = -1;
+var lastRightY = -1;
+rightCanvas.addEventListener( "touchstart", function(event) {
+	if(rightTracking == false){
+		var touch = event.touches[0];
+		var clickX = touch.pageX ;
+		var clickY = touch.pageY ;
+		
+		// 要素の位置を取得
+		var clientRect = this.getBoundingClientRect() ;
+		var positionX = clientRect.left + window.pageXOffset ;
+		var positionY = clientRect.top + window.pageYOffset ;
+
+		// 要素内におけるクリック位置を計算
+		var x = clickX - positionX ;
+		var y = clickY - positionY ;
+		if(x>rightCanvas.width)x = rightCanvas.width;
+		else if(x < 0) x= 0;
+		if(y>rightCanvas.height)y = rightCanvas.height;
+		else if(y < 0) y = 0;
+		//最初は正面に手を持ってこないと危ないから
+		var xC= rightCanvas.width/2;
+		var yC = rightCanvas.height/2;
+		var dis = Math.sqrt(Math.pow(x-xC, 2)+Math.pow(y-yC, 2));
+		if(dis <= 40){
+			rightTracking = true;
+			rightTouchId = touch.identifier;
+			setRightHand(x, y, x/rightCanvas.width, x/rightCanvas.height);
+		}
+	}
+	/*
+	for (var i = 0; i < event.touches.length; i++) {
+		var touch = event.touches[i];
+		console.log("right : touch start = "+touch.identifier+":"+touch.target.id +";"+touch.pageX +"/"+touch.pageY);
+	}
+	*/
+}, false );
+
+rightCanvas.addEventListener( "touchmove", function(event) {
+	if(rightTracking == true){
+		for (var i = 0; i < event.touches.length; i++) {
+			var touch = event.touches[i];
+			if(touch.identifier == rightTouchId){
+				//console.log("right : touch move = "+touch.identifier+":"+touch.target.id +";"+touch.pageX +"/"+touch.pageY);
+				if(rightBackTimer != null){
+					clearTimeout(rightBackTimer);
+					rightBackTimer = null;
+				}
+				var clickX = touch.pageX ;
+				var clickY = touch.pageY ;
+
+				// 要素の位置を取得
+				var clientRect = this.getBoundingClientRect() ;
+				var positionX = clientRect.left + window.pageXOffset ;
+				var positionY = clientRect.top + window.pageYOffset ;
+
+				// 要素内におけるクリック位置を計算
+				var x = clickX - positionX ;
+				var y = clickY - positionY ;
+				if(x>rightCanvas.width)x = rightCanvas.width;
+				else if(x < 0) x= 0;
+				if(y>rightCanvas.height)y = rightCanvas.height;
+				else if(y < 0) y = 0;
+				
+				//console.log("right : mousemove "+x +"/"+y);
+				moveRightHand(x, y, x/rightCanvas.width, y/rightCanvas.height);
+			}
+		}
+	}
+}, false );
+
+rightCanvas.addEventListener( "touchend", function(event) {
+	if(rightTracking == true){
+		for (var i = 0; i < event.changedTouches.length; i++) {
+			var touch = event.changedTouches[i];
+			if(touch.identifier == rightTouchId){
+				//console.log("right : touch end = "+touch.identifier+":"+touch.target.id +";"+touch.pageX +"/"+touch.pageY);
+				if(rightBackTimer != null){
+					clearTimeout(rightBackTimer);
+					rightBackTimer = null;
+				}
+				rightBackTimer = setTimeout(function () {
+					defaultRightHand();
+				}, 1000);
+			}
+		}
+	}
+}, false );
+
+rightCanvas.addEventListener( "touchcancel", function(event) {
+	for (var i = 0; i < event.touches.length; i++) {
+		var touch = event.touches[i];
+		console.log("right : touch cancel = "+touch.identifier+":"+touch.target.id +";"+touch.pageX +"/"+touch.pageY);
+	}
+}, false );
+
+// PC用 mousemove イベントでの動作確認コード
+rightCanvas.addEventListener( "click",  function(event) {
+	var clickX = event.pageX ;
+	var clickY = event.pageY ;
+	
+	// 要素の位置を取得
+	var clientRect = this.getBoundingClientRect() ;
+	var positionX = clientRect.left + window.pageXOffset ;
+	var positionY = clientRect.top + window.pageYOffset ;
+
+	// 要素内におけるクリック位置を計算
+	var x = clickX - positionX ;
+	var y = clickY - positionY ;
+	
+	//console.log("right : click "+event.pageX +"/"+event.pageY);
+	if(!rightTracking){
+		//最初は正面に手を持ってこないと危ないから
+		var xC= rightCanvas.width/2;
+		var yC = rightCanvas.height/2;
+		var dis = Math.sqrt(Math.pow(x-xC, 2)+Math.pow(y-yC, 2));
+		if(dis <= 40){
+			rightCanvas.addEventListener( "mousemove",  onRightMouseMove, false );
+			rightTracking = true;
+			setRightHand(x, y, x/rightCanvas.width, x/rightCanvas.height);
+		}
+	} else {
+		defaultRightHand();
+	}
+}, false );
+
+rightCanvas.addEventListener( "mouseout",  function(event) {
+	//console.log("right : mouseout "+event.pageX +"/"+event.pageY);
+	if(rightTracking){
+		if(rightBackTimer != null){
+			clearTimeout(rightBackTimer);
+			rightBackTimer = null;
+		}
+		rightBackTimer = setTimeout(function () {
+			defaultRightHand();
+		}, 1000);
+	} else {
+		
+	}
+}, false );
+
+function onRightMouseMove(event){
+	if(rightBackTimer != null){
+		clearTimeout(rightBackTimer);
+		rightBackTimer = null;
+	}
+	var clickX = event.pageX ;
+	var clickY = event.pageY ;
+
+	// 要素の位置を取得
+	var clientRect = this.getBoundingClientRect() ;
+	var positionX = clientRect.left + window.pageXOffset ;
+	var positionY = clientRect.top + window.pageYOffset ;
+
+	// 要素内におけるクリック位置を計算
+	var x = clickX - positionX ;
+	var y = clickY - positionY ;
+	
+	//console.log("right : mousemove "+x +"/"+y);
+	moveRightHand(x, y, x/rightCanvas.width, y/rightCanvas.height);
+}
+
+function setRightHand(x, y, xRatio, yRatio){
+	//start
+	lastRightX = x;
+	lastRightY = y;
+	if(rightBackTimer != null){
+		clearTimeout(rightBackTimer);
+		rightBackTimer = null;
+	}
+	rightHandImg.src = "./pics/gestures/hand-r-right.png";
+	rightHandImg.onload = function(){
+		drawHand(rightCanvas, rightHandImg, x, y);
+	}
+	//command
+	if(parantExistanceFlag){
+		window.opener.rightHandAnalogGestureStart(xRatio, yRatio);
+	}
+}
+function moveRightHand(x, y, xRatio, yRatio){
+	lastRightX = x;
+	lastRightY = y;
+	drawHand(rightCanvas, rightHandImg, x, y);
+	//command
+	if(parantExistanceFlag){
+		window.opener.rightHandAnalogGestureMove(xRatio, yRatio);
+	}
+}
+function defaultRightHand(){
+	//end
+	rightCanvas.removeEventListener( "mousemove",  onRightMouseMove, false );
+	rightTracking = false;
+	rightTouchId = -1;
+	rightHandImg.src = "./pics/gestures/hand-g-right.png";
+	var x= rightCanvas.width/2;
+	var y = rightCanvas.height/2;
+	lastRightX = -1;
+	lastRightX = -1;
+	rightHandImg.onload = function(){
+		drawHand(rightCanvas, rightHandImg, x, y);
+	}
+	//command
+	if(parantExistanceFlag){
+		window.opener.rightHandAnalogGestureEnd();
+	}
+}
+////end of right
+
+function drawHand(canvasObj, handImg, x, y){
+	var context = canvasObj.getContext( "2d" ) ;
+	context.clearRect(0, 0, canvasObj.width, canvasObj.height);
+	var imgWidth = handImg.naturalWidth;
+	var imgHeight = handImg.naturalHeight;
+	context.save();
+	context.translate(x, y);
+	context.drawImage(handImg, -imgWidth/2, -imgHeight/2, imgWidth, imgHeight);
+	context.restore();
+}
+
+function repaintHands(){
+	if(leftTracking){
+		drawHand(leftCanvas, leftHandImg, lastLeftX, lastLeftY);
+	} else {
+		drawHand(leftCanvas, leftHandImg, leftCanvas.width/2, leftCanvas.height/2);
+	}
+	if(rightTracking){
+		drawHand(rightCanvas, rightHandImg, lastRightX, lastRightY);
+	} else {
+		drawHand(rightCanvas, rightHandImg, rightCanvas.width/2, rightCanvas.height/2);
+	}
+}
+
+function setVideoSize(){
+	var videosDiv =document.body;
+	//console.log("ブラウザのウィンドウサイズが変更されました "+videosDiv.clientWidth+"/"+videosDiv.clientHeight);
+	var centerBorder = 2;
+	
+	leftCanvas.width = videosDiv.clientWidth/2 - centerBorder;
+	leftCanvas.height = videosDiv.clientHeight;
+	leftCanvas.style.position = 'absolute';
+	leftCanvas.style.top = 0+'px';
+	leftCanvas.style.left = 0+'px';
+	
+	rightCanvas.width = videosDiv.clientWidth/2 - centerBorder;
+	rightCanvas.height = videosDiv.clientHeight;
+	rightCanvas.style.position = 'absolute';
+	rightCanvas.style.top = 0+'px';
+	rightCanvas.style.left = videosDiv.clientWidth/2 + centerBorder+'px';
+	
+	repaintHands();
+}
+
+function getQueryParams() {
+	if (document.location.search.length > 1) {
+		const query = document.location.search.substring(1);
+		const params = query.split('&');
+		const result = {};
+		for (var param of params) {
+			const element = param.split('=');
+			const key = decodeURIComponent(element[0]);
+			const value = decodeURIComponent(element[1]);
+			result[key] = value;
+			if (key == "hoge") {
+			} else if(key == "foo"){
+			}
+		}
+		return result;
+	}
+	return null;
+}
+</script>
+</div>
+</body>
+</html>

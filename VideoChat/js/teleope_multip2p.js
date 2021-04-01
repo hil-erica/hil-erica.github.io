@@ -2103,6 +2103,33 @@ function getData(fromPeerID, receiveText, dataConnection){
 	}
 }
 
+function commandInputKeyPress(){
+	if (event.keyCode === 13) {
+		sendCommand();
+	}  
+}
+
+function sendCommand(){
+	var commandsendinput = document.getElementById('commandinput');
+	var myPeerID = document.getElementById("myPeerID");
+	var sendText = "socket="+commandsendinput.value;
+	var sendRawText = commandsendinput.value;
+	commandsendinput.value = "";
+	var commantsendtargetselect = document.getElementById('commandsendtargetselect');
+	var sendTarget = commantsendtargetselect.options[commantsendtargetselect.selectedIndex].value;
+	if(sendTarget == "publish"){
+		publishData(sendText);
+	} else {
+		sendData(sendTarget, sendText);
+	}
+}
+
+function chatInputKeyPress(){
+	if (event.keyCode === 13) {
+		sendchat();
+	}  
+}
+
 function sendchat(){
 	var chatsendinput = document.getElementById('chatsendinput');
 	var myPeerID = document.getElementById("myPeerID");
@@ -2374,6 +2401,7 @@ function socketconnection(){
 		wSocket.onmessage = function(event) {
 			//console.log(event.data);
 			publishData("socket="+event.data);
+			//相手を選べるようにしておくと良いかも？ex, hi=***でユーザ名がログインしているならそいつだけに送るとか
 		};
 		
 		//切断
@@ -2404,4 +2432,50 @@ function gestureSelected(id) {
 			gestureButtons[i].setAttribute("src", "pics/gestures/"+gestureButtons[i].id+"-g.png");
 		}
 	}
+}
+
+function openAnalogGestureWindow(){
+	var obj_window = window.open("AnalogGestureWindow.html","","width="+600+",height="+300+"scrollbars=no");
+}
+function leftHandAnalogGestureStart(xRatio, yRatio){
+	//console.log("leftHandAnalogGestureStart @"+xRatio+"/"+yRatio);
+	var eventName = "leftHandAnalogGestureStart";		
+	var sendText = "{\"peerid\": \""+myPeerID.value+"\", \""+eventName+"\": {\"xratio\":"+xRatio+", \"yratio\": "+yRatio+", \"gesture\": \""+currentgesture+"\"}}";
+	//console.log("clicked event "+sendText);
+	publishData(sendText);
+}
+function leftHandAnalogGestureMove(xRatio, yRatio){
+	//console.log("leftHandAnalogGestureMove @"+xRatio+"/"+yRatio);
+	var eventName = "leftHandAnalogGestureMove";		
+	var sendText = "{\"peerid\": \""+myPeerID.value+"\", \""+eventName+"\": {\"xratio\":"+xRatio+", \"yratio\": "+yRatio+", \"gesture\": \""+currentgesture+"\"}}";
+	//console.log("clicked event "+sendText);
+	publishData(sendText);
+}
+function leftHandAnalogGestureEnd(){
+	//console.log("leftHandAnalogGestureEnd");
+	var eventName = "leftHandAnalogGestureEnd";		
+	var sendText = "{\"peerid\": \""+myPeerID.value+"\", \""+eventName+"\": {\"gesture\": \""+currentgesture+"\"}}";
+	//console.log("clicked event "+sendText);
+	publishData(sendText);
+}
+function rightHandAnalogGestureStart(xRatio, yRatio){
+	//console.log("rightHandAnalogGestureStart @"+xRatio+"/"+yRatio);
+	var eventName = "rightHandAnalogGestureStart";		
+	var sendText = "{\"peerid\": \""+myPeerID.value+"\", \""+eventName+"\": {\"xratio\":"+xRatio+", \"yratio\": "+yRatio+", \"gesture\": \""+currentgesture+"\"}}";
+	//console.log("clicked event "+sendText);
+	publishData(sendText);
+}
+function rightHandAnalogGestureMove(xRatio, yRatio){
+	//console.log("rightHandAnalogGestureMove @"+xRatio+"/"+yRatio);
+	var eventName = "rightHandAnalogGestureMove";		
+	var sendText = "{\"peerid\": \""+myPeerID.value+"\", \""+eventName+"\": {\"xratio\":"+xRatio+", \"yratio\": "+yRatio+", \"gesture\": \""+currentgesture+"\"}}";
+	//console.log("clicked event "+sendText);
+	publishData(sendText);
+}
+function rightHandAnalogGestureEnd(){
+	//console.log("rightHandAnalogGestureEnd");
+	var eventName = "rightHandAnalogGestureEnd";		
+	var sendText = "{\"peerid\": \""+myPeerID.value+"\", \""+eventName+"\": {\"gesture\": \""+currentgesture+"\"}}";
+	//console.log("clicked event "+sendText);
+	publishData(sendText);
 }
