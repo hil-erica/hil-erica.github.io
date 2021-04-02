@@ -75,3 +75,35 @@ forcelogout=peerid
 https://hil-erica.github.io/VideoChat/SoraMichiTeleOpe_MultiP2P.html
 
 基本的に空道電話と同じだが，エージェントの遠隔操作ようにインタフェースが増えている
+
+### datachannelについて
+
+#### ジェスチャ
+空道電話とは違いジェスチャの種類も増えた
+##### ジェスチャの種類
+handgesture, pointing, handshake
+##### 映像のダブルクリックイベント
+<ダブルクリックイベントは連続して300msecのタイミングを検知したら Ratioは縦横の比率なので従来のサイズがわからなくてもいいかな>  
+###### プロトコルサンプル
+{"peerid": "bar", "clickevent": {"remotepeerid":"hoge", "trackid":0, "x":614, "y": 27.75,"xRatio":0.959375, "yRatio": 0.07708333333333334, "gesture": "pointing"}}  
+{"peerid": "bar", "dblclickevent": {"remotepeerid":"hoge", "trackid":0,"x":614, "y": 27.75,"xRatio":0.959375, "yRatio": 0.07708333333333334, "gesture": "pointing"}}  
+##### アナログジェスチャプトロコル
+左右ごとに以下のコマンド，動き始めと動き中と終わりがある
+
+{"peerid": "ericaope", "rightHandAnalogGestureStart": {"xratio":0.5890736342042755, "yratio": 0.46096654275092935, "gesture": "pointing"}}
+
+{"peerid": "ericaope", "rightHandAnalogGestureMove": {"xratio":0.5866983372921615, "yratio": 0.5408921933085502, "gesture": "pointing"}}
+
+・・・
+
+{"peerid": "ericaope", "rightHandAnalogGestureMove": {"xratio":0.5843230403800475, "yratio": 0.5446096654275093, "gesture": "pointing"}}
+
+{"peerid": "ericaope", "rightHandAnalogGestureEnd": {"gesture": "pointing"}}
+
+
+#### websocketデータのトンネリングプロトコル
+"socket="をヘッダーに利用
+#### chatデータのトンネリングプロトコル
+"chat="をヘッダーに利用
+#### TTSプロトコル
+"tts="をヘッダーに利用 （例）"tts={"tts":"セリフ"}"
