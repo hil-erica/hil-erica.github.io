@@ -80,14 +80,22 @@ https://hil-erica.github.io/VideoChat/SoraMichiTeleOpe_MultiP2P.html
 
 #### ジェスチャ
 空道電話とは違いジェスチャの種類も増えた
-##### ジェスチャの種類
+
+##### 一般ジェスチャ
+###### 種類
+nodding, greeting
+###### プロトコル
+"{"peerid": "bar", "playgesture": {"gesture":"nodding"}}"
+
+##### ハンドジェスチャ 
+###### ハンドジェスチャの種類
 handgesture, pointing, handshake
-##### 映像のダブルクリックイベント
+###### 映像のダブルクリックイベント
 <ダブルクリックイベントは連続して300msecのタイミングを検知したら Ratioは縦横の比率なので従来のサイズがわからなくてもいいかな>  
 ###### プロトコルサンプル
 {"peerid": "bar", "clickevent": {"remotepeerid":"hoge", "trackid":0, "x":614, "y": 27.75,"xRatio":0.959375, "yRatio": 0.07708333333333334, "gesture": "pointing"}}  
 {"peerid": "bar", "dblclickevent": {"remotepeerid":"hoge", "trackid":0,"x":614, "y": 27.75,"xRatio":0.959375, "yRatio": 0.07708333333333334, "gesture": "pointing"}}  
-##### アナログジェスチャプトロコル
+###### アナログジェスチャプトロコル
 左右ごとに以下のコマンド，動き始めと動き中と終わりがある
 
 {"peerid": "ericaope", "rightHandAnalogGestureStart": {"xratio":0.5890736342042755, "yratio": 0.46096654275092935, "gesture": "pointing"}}
