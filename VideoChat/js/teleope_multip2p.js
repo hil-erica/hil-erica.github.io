@@ -18,7 +18,7 @@ var checkMemberTimerId;
 var gazePics;
 var gazePicsX;
 var gazePicsY;
-var gesturePics;
+var handPics;
 var remotePeerCounter = 0;
 var isReady = false;
 var skywaykey = null;
@@ -41,18 +41,18 @@ var recorderMap = new Map();
 
 var wSocket = null;
 
-var currentgesture = "";
+var currenthandgesture = "";
 
 window.onload = ()=> {
 	getQueryParams();
-	gesturePics = new Image();
+	handPics = new Image();
 	
 	gazePics = new Image();
 	gazePics.src = "./pics/eye-free.png";
 	gazePicsX = 75;
 	gazePicsY = 30;
 	
-	gestureSelected("handgesture");
+	handSelected("handgesture");
 }
 
 //連想配列
@@ -392,7 +392,7 @@ function videoCanvasClicked(event){
 			singleClickTimerMap.delete(canvasObj.id)
 		}
 		var eventName = "dblclickevent";		
-		var sendText = "{\"peerid\": \""+myPeerID.value+"\", \""+eventName+"\": {\"remotepeerid\":\""+canvasObj.getAttribute('remotePeerId')+"\", \"trackid\":"+canvasObj.getAttribute('trackID')+",\"x\":"+x+", \"y\": "+y+",\"xratio\":"+xRatio+", \"yratio\": "+yRatio+", \"gesture\": \""+currentgesture+"\"}}";
+		var sendText = "{\"peerid\": \""+myPeerID.value+"\", \""+eventName+"\": {\"remotepeerid\":\""+canvasObj.getAttribute('remotePeerId')+"\", \"trackid\":"+canvasObj.getAttribute('trackID')+",\"x\":"+x+", \"y\": "+y+",\"xratio\":"+xRatio+", \"yratio\": "+yRatio+", \"hand\": \""+currenthandgesture+"\"}}";
 		console.log("clicked event "+sendText);
 		publishData(sendText);
 
@@ -406,8 +406,8 @@ function videoCanvasClicked(event){
 		context.lineWidth = 1 ;
 		context.stroke() ;
 		*/
-		var imgWidth = gesturePics.naturalWidth;
-		var imgHeight = gesturePics.naturalHeight;
+		var imgWidth = handPics.naturalWidth;
+		var imgHeight = handPics.naturalHeight;
 		context.save();
 		context.translate(x, y);
 		context.rotate(directionRad+Math.PI);
@@ -426,7 +426,7 @@ function videoCanvasClicked(event){
 				//left up
 			}
 		}
-		context.drawImage(gesturePics, 0, -imgHeight/2, imgWidth, imgHeight);
+		context.drawImage(handPics, 0, -imgHeight/2, imgWidth, imgHeight);
 		context.restore();
 		
 		//return;
@@ -2424,17 +2424,47 @@ function socketconnection(){
 	}
 }
 
-/* gesture selectorの結果、画像を変える */
+/* gesture selectorの結果 */
+var gestureResetTimer = null;
+var selectedGestureButton = null;
 function gestureSelected(id) {
+	if(gestureResetTimer != null){
+		clearTimeout(gestureResetTimer);
+		gestureResetTimer = null;
+	}
+	
 	var gestureButtons = document.getElementsByName("gesture");
 	for(var i = 0; i<gestureButtons.length; i++){
 		if(gestureButtons[i].id == id){
 			//selected
-			gestureButtons[i].setAttribute("src", "pics/gestures/"+gestureButtons[i].id+"-r.png");
-			currentgesture = id;
-			gesturePics.src = "pics/gestures/"+gestureButtons[i].id+"-r.png";
+			gestureButtons[i].setAttribute("src", "pics/gestures/"+gestureButtons[i].id+"-r.gif");
+			selectedGestureButton = gestureButtons[i];
+			gestureResetTimer = setTimeout(function () {
+				selectedGestureButton.setAttribute("src", "pics/gestures/"+selectedGestureButton.id+"-g.gif");
+			}, 1000);
+			
+			//command
+			var eventName = "playgesture";		
+			var sendText = "{\"peerid\": \""+myPeerID.value+"\", \""+eventName+"\": {\"gesture\": \""+gestureButtons[i].id+"\"}}";
+			//console.log("clicked event "+sendText);
+			publishData(sendText);
 		} else {
-			gestureButtons[i].setAttribute("src", "pics/gestures/"+gestureButtons[i].id+"-g.png");
+			gestureButtons[i].setAttribute("src", "pics/gestures/"+gestureButtons[i].id+"-g.gif");
+		}
+	}
+}
+
+/* hand selectorの結果、画像を変える */
+function handSelected(id) {
+	var handButtons = document.getElementsByName("hand");
+	for(var i = 0; i<handButtons.length; i++){
+		if(handButtons[i].id == id){
+			//selected
+			handButtons[i].setAttribute("src", "pics/gestures/"+handButtons[i].id+"-r.png");
+			currenthandgesture = id;
+			handPics.src = "pics/gestures/"+handButtons[i].id+"-r.png";
+		} else {
+			handButtons[i].setAttribute("src", "pics/gestures/"+handButtons[i].id+"-g.png");
 		}
 	}
 }
@@ -2445,42 +2475,42 @@ function openAnalogGestureWindow(){
 function leftHandAnalogGestureStart(xRatio, yRatio){
 	//console.log("leftHandAnalogGestureStart @"+xRatio+"/"+yRatio);
 	var eventName = "leftHandAnalogGestureStart";		
-	var sendText = "{\"peerid\": \""+myPeerID.value+"\", \""+eventName+"\": {\"xratio\":"+xRatio+", \"yratio\": "+yRatio+", \"gesture\": \""+currentgesture+"\"}}";
+	var sendText = "{\"peerid\": \""+myPeerID.value+"\", \""+eventName+"\": {\"xratio\":"+xRatio+", \"yratio\": "+yRatio+", \"hand\": \""+currenthandgesture+"\"}}";
 	//console.log("clicked event "+sendText);
 	publishData(sendText);
 }
 function leftHandAnalogGestureMove(xRatio, yRatio){
 	//console.log("leftHandAnalogGestureMove @"+xRatio+"/"+yRatio);
 	var eventName = "leftHandAnalogGestureMove";		
-	var sendText = "{\"peerid\": \""+myPeerID.value+"\", \""+eventName+"\": {\"xratio\":"+xRatio+", \"yratio\": "+yRatio+", \"gesture\": \""+currentgesture+"\"}}";
+	var sendText = "{\"peerid\": \""+myPeerID.value+"\", \""+eventName+"\": {\"xratio\":"+xRatio+", \"yratio\": "+yRatio+", \"hand\": \""+currenthandgesture+"\"}}";
 	//console.log("clicked event "+sendText);
 	publishData(sendText);
 }
 function leftHandAnalogGestureEnd(){
 	//console.log("leftHandAnalogGestureEnd");
 	var eventName = "leftHandAnalogGestureEnd";		
-	var sendText = "{\"peerid\": \""+myPeerID.value+"\", \""+eventName+"\": {\"gesture\": \""+currentgesture+"\"}}";
+	var sendText = "{\"peerid\": \""+myPeerID.value+"\", \""+eventName+"\": {\"hand\": \""+currenthandgesture+"\"}}";
 	//console.log("clicked event "+sendText);
 	publishData(sendText);
 }
 function rightHandAnalogGestureStart(xRatio, yRatio){
 	//console.log("rightHandAnalogGestureStart @"+xRatio+"/"+yRatio);
 	var eventName = "rightHandAnalogGestureStart";		
-	var sendText = "{\"peerid\": \""+myPeerID.value+"\", \""+eventName+"\": {\"xratio\":"+xRatio+", \"yratio\": "+yRatio+", \"gesture\": \""+currentgesture+"\"}}";
+	var sendText = "{\"peerid\": \""+myPeerID.value+"\", \""+eventName+"\": {\"xratio\":"+xRatio+", \"yratio\": "+yRatio+", \"hand\": \""+currenthandgesture+"\"}}";
 	//console.log("clicked event "+sendText);
 	publishData(sendText);
 }
 function rightHandAnalogGestureMove(xRatio, yRatio){
 	//console.log("rightHandAnalogGestureMove @"+xRatio+"/"+yRatio);
 	var eventName = "rightHandAnalogGestureMove";		
-	var sendText = "{\"peerid\": \""+myPeerID.value+"\", \""+eventName+"\": {\"xratio\":"+xRatio+", \"yratio\": "+yRatio+", \"gesture\": \""+currentgesture+"\"}}";
+	var sendText = "{\"peerid\": \""+myPeerID.value+"\", \""+eventName+"\": {\"xratio\":"+xRatio+", \"yratio\": "+yRatio+", \"hand\": \""+currenthandgesture+"\"}}";
 	//console.log("clicked event "+sendText);
 	publishData(sendText);
 }
 function rightHandAnalogGestureEnd(){
 	//console.log("rightHandAnalogGestureEnd");
 	var eventName = "rightHandAnalogGestureEnd";		
-	var sendText = "{\"peerid\": \""+myPeerID.value+"\", \""+eventName+"\": {\"gesture\": \""+currentgesture+"\"}}";
+	var sendText = "{\"peerid\": \""+myPeerID.value+"\", \""+eventName+"\": {\"hand\": \""+currenthandgesture+"\"}}";
 	//console.log("clicked event "+sendText);
 	publishData(sendText);
 }

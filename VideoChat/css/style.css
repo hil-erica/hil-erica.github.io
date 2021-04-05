@@ -294,6 +294,25 @@ button {
   padding: 10px;
 }
 
+.box-text-handgestures {
+  position: relative;
+  border: 3px solid SkyBlue;
+  border-radius: 5px;
+  margin: 20px 0;
+  padding: 20px 20px 5px 20px;
+}
+
+.box-text-handgestures::before {
+  content: "hand";
+  position: absolute;
+  background-color: White;
+  color: SkyBlue;
+  font-weight: bold;
+  left: 20px;
+  top: -23px;
+  padding: 10px;
+}
+
 .box-text-tts {
   position: relative;
   border: 3px solid SkyBlue;

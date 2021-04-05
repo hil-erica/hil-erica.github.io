@@ -90,12 +90,16 @@
        <br>
        <button id="analoggesture_button"class="small"  onclick="openAnalogGestureWindow()" style="width:150pt;"><font size="2">analog gesture</font></button>
        <br>
-       <div id="gestures" class="box-text-gestures">
-         <br>
+       <div id="gesture" class="box-text-gestures">
+         <!--g,b,r3種類64*64サイズ用意すること，以下に追加するだけでスクリプトの修正は不要-->
+         <input type="image" id="nodding" src="pics/gestures/nodding-g.gif" name="gesture" alt="nodding" onclick="gestureSelected('nodding')">
+         <input type="image" id="greeting" src="pics/gestures/greeting-g.gif" name="gesture" alt="greeting" onclick="gestureSelected('greeting')">
+       </div>
+       <div id="hand" class="box-text-handgestures">
          <!--gesture画像は左向きでg,b,r3種類64*64サイズ用意すること，以下に追加するだけでスクリプトの修正は不要-->
-         <input type="image" id="handgesture" src="pics/gestures/handgesture-g.png" name="gesture" alt="handgesture" onclick="gestureSelected('handgesture')">
-         <input type="image" id="pointing" src="pics/gestures/pointing-g.png" name="gesture" alt="pointing" onclick="gestureSelected('pointing')">
-         <input type="image" id="handshake" src="pics/gestures/handshake-g.png" name="gesture" alt="handshake" onclick="gestureSelected('handshake')">
+         <input type="image" id="handgesture" src="pics/gestures/handgesture-g.png" name="hand" alt="handgesture" onclick="handSelected('handgesture')">
+         <input type="image" id="pointing" src="pics/gestures/pointing-g.png" name="hand" alt="pointing" onclick="handSelected('pointing')">
+         <input type="image" id="handshake" src="pics/gestures/handshake-g.png" name="hand" alt="handshake" onclick="handSelected('handshake')">
        </div>
        <div id="tts" class="box-text-tts">
        <input id="ttsinput" style="width:100%;" value="こんにちは" onkeypress="ttsInputKeyPress()"></input>
