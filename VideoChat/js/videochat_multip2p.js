@@ -47,6 +47,8 @@ var recorderMap = new Map();
 
 var wSocket = null;
 
+var subWindows = [];
+
 window.onload = ()=> {
 	getQueryParams();
 	pointingPicsRightup = new Image();
@@ -149,8 +151,19 @@ function inputKeyDialogue(){
 	}
 }
 
+function closeSubWindow(subW){
+	var index = subWindows.indexOf(subW);
+	if(index >= 0){
+		subWindows.splice(index, 1);
+	}
+}
+
 window.addEventListener('beforeunload', (event) => {
 	logout();
+	for(var i = subWindows.length -1;  i>=0;i--){
+		subWindows[i].close();
+	}
+	subWindows = [];
 	//event.preventDefault();
 	//event.returnValue = '';
 });
@@ -634,6 +647,7 @@ function addView(stream, remoterPeerID, trackID) {
 	openWindowButton.onclick = function() {
 		//openWindowButton.innerText = "close window";
 		var obj_window = window.open("FloatingVideoWindow.html?contentid="+screenObj.id+"&remoterPeerID="+remoterPeerID+"&trackID="+trackID, "remoterPeerID="+remoterPeerID+"&trackID="+trackID, "width="+screenObj.width+",height="+screenObj.height+",scrollbars=no");
+		subWindows.push(obj_window);
 		//obj_window.document.getElementById("hogehoge").srcObject = stream;
 		//window.open("SubWindows.html", "サブ検索画面", "width=300,height=200,scrollbars=yes");
 	};

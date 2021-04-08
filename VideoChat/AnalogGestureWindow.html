@@ -55,7 +55,7 @@ window.addEventListener('load', function(){
 }, false);
 
 window.addEventListener('beforeunload', (event) => {
-	
+	window.opener.closeSubWindow(window);
 });
 
 ////start of left
