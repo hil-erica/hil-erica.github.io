@@ -1,3 +1,7 @@
+html, css{
+  touch-action: none;
+}
+
 body {
   color: white;
   background-color: SkyBlue;

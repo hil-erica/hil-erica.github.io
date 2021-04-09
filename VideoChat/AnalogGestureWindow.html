@@ -66,7 +66,7 @@ var lastLeftX = -1;
 var lastLeftY = -1;
 leftCanvas.addEventListener( "touchstart", function(event) {
 	if(leftTracking == false){
-		var touch = event.touches[0];
+		var touch = event.changedTouches[0];
 		var clickX = touch.pageX ;
 		var clickY = touch.pageY ;
 		
@@ -86,6 +86,7 @@ leftCanvas.addEventListener( "touchstart", function(event) {
 		var xC= leftCanvas.width/2;
 		var yC = leftCanvas.height/2;
 		var dis = Math.sqrt(Math.pow(x-xC, 2)+Math.pow(y-yC, 2));
+		
 		if(dis <= 40){
 			leftTracking = true;
 			leftTouchId = touch.identifier;
@@ -278,7 +279,7 @@ var lastRightX = -1;
 var lastRightY = -1;
 rightCanvas.addEventListener( "touchstart", function(event) {
 	if(rightTracking == false){
-		var touch = event.touches[0];
+		var touch = event.changedTouches[0];
 		var clickX = touch.pageX ;
 		var clickY = touch.pageY ;
 		
