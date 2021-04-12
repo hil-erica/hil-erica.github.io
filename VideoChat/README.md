@@ -108,6 +108,16 @@ handgesture, pointing, handshake
 
 {"peerid": "ericaope", "rightHandAnalogGestureEnd": {"hand": "pointing"}}
 
+#### Jsonによるコマンドボタンの追加
+jsonファイルにはJson配列buttonsを定義し，buttonsの要素は必ずidとlabelを持つこと．
+
+このボタンがクリックされると"otpionalcommand=buttons要素のjson"がpublishされる．
+
+（例：Jsonファイル）
+{"buttons":[{"id":"dooropen","label":"解錠"},{"id":"sayhello","label":"こんにちは""}]}
+
+（例：送信コマンド）
+otpionalcommand={"id":"dooropen","label":"解錠"}
 
 #### websocketデータのトンネリングプロトコル
 "socket="をヘッダーに利用
