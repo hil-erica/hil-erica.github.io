@@ -1,0 +1,40 @@
+{
+  "buttons": [
+    {
+      "id": "sayhello",
+      "label": "こんにちは",
+      "type": "tts",
+      "text": "こんにちは，わたしはわたしです．"
+    },
+    {
+      "id": "dooropen",
+      "label": "解錠",
+      "type": "workingmemory",
+      "scope": "interaction",
+      "name": "dooropen",
+      "int": 1,
+      "double": -1.5,
+      "string": "dooropen",
+      "boolean": true
+    },
+    {
+      "id": "name_kobayashi",
+      "label": "name=小林",
+      "type": "workingmemory",
+      "scope": "human",
+      "name": "name",
+      "string": "小林"
+    }
+  ],
+  "buttonelementsample": {
+    "id": "buttonsample",
+    "label": "表示されるテキスト",
+    "type": "workingmemory",
+    "scope": "interaction/robot/human",
+    "name": "変数名",
+    "string": "値はstring/int/double/booleanどれか",
+    "int": 1,
+    "double": -1.5,
+    "boolean": true
+  }
+}
