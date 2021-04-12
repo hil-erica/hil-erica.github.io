@@ -88,8 +88,6 @@
      <div class="tab-content">
        tele-ope mode : <input type="checkbox" id="teleopemodecheckbox" value="2" onchange="teleOpeModeChanged()">
        <br>
-       <button id="analoggesture_button"class="small"  onclick="openAnalogGestureWindow()" style="width:150pt;"><font size="2">analog gesture</font></button>
-       <br>
        <div id="gesture" class="box-text-gestures">
          <!--g,b,r3種類64*64サイズ用意すること，以下に追加するだけでスクリプトの修正は不要-->
          <input type="image" id="nodding" src="pics/gestures/nodding-g.gif" name="gesture" alt="nodding" onclick="gestureSelected('nodding')">
@@ -100,6 +98,7 @@
          <input type="image" id="handgesture" src="pics/gestures/handgesture-g.png" name="hand" alt="handgesture" onclick="handSelected('handgesture')">
          <input type="image" id="pointing" src="pics/gestures/pointing-g.png" name="hand" alt="pointing" onclick="handSelected('pointing')">
          <input type="image" id="handshake" src="pics/gestures/handshake-g.png" name="hand" alt="handshake" onclick="handSelected('handshake')">
+         &nbsp;&nbsp;<button id="analoggesture_button"class="small"  onclick="openAnalogGestureWindow()" style="width:100pt;"><font size="2">analog gesture</font></button>
        </div>
        <div id="tts" class="box-text-tts">
        <input id="ttsinput" style="width:100%;" value="こんにちは" onkeypress="ttsInputKeyPress()"></input>
@@ -110,6 +109,15 @@
        <button id="ttssendbutton"class="small"  onclick="sendTTS()"  style="width:40pt;"><font size="2">say</font></button>
        <!--<textarea id="chatoutput" style="width:340px;height:100px; resize:vertical;" readonly="readonly"></textarea>-->
        </div>
+       
+       <div id="optionalcommands" class="box-text-optionalcommands">
+         <form>
+           <input id="optionalcommandfile" type="file" multiple onchange="optionalCommandLoad()" />
+         </form>
+         <br>
+         <div id="optionalbuttons"></div>
+       </div>
+       
      </div><!--tab-content-->
      
      <input id="TAB-Close" type="radio" name="TAB" class="tab-switch"><label class="tab-label" for="TAB-Close">tab close</label>

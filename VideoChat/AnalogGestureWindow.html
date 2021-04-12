@@ -90,7 +90,7 @@ leftCanvas.addEventListener( "touchstart", function(event) {
 		if(dis <= 40){
 			leftTracking = true;
 			leftTouchId = touch.identifier;
-			setLeftHand(x, y, x/leftCanvas.width, x/leftCanvas.height);
+			setLeftHand(x, y, x/leftCanvas.width, y/leftCanvas.height);
 		}
 	}
 	/*
@@ -182,7 +182,7 @@ leftCanvas.addEventListener( "click",  function(event) {
 		if(dis <= 40){
 			leftCanvas.addEventListener( "mousemove",  onLeftMouseMove, false );
 			leftTracking = true;
-			setLeftHand(x, y, x/leftCanvas.width, x/leftCanvas.height);
+			setLeftHand(x, y, x/leftCanvas.width, y/leftCanvas.height);
 		}
 	} else {
 		defaultLeftHand();
@@ -302,7 +302,7 @@ rightCanvas.addEventListener( "touchstart", function(event) {
 		if(dis <= 40){
 			rightTracking = true;
 			rightTouchId = touch.identifier;
-			setRightHand(x, y, x/rightCanvas.width, x/rightCanvas.height);
+			setRightHand(x, y, x/rightCanvas.width, y/rightCanvas.height);
 		}
 	}
 	/*
@@ -394,7 +394,7 @@ rightCanvas.addEventListener( "click",  function(event) {
 		if(dis <= 40){
 			rightCanvas.addEventListener( "mousemove",  onRightMouseMove, false );
 			rightTracking = true;
-			setRightHand(x, y, x/rightCanvas.width, x/rightCanvas.height);
+			setRightHand(x, y, x/rightCanvas.width, y/rightCanvas.height);
 		}
 	} else {
 		defaultRightHand();

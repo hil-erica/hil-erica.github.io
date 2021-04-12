@@ -233,7 +233,7 @@ button {
   font-weight: bold;
   left: 20px;
   top: -23px;
-  padding: 10px;
+  padding: 7px;
 }
 
 .box-text-speaker {
@@ -252,7 +252,7 @@ button {
   font-weight: bold;
   left: 20px;
   top: -23px;
-  padding: 10px;
+  padding: 7px;
 }
 
 .box-text-remotePeerIDs {
@@ -271,7 +271,7 @@ button {
   font-weight: bold;
   left: 20px;
   top: -23px;
-  padding: 10px;
+  padding: 7px;
 }
 
 
@@ -291,7 +291,7 @@ button {
   font-weight: bold;
   left: 20px;
   top: -23px;
-  padding: 10px;
+  padding: 7px;
 }
 
 .box-text-handgestures {
@@ -310,7 +310,7 @@ button {
   font-weight: bold;
   left: 20px;
   top: -23px;
-  padding: 10px;
+  padding: 7px;
 }
 
 .box-text-tts {
@@ -329,5 +329,24 @@ button {
   font-weight: bold;
   left: 20px;
   top: -23px;
-  padding: 10px;
+  padding: 7px;
+}
+
+.box-text-optionalcommands {
+  position: relative;
+  border: 3px solid SkyBlue;
+  border-radius: 5px;
+  margin: 20px 0;
+  padding: 20px 20px 5px 20px;
+}
+
+.box-text-optionalcommands::before {
+  content: "optional commands";
+  position: absolute;
+  background-color: White;
+  color: SkyBlue;
+  font-weight: bold;
+  left: 20px;
+  top: -23px;
+  padding: 7px;
 }

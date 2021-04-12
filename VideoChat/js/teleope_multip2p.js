@@ -2097,10 +2097,9 @@ function getData(fromPeerID, receiveText, dataConnection){
 			wSocket.send(cmds);
 		}
 	} else if(receiveText.startsWith("tts=")){
-		var cmds = receiveText.slice(4);
-		if(wSocket != null){
-			wSocket.send(cmds);
-		}
+		//for external system
+	} else if(receiveText.startsWith("optionalcommand=")){
+		//for external system
 	} else if(receiveText.startsWith("chat=")){
 		var cmds = receiveText.slice(5);
 		if(cmds.startsWith("forcelogout=")){
@@ -2527,5 +2526,50 @@ function rightHandAnalogGestureEnd(){
 	var eventName = "rightHandAnalogGestureEnd";		
 	var sendText = "{\"peerid\": \""+myPeerID.value+"\", \""+eventName+"\": {\"hand\": \""+currenthandgesture+"\"}}";
 	//console.log("clicked event "+sendText);
+	publishData(sendText);
+}
+
+function optionalCommandLoad(){
+	var fileChooser =  document.getElementById('optionalcommandfile');
+	var files = fileChooser.files; // FileList object
+	var buttonsDiv = document.getElementById('optionalbuttons');
+	
+	while (buttonsDiv.lastChild) {
+		buttonsDiv.removeChild(buttonsDiv.lastChild);
+	}
+	
+	for (var i = 0, f; f = files[i]; i++) {
+		//console.log(f);
+		var reader = new FileReader();
+		reader.readAsText( f );
+		reader.addEventListener( 'load', function() {
+			var jsonObj = JSON.parse(reader.result);
+			//console.log(jsonObj);
+			//console.log(JSON.stringify(jsonObj));
+			if('buttons' in jsonObj){
+				for(var j = 0; j < jsonObj.buttons.length; j++){
+					var optionalBtnJson = jsonObj.buttons[j];
+					var cmdBtn = document.createElement('button');
+					cmdBtn.setAttribute('id', 'optionalbutton_'+optionalBtnJson.id);
+					cmdBtn.setAttribute('name', 'optionalbutton');
+					//cmdBtn.setAttribute('style', 'width:50pt;');
+					cmdBtn.setAttribute('jsondata', JSON.stringify(optionalBtnJson));
+					cmdBtn.setAttribute('onclick', 'optionalButtonClicked('+cmdBtn.id+')');
+					cmdBtn.innerHTML = "<font size='2'>"+optionalBtnJson.label+"</font>";
+					cmdBtn.classList.toggle('small');
+					var txt = document.createTextNode("\u00a0");
+					buttonsDiv.appendChild(txt);
+					buttonsDiv.appendChild(cmdBtn);
+				}
+			}
+		});
+	}
+}
+
+function optionalButtonClicked(buttonObjId){
+	//console.log(buttonObjId);
+	console.log("optionalcommand="+buttonObjId.getAttribute('jsondata'));
+	//command
+	var sendText = "optionalcommand="+buttonObjId.getAttribute('jsondata');
 	publishData(sendText);
 }
