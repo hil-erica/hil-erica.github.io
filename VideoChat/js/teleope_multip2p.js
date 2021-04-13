@@ -45,6 +45,8 @@ var currenthandgesture = "";
 
 var subWindows = [];
 
+var drawJsonObjOnCanvas = null;
+
 window.onload = ()=> {
 	getQueryParams();
 	handPics = new Image();
@@ -411,7 +413,8 @@ function videoCanvasClicked(event){
 
 		//canvasに描画
 		var context = canvasObj.getContext( "2d" ) ;
-		context.clearRect(0, 0, canvasObj.width, canvasObj.height);
+		//context.clearRect(0, 0, canvasObj.width, canvasObj.height);
+		drawActionPointOnCanvas(canvasObj);
 		/*
 		context.beginPath () ;
 		context.arc( x, y, 20, 0 * Math.PI / 180, 360 * Math.PI / 180, false ) ;
@@ -455,7 +458,8 @@ function videoCanvasClicked(event){
 			if (clicked) {
 				//canvasに描画
 				var context = canvasObj.getContext( "2d" ) ;
-				context.clearRect(0, 0, canvasObj.width, canvasObj.height);
+				//context.clearRect(0, 0, canvasObj.width, canvasObj.height);
+				drawActionPointOnCanvas(canvasObj);
 				/*
 				context.beginPath () ;
 				context.arc( x, y, 20, 0 * Math.PI / 180, 360 * Math.PI / 180, false ) ;
@@ -482,8 +486,11 @@ function videoCanvasClicked(event){
 	}
 	var drawClerTimer = setTimeout(function () {
 		//canvasに描画 Clear
+		/*
 		var context = canvasObj.getContext( "2d" ) ;
 		context.clearRect(0, 0, canvasObj.width, canvasObj.height);
+		*/
+		drawActionPointOnCanvas(canvasObj);
 		clicked = false;
 		console.log("clear canvas");
 	}, drawMarkDuration);
@@ -2091,6 +2098,10 @@ function getData(fromPeerID, receiveText, dataConnection){
 		} else {
 			dataConnection.send("numvideo="+localMixedStream.getVideoTracks().length);
 		}
+	} else if(receiveText.startsWith("drawoncanvas=")){
+		//draw on canvas
+		var cmds = receiveText.slice(13);
+		updateActionPointOnCanvas(cmds);
 	} else if(receiveText.startsWith("socket=")){
 		var cmds = receiveText.slice(7);
 		if(wSocket != null){
@@ -2163,6 +2174,56 @@ function sendchat(){
 	} else {
 		sendData(sendTarget, sendText);
 	}
+}
+
+function updateActionPointOnCanvas(cmds){
+	//console.log(cmds);
+	var jsonObj = JSON.parse(cmds);
+	drawJsonObjOnCanvas = jsonObj;
+	drawActionPointOnCanvas(null);
+}
+
+function drawActionPointOnCanvas(clickedCanvas){
+	if(clickedCanvas != null){
+		var context = clickedCanvas.getContext( "2d" ) ;
+		context.save();
+		context.clearRect(0, 0, clickedCanvas.width, clickedCanvas.height);
+		context.restore();
+	}
+	if(drawJsonObjOnCanvas != null){
+		var userName = drawJsonObjOnCanvas.user;
+		var canvasElements = document.getElementsByName('remote_camera_canvas_'+userName);
+		
+		for(var i = 0; i<canvasElements.length; i++){
+			drawActionPointOnEachCanvas(canvasElements[i]);
+		}
+		
+		for(var i = subWindows.length -1;  i>=0;i--){
+			var subCanvasElements = subWindows[i].document.getElementsByName('remote_camera_canvas_'+userName);
+			for(var j = 0; j<subCanvasElements.length; j++){
+				drawActionPointOnEachCanvas(subCanvasElements[j]);
+			}
+		}
+	}
+}
+function drawActionPointOnEachCanvas(canvasElement){
+	var context = canvasElement.getContext( "2d" ) ;
+	context.save();
+	context.clearRect(0, 0, canvasElement.width, canvasElement.height);
+	for(var j = 0; j<drawJsonObjOnCanvas.points.length; j++){
+		if(drawJsonObjOnCanvas.points[j].trackID == canvasElement.getAttribute("trackID")){
+			if(drawJsonObjOnCanvas.points[j].type == "human"){
+				context.strokeStyle = "green" ;
+			} else {
+				context.strokeStyle = "blue" ;
+			}
+			context.beginPath () ;
+			context.arc(drawJsonObjOnCanvas.points[j].xRatio*canvasElement.width, drawJsonObjOnCanvas.points[j].yRatio*canvasElement.height, drawJsonObjOnCanvas.points[j].radiusRatio*canvasElement.width/2, 0 * Math.PI / 180, 360 * Math.PI / 180, false ) ;
+			context.lineWidth = 1 ;
+			context.stroke() ;
+		}
+	}
+	context.restore();
 }
 
 var recorderCount = 0;
