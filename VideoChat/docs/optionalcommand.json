@@ -11,10 +11,7 @@
       "label": "解錠",
       "type": "workingmemory",
       "scope": "interaction",
-      "name": "dooropen",
-      "int": 1,
-      "double": -1.5,
-      "string": "dooropen",
+      "name": "switchbot",
       "boolean": true
     },
     {
