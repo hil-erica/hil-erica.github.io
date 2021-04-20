@@ -4,7 +4,9 @@ WebRTCツールSkyWayを使ってビデオチャットを行うサイト
 https://webrtc.ecl.ntt.com/
 
 サポートしているのはChromeのみ(Windows, Android)
-その他ブラウザではスピーカーデバイスを取得できない（改良すればできる）
+
+Firefoxではアドレスバーに about:config とうち，media.setsinkid.enabled をtrueにすること（じゃないとSpeakerデバイスにアクセスできない）
+
 
 ## 空道電話
 ### 使い方
