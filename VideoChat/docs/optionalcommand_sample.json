@@ -1,6 +1,28 @@
 {
   "buttons": [
     {
+      "id": "sayhello",
+      "label": "こんにちは",
+      "type": "tts",
+      "text": "こんにちは，わたしはわたしです．"
+    },
+    {
+      "id": "dooropen",
+      "label": "解錠",
+      "type": "workingmemory",
+      "scope": "interaction",
+      "name": "switchbot",
+      "boolean": true
+    },
+    {
+      "id": "name_kobayashi",
+      "label": "name=小林",
+      "type": "workingmemory",
+      "scope": "human",
+      "name": "name",
+      "string": "小林"
+    },
+   {
       "id": "emotion_happy",
       "label": "emotion_happy",
       "type": "internalstate",
