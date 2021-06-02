@@ -23,3 +23,7 @@ datachannnel example
 <ダブルクリックイベントは連続して300msecのタイミングを検知したら Ratioは縦横の比率なので従来のサイズがわからなくてもいいかな>
 {"peerid": "hoge", "clickevent": {"objectname":"remote_camera_video_bar_0", "x":572.6666870117188, "y": 273.0625305175781,"xRatio":0.8947916984558105, "yRatio": 0.7585070292154948}}
 {"peerid": "hoge", "dblclickevent": {"objectname":"remote_camera_video_bar_0", "x":572.6666870117188, "y": 273.0625305175781,"xRatio":0.8947916984558105, "yRatio": 0.7585070292154948}}
+
+
+optinal commandsで使える記号は_のみ
+

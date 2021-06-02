@@ -21,6 +21,53 @@
       "scope": "human",
       "name": "name",
       "string": "小林"
+    },
+   {
+      "id": "emotion_happy",
+      "label": "emotion_happy",
+      "type": "internalstate",
+      "internalstatetype": "emotion",
+      "isrelative": false,
+      "arousal": 0.5,
+      "valence": 0.5,
+      "dominance": 0,
+      "changeduration":0
+    },
+    {
+      "id": "emotion_bad",
+      "label": "emotion_bad",
+      "type": "internalstate",
+      "internalstatetype": "emotion",
+      "isrelative": false,
+      "arousal": -0.3,
+      "valence": -0.2,
+      "dominance": 0,
+      "changeduration":500
+    },
+    {
+      "id": "autoemotion",
+      "label": "autoemotion",
+      "type": "internalstate",
+      "internalstatetype": "emotion",
+      "autoemotion": true
+    },
+    {
+      "id": "attractiveness_increase",
+      "label": "attractiveness_increase",
+      "type": "internalstate",
+      "internalstatetype": "attractiveness",
+      "isrelative": true,
+      "attractiveness":0.2,
+      "changeduration":500
+    },
+    {
+      "id": "attractiveness_decrease",
+      "label": "attractiveness_decrease",
+      "type": "internalstate",
+      "internalstatetype": "attractiveness",
+      "isrelative": true,
+      "attractiveness":-0.2,
+      "changeduration":1000
     }
   ],
   "buttonelementsample": {
