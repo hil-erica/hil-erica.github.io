@@ -2542,9 +2542,31 @@ function handSelected(id) {
 		}
 	}
 }
+//handButtonsのindex+nextCountに移動
+function handChange(nextCount){
+	var handButtons = document.getElementsByName("hand");
+	var currentIndex = 0;
+	for(var i = 0; i<handButtons.length; i++){
+		if(handButtons[i].id == currenthandgesture){
+			currentIndex = i;
+		}
+	}
+	var nextIndex = currentIndex+nextCount;
+	if(nextIndex >= handButtons.length){
+		nextIndex = 0;
+	} else if(nextIndex < 0){
+		nextIndex = handButtons.length-1;
+	}
+	handSelected(handButtons[nextIndex].id);
+}
+
 
 function openAnalogGestureWindow(){
 	var obj_window = window.open("AnalogGestureWindow.html","","width="+600+",height="+300+"scrollbars=no");
+	subWindows.push(obj_window);
+}
+function openControllerWindow(){
+	var obj_window = window.open("GameControllerWindow.html","","width="+600+",height="+300+"scrollbars=no");
 	subWindows.push(obj_window);
 }
 function leftHandAnalogGestureStart(xRatio, yRatio){
