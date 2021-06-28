@@ -2566,7 +2566,7 @@ function openAnalogGestureWindow(){
 	subWindows.push(obj_window);
 }
 function openControllerWindow(){
-	var obj_window = window.open("GameControllerWindow.html","","width="+600+",height="+300+"scrollbars=no");
+	var obj_window = window.open("GameControllerWindow.html","","width="+640+",height="+300+"scrollbars=no");
 	subWindows.push(obj_window);
 }
 function leftHandAnalogGestureStart(xRatio, yRatio){
