@@ -413,8 +413,8 @@ function videoCanvasClicked(event){
 
 		//canvasに描画
 		var context = canvasObj.getContext( "2d" ) ;
-		//context.clearRect(0, 0, canvasObj.width, canvasObj.height);
-		drawActionPointOnCanvas(canvasObj);
+		context.clearRect(0, 0, canvasObj.width, canvasObj.height);
+		//drawActionPointOnCanvas(canvasObj);
 		/*
 		context.beginPath () ;
 		context.arc( x, y, 20, 0 * Math.PI / 180, 360 * Math.PI / 180, false ) ;
@@ -458,8 +458,8 @@ function videoCanvasClicked(event){
 			if (clicked) {
 				//canvasに描画
 				var context = canvasObj.getContext( "2d" ) ;
-				//context.clearRect(0, 0, canvasObj.width, canvasObj.height);
-				drawActionPointOnCanvas(canvasObj);
+				context.clearRect(0, 0, canvasObj.width, canvasObj.height);
+				//drawActionPointOnCanvas(canvasObj);
 				/*
 				context.beginPath () ;
 				context.arc( x, y, 20, 0 * Math.PI / 180, 360 * Math.PI / 180, false ) ;
@@ -486,11 +486,9 @@ function videoCanvasClicked(event){
 	}
 	var drawClerTimer = setTimeout(function () {
 		//canvasに描画 Clear
-		/*
 		var context = canvasObj.getContext( "2d" ) ;
 		context.clearRect(0, 0, canvasObj.width, canvasObj.height);
-		*/
-		drawActionPointOnCanvas(canvasObj);
+		//drawActionPointOnCanvas(canvasObj);
 		clicked = false;
 		console.log("clear canvas");
 	}, drawMarkDuration);
@@ -533,11 +531,20 @@ function addView(stream, remoterPeerID, trackID) {
 	canvasObj.setAttribute('remotePeerId', remoterPeerID);
 	canvasObj.setAttribute('trackID', trackID);
 	
+	var canvasBackGround;
+	canvasBackGround = document.createElement('canvas');
+	canvasBackGround.setAttribute('class', 'canvas');
+	canvasBackGround.setAttribute('id', 'remote_camera_canvas_background_' +remoterPeerID+'_'+ trackID);
+	canvasBackGround.setAttribute('name', 'remote_camera_canvas_background_'+remoterPeerID);
+	canvasBackGround.setAttribute('remotePeerId', remoterPeerID);
+	canvasBackGround.setAttribute('trackID', trackID);
+	
 	//https://qiita.com/sashim1343/items/e3728bea913cadab677d
 	if(teleOpeMode){
 		canvasObj.addEventListener( "click", videoCanvasClicked);
 	} else {
 		canvasObj.style.display ="none";
+		canvasBackGround.style.display ="none";
 	}
 	/*どうやら働かないです
 	screenObj.addEventListener( "dblclick ", function( event ) {
@@ -669,6 +676,7 @@ function addView(stream, remoterPeerID, trackID) {
 	content.appendChild(sizeSelector);
 	content.appendChild(speakerSelector);
 	content.appendChild(screenObj);
+	content.appendChild(canvasBackGround);
 	content.appendChild(canvasObj);
 	
 	//初期化
@@ -690,36 +698,45 @@ function addView(stream, remoterPeerID, trackID) {
 			screenObj.height = 144;
 			canvasObj.width = 256;
 			canvasObj.height = 144;
+			canvasBackGround.width = 256;
+			canvasBackGround.height = 144;
 			content.setAttribute('class', 'viwer_grid-item viwer_grid-item--144');
 		} else if(changedValue == '240'){
 			screenObj.width = 427;
 			screenObj.height = 240;
 			canvasObj.width = 427;
 			canvasObj.height = 240;
+			canvasBackGround.width = 427;
+			canvasBackGround.height = 240;
 			content.setAttribute('class', 'viwer_grid-item viwer_grid-item--240');
 		} else if(changedValue == '360'){
 			screenObj.width = 640;
 			screenObj.height = 360;
 			canvasObj.width = 640;
 			canvasObj.height = 360;
+			canvasBackGround.width = 640;
+			canvasBackGround.height = 360;
 			content.setAttribute('class', 'viwer_grid-item viwer_grid-item--360');
 		} else if(changedValue == '480'){
 			screenObj.width = 720;
 			screenObj.height = 480;
 			canvasObj.width = 720;
 			canvasObj.height = 480;
+			canvasBackGround
 			content.setAttribute('class', 'viwer_grid-item viwer_grid-item--480');
 		}  else if(changedValue == '720'){
 			screenObj.width = 1280;
 			screenObj.height = 720;
-			canvasObj.width = 1280;
-			canvasObj.height = 720;
+			canvasBackGround.width = 1280;
+			canvasBackGround.height = 720;
 			content.setAttribute('class', 'viwer_grid-item viwer_grid-item--720');
 		} else if(changedValue == '1080'){
 			screenObj.width = 1920;
 			screenObj.height = 1080;
 			canvasObj.width = 1920;
 			canvasObj.height = 1080;
+			canvasBackGround.width = 1920;
+			canvasBackGround.height = 1080;
 			content.setAttribute('class', 'viwer_grid-item viwer_grid-item--1080');
 		}
 		$grid.masonry();
@@ -731,6 +748,8 @@ function addView(stream, remoterPeerID, trackID) {
 		screenObj.height = 144;
 		canvasObj.width = 256;
 		canvasObj.height = 144;
+		canvasBackGround.width = 256;
+		canvasBackGround.height = 144;
 		sizeSelector.value = '144';
 		content.setAttribute('class', 'viwer_grid-item viwer_grid-item--144');
 	}  else if(viewersize == '240'){
@@ -738,6 +757,8 @@ function addView(stream, remoterPeerID, trackID) {
 		screenObj.height = 240;
 		canvasObj.width = 427;
 		canvasObj.height = 240;
+		canvasBackGround.width = 427;
+		canvasBackGround.height = 240;
 		sizeSelector.value = '240';
 		content.setAttribute('class', 'viwer_grid-item viwer_grid-item--240');
 	} else if(viewersize == '360'){
@@ -745,6 +766,8 @@ function addView(stream, remoterPeerID, trackID) {
 		screenObj.height = 360;
 		canvasObj.width = 640;
 		canvasObj.height = 360;
+		canvasBackGround.width = 640;
+		canvasBackGround.height = 360;
 		sizeSelector.value = '360';
 		content.setAttribute('class', 'viwer_grid-item viwer_grid-item--360');
 	}  else if(viewersize == '480'){
@@ -752,6 +775,8 @@ function addView(stream, remoterPeerID, trackID) {
 		screenObj.height = 480;
 		canvasObj.width = 720;
 		canvasObj.height = 480;
+		canvasBackGround.width = 720;
+		canvasBackGround.height = 480;
 		sizeSelector.value = '480';
 		content.setAttribute('class', 'viwer_grid-item viwer_grid-item--480');
 	} else if(viewersize == '720'){
@@ -759,6 +784,8 @@ function addView(stream, remoterPeerID, trackID) {
 		screenObj.height = 720;
 		canvasObj.width = 1280;
 		canvasObj.height = 720;
+		canvasBackGround.width = 1280;
+		canvasBackGround.height = 720;
 		sizeSelector.value = '720';
 		content.setAttribute('class', 'viwer_grid-item viwer_grid-item--720');
 	} else if(viewersize == '1080'){
@@ -766,6 +793,8 @@ function addView(stream, remoterPeerID, trackID) {
 		screenObj.height = 1080;
 		canvasObj.width = 1920;
 		canvasObj.height = 1080;
+		canvasBackGround.width = 1920;
+		canvasBackGround.height = 1080;
 		sizeSelector.value = '1080';
 		content.setAttribute('class', 'viwer_grid-item viwer_grid-item--1080');
 	}
@@ -1131,6 +1160,13 @@ function teleOpeModeChanged() {
 				elements[i].style.display ="";
 			}
 			
+			elements = document.getElementsByName('remote_camera_canvas_background_'+key);
+			for (var i = 0; i < elements.length; i++) {
+				console.log('addEventListener click to '+elements[i].getAttribute("id")+ ', style.display = '+elements[i].style.display + ' to \"\"');
+				//elements[i].addEventListener( "click", videoCanvasClicked);
+				elements[i].style.display ="";
+			}
+			
 			elements = document.getElementsByName('remote_audio_source_'+key);
 			for (var i = 0; i < elements.length; i++) {
 				if(elements[i].getAttribute("mutemode")=="false"){
@@ -1146,6 +1182,13 @@ function teleOpeModeChanged() {
 			for (var i = 0; i < elements.length; i++) {
 				console.log('removeEventListener click to '+elements[i].getAttribute("id")+ ', style.display = '+elements[i].style.display + ' to none');
 				elements[i].removeEventListener( "click", videoCanvasClicked);
+				elements[i].style.display ="none";
+			}
+			
+			elements = document.getElementsByName('remote_camera_canvas_background_'+key);
+			for (var i = 0; i < elements.length; i++) {
+				console.log('removeEventListener click to '+elements[i].getAttribute("id")+ ', style.display = '+elements[i].style.display + ' to none');
+				//elements[i].removeEventListener( "click", videoCanvasClicked);
 				elements[i].style.display ="none";
 			}
 			
@@ -2192,14 +2235,14 @@ function drawActionPointOnCanvas(clickedCanvas){
 	}
 	if(drawJsonObjOnCanvas != null){
 		var userName = drawJsonObjOnCanvas.user;
-		var canvasElements = document.getElementsByName('remote_camera_canvas_'+userName);
+		var canvasElements = document.getElementsByName('remote_camera_canvas_background_'+userName);
 		
 		for(var i = 0; i<canvasElements.length; i++){
 			drawActionPointOnEachCanvas(canvasElements[i]);
 		}
 		
 		for(var i = subWindows.length -1;  i>=0;i--){
-			var subCanvasElements = subWindows[i].document.getElementsByName('remote_camera_canvas_'+userName);
+			var subCanvasElements = subWindows[i].document.getElementsByName('remote_camera_canvas_background_'+userName);
 			for(var j = 0; j<subCanvasElements.length; j++){
 				drawActionPointOnEachCanvas(subCanvasElements[j]);
 			}
@@ -2670,5 +2713,26 @@ function optionalButtonClicked(buttonObjId){
 	console.log("optionalcommand="+buttonObjId.getAttribute('jsondata'));
 	//command
 	var sendText = "optionalcommand="+buttonObjId.getAttribute('jsondata');
+	publishData(sendText);
+}
+
+function sendEmotionHappy(){
+	var sendText = "optionalcommand="+"{\"id\":\"emotion_happy\",\"label\":\"emotion_happy\",\"type\":\"internalstate\",\"internalstatetype\":\"emotion\",\"isrelative\":false,\"arousal\":0.5,\"valence\":0.5,\"dominance\":0,\"changeduration\":0}";
+	publishData(sendText);
+}
+function sendEmotionBad(){
+	var sendText = "optionalcommand="+"{\"id\":\"emotion_bad\",\"label\":\"emotion_bad\",\"type\":\"internalstate\",\"internalstatetype\":\"emotion\",\"isrelative\":false,\"arousal\":-0.3,\"valence\":-0.2,\"dominance\":0,\"changeduration\":500}";
+	publishData(sendText);
+}
+function sendMood(){
+	var sendText = "optionalcommand="+"{\"id\":\"autoemotion\",\"label\":\"autoemotion\",\"type\":\"internalstate\",\"internalstatetype\":\"emotion\",\"autoemotion\":true}";
+	publishData(sendText);
+}
+function sendAttractivenessIncrease(){
+	var sendText = "optionalcommand="+"{\"id\":\"attractiveness_increase\",\"label\":\"attractiveness_increase\",\"type\":\"internalstate\",\"internalstatetype\":\"attractiveness\",\"isrelative\":true,\"attractiveness\":0.2,\"changeduration\":500}";
+	publishData(sendText);
+}
+function sendAttractivenessDecrease(){
+	var sendText = "optionalcommand="+"{\"id\":\"attractiveness_decrease\",\"label\":\"attractiveness_decrease\",\"type\":\"internalstate\",\"internalstatetype\":\"attractiveness\",\"isrelative\":true,\"attractiveness\":-0.2,\"changeduration\":1000}";
 	publishData(sendText);
 }

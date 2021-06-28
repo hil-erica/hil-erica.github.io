@@ -25,6 +25,7 @@ var rightHandImg = new Image();
 var currentHandType = "handgesture"
 leftHandImg.src = "./pics/gestures/"+currentHandType+"-g-left.png";
 rightHandImg.src = "./pics/gestures/"+currentHandType+"-g-right.png";
+var buttonState=[];//true/false
 
 window.onload = ()=> {
 	if (!window.opener || !Object.keys(window.opener).length) {
@@ -119,12 +120,14 @@ function addGamepad(gamepad) {
 	var t = document.createElement("h4");
 	t.appendChild(document.createTextNode("ボタンコントロール情報: "));
 	b.appendChild(t);
+	buttonState = [];
 	for (var i = 0; i < gamepad.buttons.length; i++) {
 		var e = document.createElement("span");
 		e.className = "button";
 		//e.id = "b" + i;
 		e.innerHTML = i;
 		b.appendChild(e);
+		buttonState.push(false);
 	}
 	d.appendChild(b);
 	//Gamepadコントロール要素（アナログジョイなど）表示部分
@@ -194,6 +197,30 @@ function updateStatus() {
 			var pct = Math.round(val * 100) + "%";
 			b.style.backgroundSize = pct + " " + pct;
 			if (pressed) {
+				if(buttonState[i] != pressed){
+					//console.log("button "+i+" : pressed");
+					if(i==0){
+						if(parantExistanceFlag){
+							window.opener.sendMood();
+						}
+					} else if(i==2){
+						if(parantExistanceFlag){
+							window.opener.sendEmotionBad();
+						}
+					} else if(i==3){
+						if(parantExistanceFlag){
+							window.opener.sendEmotionHappy();
+						}
+					} else if(i==12){
+						if(parantExistanceFlag){
+							window.opener.sendAttractivenessIncrease();
+						}
+					} else if(i==13){
+						if(parantExistanceFlag){
+							window.opener.sendAttractivenessDecrease();
+						}
+					}
+				}
 				if(i == 6){
 					//left
 					moveLeft = true;
@@ -219,6 +246,9 @@ function updateStatus() {
 				}
 				b.className = "button pressed";
 			} else {
+				if(buttonState[i] != pressed){
+					//console.log("button "+i+" : released");
+				}
 				if(i == 5){
 					//next hand pose
 					nextHandPose = false;
@@ -228,6 +258,7 @@ function updateStatus() {
 				}
 				b.className = "button";
 			}
+			buttonState[i] = pressed;
 		}
 		//アナログコントロール情報の状態取得
 		var axesZeroThreshold = 0.05;
@@ -473,6 +504,8 @@ function scanGamepads() {
 		}
 	}
 }
+
+
 if (haveEvents) {
 	window.addEventListener("gamepadconnected", connectHandler);
 	window.addEventListener("gamepaddisconnected", disconnectHandler);
