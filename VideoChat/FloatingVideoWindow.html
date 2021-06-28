@@ -18,6 +18,7 @@ var contentID = "";
 var trackID;
 var remoterPeerID;
 var canvasObj;
+var canvasBackGround;
 var screenObj;
 
 window.onload = ()=> {
@@ -62,6 +63,13 @@ window.onload = ()=> {
 		canvasObj.setAttribute('trackID', trackID);
 		
 		canvasObj.addEventListener( "click", window.opener.videoCanvasClicked);
+		
+		canvasBackGround = document.createElement('canvas');
+		canvasBackGround.setAttribute('class', 'canvas');
+		canvasBackGround.setAttribute('id', 'remote_camera_canvas_background_' +remoterPeerID+'_'+ trackID);
+		canvasBackGround.setAttribute('name', 'remote_camera_canvas_background_'+remoterPeerID);
+		canvasBackGround.setAttribute('remotePeerId', remoterPeerID);
+		canvasBackGround.setAttribute('trackID', trackID);
 		/*
 		//https://qiita.com/sashim1343/items/e3728bea913cadab677d
 		if(window.opener.teleOpeMode){
@@ -88,6 +96,7 @@ window.onload = ()=> {
 		content.appendChild(speakerSelector);
 		*/
 		content.appendChild(screenObj);
+		content.appendChild(canvasBackGround);
 		content.appendChild(canvasObj);
 		
 		document.body.appendChild(content);
@@ -128,6 +137,12 @@ function setVideoSize(){
 			canvasObj.style.position = 'absolute';
 			canvasObj.style.top = 0+'px';
 			canvasObj.style.left = (videosDiv.clientWidth - screenObj.width)/2+'px';
+			
+			canvasBackGround.height = videosDiv.clientHeight;
+			canvasBackGround.width = videosDiv.clientHeight * 16 / 9;
+			canvasBackGround.style.position = 'absolute';
+			canvasBackGround.style.top = 0+'px';
+			canvasBackGround.style.left = (videosDiv.clientWidth - screenObj.width)/2+'px';
 			//console.log("left = "+(videosDiv.clientWidth - screenObj.width)/2);
 		} else {
 			//縦長
@@ -142,6 +157,12 @@ function setVideoSize(){
 			canvasObj.style.position = 'absolute';
 			canvasObj.style.top = (videosDiv.clientHeight - screenObj.height)/2+'px';
 			canvasObj.style.left = 0+'px';
+			
+			canvasBackGround.width = videosDiv.clientWidth;
+			canvasBackGround.height = videosDiv.clientWidth * 9 / 16;
+			canvasBackGround.style.position = 'absolute';
+			canvasBackGround.style.top = (videosDiv.clientHeight - screenObj.height)/2+'px';
+			canvasBackGround.style.left = 0+'px';
 			//console.log("top = "+(videosDiv.clientHeight - screenObj.height)/2);
 		}
 		//console.log(screenObj.clientWidth + ", " +screenObj.clientHeight);
