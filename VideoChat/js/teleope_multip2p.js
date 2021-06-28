@@ -2541,7 +2541,22 @@ function handSelected(id) {
 			handButtons[i].setAttribute("src", "pics/gestures/"+handButtons[i].id+"-g.png");
 		}
 	}
+	
+	for(var i = subWindows.length -1;  i>=0;i--){
+		//subWindows[i].close();
+		if (typeof subWindows[i].hansSelect == 'function'){
+			subWindows[i].hansSelect(currenthandgesture);
+			//console.log('関数hansSelectがあります');
+		} else {
+			//console.log('関数hansSelectはありません');
+		}
+	}
 }
+
+function getHand(){
+	return currenthandgesture;
+}
+
 //handButtonsのindex+nextCountに移動
 function handChange(nextCount){
 	var handButtons = document.getElementsByName("hand");
@@ -2569,6 +2584,7 @@ function openControllerWindow(){
 	var obj_window = window.open("GameControllerWindow.html","","width="+640+",height="+300+"scrollbars=no");
 	subWindows.push(obj_window);
 }
+
 function leftHandAnalogGestureStart(xRatio, yRatio){
 	//console.log("leftHandAnalogGestureStart @"+xRatio+"/"+yRatio);
 	var eventName = "leftHandAnalogGestureStart";		

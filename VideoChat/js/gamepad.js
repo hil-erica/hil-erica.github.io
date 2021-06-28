@@ -22,16 +22,38 @@ var leftCanvas = null;
 var rightCanvas = null;
 var leftHandImg = new Image();
 var rightHandImg = new Image();
-leftHandImg.src = "./pics/gestures/hand-g-left.png";
-rightHandImg.src = "./pics/gestures/hand-g-right.png";
+var currentHandType = "handgesture"
+leftHandImg.src = "./pics/gestures/"+currentHandType+"-g-left.png";
+rightHandImg.src = "./pics/gestures/"+currentHandType+"-g-right.png";
 
 window.onload = ()=> {
 	if (!window.opener || !Object.keys(window.opener).length) {
 			//window.alert('親画面が存在しません')
 			parantExistanceFlag = false
 	}
+	currentHandType = window.opener.getHand();
 	defaultLeftHand();
 	defaultRightHand();
+}
+function hansSelect(handType){
+	currentHandType = handType;
+	if(leftTracking){
+		leftHandImg.src = "./pics/gestures/"+currentHandType+"-r-left.png";
+	} else {
+		leftHandImg.src = "./pics/gestures/"+currentHandType+"-g-left.png";
+	}
+	leftHandImg.onload = function(){
+		drawHand(leftCanvas, leftHandImg, currentLeftX, currentLeftX);
+	}
+	if(rightTracking){
+		rightHandImg.src = "./pics/gestures/"+currentHandType+"-r-right.png";
+	} else {
+		rightHandImg.src = "./pics/gestures/"+currentHandType+"-g-right.png";
+	}
+	rightHandImg.onload = function(){
+		drawHand(rightCanvas, rightHandImg, currentRightX, currentRightX);
+	}
+	repaintHands();
 }
 
 function drawHand(canvasObj, handImg, xRatio, yRatio){
@@ -354,7 +376,7 @@ function setLeftHand(xRatio, yRatio){
 		leftBackTimer = null;
 	}
 	//console.log("setLeftHand "+xRatio +"/"+yRatio);
-	leftHandImg.src = "./pics/gestures/hand-r-left.png";
+	leftHandImg.src = "./pics/gestures/"+currentHandType+"-r-left.png";
 	leftHandImg.onload = function(){
 		drawHand(leftCanvas, leftHandImg, xRatio, yRatio);
 	}
@@ -383,7 +405,7 @@ function defaultLeftHand() {
 	leftTracking = false;
 	leftBackTimer = null;
 	//console.log("defaultLeftHand");
-	leftHandImg.src = "./pics/gestures/hand-g-left.png";
+	leftHandImg.src = "./pics/gestures/"+currentHandType+"-g-left.png";
 	leftHandImg.onload = function(){
 		drawHand(leftCanvas, leftHandImg, currentLeftX, currentLeftY);
 	}
@@ -399,7 +421,7 @@ function setRightHand(xRatio, yRatio){
 		clearTimeout(rightBackTimer);
 		rightBackTimer = null;
 	}
-	rightHandImg.src = "./pics/gestures/hand-r-right.png";
+	rightHandImg.src = "./pics/gestures/"+currentHandType+"-r-right.png";
 	rightHandImg.onload = function(){
 		drawHand(rightCanvas, rightHandImg, xRatio, yRatio);
 	}
@@ -427,7 +449,7 @@ function defaultRightHand() {
 	currentRightY = defaultY;
 	rightTracking = false;
 	rightBackTimer = null;
-	rightHandImg.src = "./pics/gestures/hand-g-right.png";
+	rightHandImg.src = "./pics/gestures/"+currentHandType+"-g-right.png";
 	rightHandImg.onload = function(){
 		drawHand(rightCanvas, rightHandImg, currentRightX, currentRightY);
 	}
