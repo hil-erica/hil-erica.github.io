@@ -18,6 +18,13 @@ var currentRightY = defaultY;
 var  nextHandPose = false;
 var  backHandPose = false;
 
+var leftCanvas = null;
+var rightCanvas = null;
+var leftHandImg = new Image();
+var rightHandImg = new Image();
+leftHandImg.src = "./pics/gestures/hand-g-left.png";
+rightHandImg.src = "./pics/gestures/hand-g-right.png";
+
 window.onload = ()=> {
 	if (!window.opener || !Object.keys(window.opener).length) {
 			//window.alert('親画面が存在しません')
@@ -26,6 +33,27 @@ window.onload = ()=> {
 	defaultLeftHand();
 	defaultRightHand();
 }
+
+function drawHand(canvasObj, handImg, xRatio, yRatio){
+	if(canvasObj != null){
+		var x= canvasObj.width*xRatio;
+		var y = canvasObj.height*yRatio;
+		var context = canvasObj.getContext( "2d" ) ;
+		context.clearRect(0, 0, canvasObj.width, canvasObj.height);
+		var imgWidth = handImg.naturalWidth;
+		var imgHeight = handImg.naturalHeight;
+		context.save();
+		context.translate(x, y);
+		context.drawImage(handImg, -imgWidth/2, -imgHeight/2, imgWidth, imgHeight);
+		context.restore();
+	}
+}
+
+function repaintHands(){
+	drawHand(leftCanvas, leftHandImg, currentLeftX, currentLeftY);
+	drawHand(rightCanvas, rightHandImg, currentRightX, currentRightY);
+}
+
 
 function connectHandler(e) {
 	addGamepad(e.gamepad);
@@ -37,6 +65,23 @@ function addGamepad(gamepad) {
 	// HTMLへ接続されたGamepad毎の要素を追加（複数のgamepadにも対応）
 	var d = document.createElement("div");
 	d.setAttribute("id", "controller" + gamepad.index); //idはpadの番号がついた形式
+	
+	var tAnalog = document.createElement("h4");
+	tAnalog.appendChild(document.createTextNode("Analog Hand: "));
+	d.appendChild(tAnalog);
+	var analogDataContent = document.createElement("div");
+	analogDataContent.className = "analogData";
+	leftCanvas = document.createElement("canvas");
+	leftCanvas.id = "left-hand-canvas";
+	leftCanvas.className = "hand-canvas";
+	rightCanvas = document.createElement("canvas");
+	rightCanvas.id = "right-hand-canvas";
+	rightCanvas.className = "hand-canvas";
+	analogDataContent.appendChild(leftCanvas);
+	analogDataContent.appendChild(document.createTextNode(" "));
+	analogDataContent.appendChild(rightCanvas);
+	d.appendChild(analogDataContent);
+	
 	var img = new Image();   // 新たな img 要素を作成
 	img.src = "pics/xboxcontroller.png";
 	var t = document.createElement("h4");
@@ -308,7 +353,11 @@ function setLeftHand(xRatio, yRatio){
 		clearTimeout(leftBackTimer);
 		leftBackTimer = null;
 	}
-	console.log("setLeftHand "+xRatio +"/"+yRatio);
+	//console.log("setLeftHand "+xRatio +"/"+yRatio);
+	leftHandImg.src = "./pics/gestures/hand-r-left.png";
+	leftHandImg.onload = function(){
+		drawHand(leftCanvas, leftHandImg, xRatio, yRatio);
+	}
 	//command
 	if(parantExistanceFlag){
 		window.opener.leftHandAnalogGestureStart(xRatio, yRatio);
@@ -320,7 +369,9 @@ function moveLeftHand(xRatio, yRatio){
 		leftBackTimer = null;
 	}
 	//command
-	console.log("moveLeftHand "+xRatio +"/"+yRatio);
+	//console.log("moveLeftHand "+xRatio +"/"+yRatio);
+	//leftHandImg.src = "./pics/gestures/hand-r-left.png";
+	drawHand(leftCanvas, leftHandImg, xRatio, yRatio);
 	if(parantExistanceFlag){
 		window.opener.leftHandAnalogGestureMove(xRatio, yRatio);
 	}
@@ -331,7 +382,11 @@ function defaultLeftHand() {
 	currentLeftY = defaultY;
 	leftTracking = false;
 	leftBackTimer = null;
-	console.log("defaultLeftHand");
+	//console.log("defaultLeftHand");
+	leftHandImg.src = "./pics/gestures/hand-g-left.png";
+	leftHandImg.onload = function(){
+		drawHand(leftCanvas, leftHandImg, currentLeftX, currentLeftY);
+	}
 	//command
 	if (parantExistanceFlag) {
 		window.opener.leftHandAnalogGestureEnd();
@@ -344,13 +399,19 @@ function setRightHand(xRatio, yRatio){
 		clearTimeout(rightBackTimer);
 		rightBackTimer = null;
 	}
+	rightHandImg.src = "./pics/gestures/hand-r-right.png";
+	rightHandImg.onload = function(){
+		drawHand(rightCanvas, rightHandImg, xRatio, yRatio);
+	}
 	//command
 	if(parantExistanceFlag){
 		window.opener.rightHandAnalogGestureStart(xRatio, yRatio);
 	}
 }
 function moveRightHand(xRatio, yRatio){
-	console.log("moveRightHand "+xRatio +"/"+yRatio);
+	//console.log("moveRightHand "+xRatio +"/"+yRatio);
+	//rightHandImg.src = "./pics/gestures/hand-r-right.png";
+	drawHand(rightCanvas, rightHandImg, xRatio, yRatio);
 	if(rightBackTimer != null){
 		clearTimeout(rightBackTimer);
 		rightBackTimer = null;
@@ -366,6 +427,10 @@ function defaultRightHand() {
 	currentRightY = defaultY;
 	rightTracking = false;
 	rightBackTimer = null;
+	rightHandImg.src = "./pics/gestures/hand-g-right.png";
+	rightHandImg.onload = function(){
+		drawHand(rightCanvas, rightHandImg, currentRightX, currentRightY);
+	}
 	//command
 	if (parantExistanceFlag) {
 		window.opener.rightHandAnalogGestureEnd();
