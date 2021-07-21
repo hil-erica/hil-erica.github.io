@@ -9,8 +9,10 @@ function openOption(){
 			title: "Options",
 			left: 120,
 			top: 120,
-			width: window.innerWidth*0.5,
-			height: window.innerHeight*0.4,
+			//width: window.innerWidth*0.5,
+			//height: window.innerHeight*0.4,
+			width: 470,
+			height: 520,
 			style: {
 				backgroundColor: 'rgba(180,180,180,0.5)',
 				overflow: 'hidden'
