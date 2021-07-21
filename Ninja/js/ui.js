@@ -481,6 +481,7 @@ function addRemoteSound(peerid, trackid, audiotrack, muteMode){
 	container.appendChild(videocontainer);
 	
 	if(main.childElementCount == 0){
+		fadeOutBodyImg();
 		//add to main
 		container.setAttribute("class", "maincontainer");
 		//container.setAttribute("name", "mainvideo");
