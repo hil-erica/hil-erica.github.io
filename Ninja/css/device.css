@@ -1,0 +1,120 @@
+.box-text-user {
+  position: relative;
+  border: 3px solid SkyBlue;
+  border-radius: 5px;
+  margin: 20px 0;
+  padding: 20px 20px 5px 20px;
+}
+
+.box-text-user::before {
+  content: "user setting";
+  position: absolute;
+  background-color: White;
+  color: SkyBlue;
+  font-weight: bold;
+  left: 20px;
+  top: -23px;
+  padding: 7px;
+}
+
+.box-text-mic {
+  position: relative;
+  border: 3px solid SkyBlue;
+  border-radius: 5px;
+  margin: 20px 0;
+  padding: 20px 20px 5px 20px;
+}
+
+.box-text-mic::before {
+  content: "microphone";
+  position: absolute;
+  background-color: White;
+  color: SkyBlue;
+  font-weight: bold;
+  left: 20px;
+  top: -23px;
+  padding: 7px;
+}
+
+.box-text-speaker {
+  position: relative;
+  border: 3px solid SkyBlue;
+  border-radius: 5px;
+  margin: 20px 0;
+  padding: 20px 20px 5px 20px;
+}
+
+.box-text-speaker::before {
+  content: "speaker";
+  position: absolute;
+  background-color: White;
+  color: SkyBlue;
+  font-weight: bold;
+  left: 20px;
+  top: -23px;
+  padding: 7px;
+}
+
+.box-text-camera {
+  position: relative;
+  border: 3px solid SkyBlue;
+  border-radius: 5px;
+  margin: 20px 0;
+  padding: 20px 20px 5px 20px;
+}
+
+.box-text-camera::before {
+  content: "camera";
+  position: absolute;
+  background-color: White;
+  color: SkyBlue;
+  font-weight: bold;
+  left: 20px;
+  top: -23px;
+  padding: 7px;
+}
+
+.horizontal-list {
+  overflow-x: auto;
+  white-space: nowrap;
+  -webkit-overflow-scrolling: touch;
+}
+
+.localvideo {
+  /* 16 : 9 */
+  width: 320px;
+  height: 180px;
+  
+}
+
+.item_large {
+  /* 横スクロール用 */
+  display: inline-block;
+  /* 16 : 9 */
+  width: 320px;
+  height: 191px;
+  margin: 5px;
+  font-size: 10px;
+  /*background: rgba(255, 0, 0, 0.4);*/
+}
+
+.item_small {
+  /* 横スクロール用 */
+  display: inline-block;
+    /* 16 : 9 */
+  width: 180px;
+  height: 101px;
+  margin: 5px;
+  font-size: 10px;
+  /*background: rgba(255, 0, 0, 0.4);*/
+  /*overflow-y: auto; */
+}
+
+.item_small_overflow {
+  /* 横スクロール用 */
+  display: inline-block;
+  margin: 5px;
+  font-size: 10px;
+  /*background: rgba(255, 0, 0, 0.4);*/
+  overflow-y: auto;
+}

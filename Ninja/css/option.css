@@ -1,0 +1,111 @@
+.container {
+ position: relative;
+ width:100%;
+ margin-left: auto;
+ margin-right: auto;
+ display: flex;
+ flex-direction: column;
+ margin-top: 10px;
+ margin-bottom: 10px;
+}
+
+body {
+ background-color: transparent;
+ color: #000000;
+ display: flex;
+ justify-content: center;
+ height: 100vh;
+}
+
+
+/*https://codepen.io/sajadhsm/pen/odaBdd*/
+:root {
+  --body-bg: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  --msger-bg: #fff;
+  --border: 2px solid #ddd;
+  --left-msg-bg: #ececec;
+  --right-msg-bg: #579ffb;
+}
+
+html {
+  box-sizing: border-box;
+}
+
+*,
+*:before,
+*:after {
+  margin: 0;
+  padding: 0;
+  box-sizing: inherit;
+}
+
+
+.box-text-gestures {
+  position: relative;
+  border: 3px solid SkyBlue;
+  border-radius: 5px;
+  margin: 20px 0;
+  padding: 20px 20px 5px 20px;
+  width: 90%;
+}
+
+.box-text-gestures::before {
+  content: "gestures";
+  position: absolute;
+  background-color: SkyBlue;
+  color: White;
+  font-weight: bold;
+  left: 20px;
+  top: -20px;
+  padding: 5px;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+  border-bottom-left-radius: 10px;
+}
+
+.box-text-optionalcommands {
+  position: relative;
+  border: 3px solid SkyBlue;
+  border-radius: 5px;
+  margin: 20px 0;
+  padding: 20px 20px 5px 20px;
+}
+
+.box-text-optionalcommands::before {
+  content: "optional commands";
+  position: absolute;
+  background-color: SkyBlue;
+  color: White;
+  font-weight: bold;
+  left: 20px;
+  top: -20px;
+  padding: 5px;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+  border-bottom-left-radius: 10px;
+}
+
+.box-text-websocket {
+  position: relative;
+  border: 3px solid SkyBlue;
+  border-radius: 5px;
+  margin: 20px 0;
+  padding: 20px 20px 5px 20px;
+}
+
+.box-text-websocket::before {
+  content: "websocket";
+  position: absolute;
+  background-color: SkyBlue;
+  color: White;
+  font-weight: bold;
+  left: 20px;
+  top: -20px;
+  padding: 5px;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+  border-bottom-left-radius: 10px;
+}

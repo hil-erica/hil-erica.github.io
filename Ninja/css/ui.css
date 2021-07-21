@@ -1,0 +1,89 @@
+body {
+ overflow-y : hidden;
+ /*羊羹色ようかんいろ*/
+  background-color: #383c3c;
+  width: 100vw;
+  height: 100vh;
+  /*background-image:url("./pics/erica.svg");*/
+  background-repeat: no-repeat;
+  background-position:50% 50%;
+  background-size:contain;
+}
+
+.backgroundimgcontainer{
+  position: relative;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-repeat: no-repeat;
+  background-position:50% 50%;
+  background-size:contain;
+ /*卯の花色うのはないろ*/
+  background-color: #f7fcfe;
+  
+}
+
+.start {
+	background: #f7fcfe;
+	position: fixed;
+	top: 0;
+	left: 0;
+	height: 100%;
+	width: 100%;
+	z-index: 9000;
+}
+.start p {
+	position: fixed;
+	left: 50%;
+	top: 50%;
+	transform: translate(-100%, -60%);
+	display: none;
+	z-index: 9999;
+	width: 280px;
+}
+
+/*bootstrapよりあとに読み込むこと*/
+.modal-backdrop {
+     background-color: rgba(128,128,128,0.5) !important;
+}
+
+/*モーダルの背景透過　https://programming-beginner-zeroichi.jp/articles/111*/
+
+.modal-content {
+/*background: yellow;*/
+background-color:  rgba(180,180,180,0.8) !important;
+}
+
+/*モーダルのbody要素の背景設定*/
+.modal-body {
+/*background: white;*/
+background-color: rgba(255,255,255,1) !important;
+}
+
+.modal-content-clear {
+/*background: yellow;*/
+background-color:  rgba(180,180,180,0.5) !important;
+}
+
+/*モーダルのbody要素の背景設定*/
+.modal-body-clear {
+/*background: white;*/
+background-color: rgba(255,255,255,0.6) !important;
+}
+
+/*svgの色変更*/
+.svg_selected path{
+  color: #ff6347;/*tomato*/
+  fill: currentColor;
+}
+
+.svg_notselected path{
+  color: #808080;/*gray*/
+  fill: currentColor;
+}
+
+.navicon{
+  width: 24px;
+  height: 24px;
+}

@@ -1,0 +1,1033 @@
+window.addEventListener('resize', windowResizeListener);
+
+var remotePeerIDVideoContainerMap = new Map();//peerid, Array of div video container, to sort sub container
+var drawJsonObjOnCanvas = null;
+
+function addRemoteVideo(peerid, trackid, videotrack){
+	var main = document.getElementById("main");
+	var sub = document.getElementById("sub");
+	
+	var contentID = peerid+"_" + trackid+"_container";
+	var container = document.createElement("div");
+	container.setAttribute("id", peerid+"_" + trackid+"_container");
+	container.setAttribute("name", peerid+"_container");
+	container.setAttribute("peerid", peerid);
+	container.setAttribute("trackid", trackid);
+	
+	var controller = document.createElement("div");
+	controller.setAttribute("class", "controller");
+	//controller.setAttribute("class", "row controller");
+	
+	//紫水晶むらさきすいしょう #e7e7eb R:231 G:231 B:235
+	var svgFillColor = "rgba(231,231,235,1)";
+	
+	var prevButton = document.createElement("button");
+	prevButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="'+svgFillColor+'" class="bi bi-arrow-left-square" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15 2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2zM0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm11.5 5.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5z"/></svg>';
+	prevButton.setAttribute("class", "btn btn-default btn-sm");
+	prevButton.setAttribute("type", "button");
+	prevButton.setAttribute("peerid", peerid);
+	prevButton.setAttribute("trackid", trackid);
+	prevButton.setAttribute("id", peerid+"_" + trackid+"_prevbutton");
+	prevButton.addEventListener("click", setSubVideoOrder);
+	controller.appendChild(prevButton);
+	
+	var mainButton = document.createElement("button");
+	//mainButton.innerHTML = "to main";
+	//mainButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-in-up" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M3.5 10a.5.5 0 0 1-.5-.5v-8a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 0 0 1h2A1.5 1.5 0 0 0 14 9.5v-8A1.5 1.5 0 0 0 12.5 0h-9A1.5 1.5 0 0 0 2 1.5v8A1.5 1.5 0 0 0 3.5 11h2a.5.5 0 0 0 0-1h-2z"/><path fill-rule="evenodd" d="M7.646 4.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V14.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3z"/></svg>';
+	mainButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="'+svgFillColor+'" class="bi bi-arrow-up-square" viewBox="0 0 16 16">  <path fill-rule="evenodd" d="M15 2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2zM0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm8.5 9.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V11.5z"/></svg>';
+	//mainButton.setAttribute("class", "btn btn-default btn-sm col-sm-1");
+	mainButton.setAttribute("class", "btn btn-default btn-sm");
+	mainButton.setAttribute("type", "button");
+	mainButton.setAttribute("peerid", peerid);
+	mainButton.setAttribute("trackid", trackid);
+	mainButton.setAttribute("id", peerid+"_" + trackid+"_mainbutton");
+	mainButton.addEventListener("click", setMainVideo);
+	controller.appendChild(mainButton);
+	
+	var nextButton = document.createElement("button");
+	nextButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="'+svgFillColor+'" class="bi bi-arrow-right-square" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15 2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2zM0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm4.5 5.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H4.5z"/></svg>';
+	nextButton.setAttribute("class", "btn btn-default btn-sm");
+	nextButton.setAttribute("type", "button");
+	nextButton.setAttribute("peerid", peerid);
+	nextButton.setAttribute("trackid", trackid);
+	nextButton.setAttribute("id", peerid+"_" + trackid+"_nextbutton");
+	nextButton.addEventListener("click", setSubVideoOrder);
+	controller.appendChild(nextButton);
+		
+	var speakerDiv = document.createElement("div");
+	speakerDiv.setAttribute("class", "form-control");
+	var speakerSelector = document.createElement("select");
+	//speakerSelector.setAttribute("class", "form-select form-select-sm");
+	speakerSelector.setAttribute("size", "1");
+	speakerSelector.setAttribute("style", "width:75pt;");
+	var speakerList = document.getElementById("speaker_list");
+	for(var i = 0; i <speakerList.length; i++){
+		option = document.createElement("option");
+		option.setAttribute("value", speakerList[i].value);
+		option.innerHTML = speakerList[i].innerHTML;
+		speakerSelector.appendChild(option);
+	}
+	//メインのスピーカーに設定
+	speakerSelector.selectedIndex = speakerList.selectedIndex;
+	
+	controller.appendChild(speakerSelector);
+	
+	/*
+	var optionDiv = document.createElement("div");
+	optionDiv.setAttribute("class", "col-sm-5");
+	var optionSelector = document.createElement("select");
+	//optionSelector.setAttribute("class", "form-select form-select-sm");
+	optionSelector.setAttribute("size", "1");
+	optionSelector.setAttribute("style", "width:50pt;");
+	var option = document.createElement("option");
+	option.innerHTML = "some thing0";
+	optionSelector.appendChild(option);
+	option = document.createElement("option");
+	option.innerHTML = "some thing1";
+	optionSelector.appendChild(option);
+	controller.appendChild(optionSelector);
+	//optionDiv.appendChild(optionSelector);
+	//controller.appendChild(optionDiv);
+	*/
+	
+	var videocontainer = document.createElement("div");
+	videocontainer.setAttribute("class", "videocontainer");
+	
+	var videoObj;
+	videoObj = document.createElement("video");
+	videoObj.setAttribute("class", "video");
+	videoObj.setAttribute("name", peerid+"_video");
+	videoObj.setAttribute("id", peerid+"_"+ trackid+"_video");
+	videoObj.setAttribute("peerid", peerid);
+	videoObj.setAttribute("trackid", trackid);
+	videoObj.setAttribute("controls", "1");
+	//videoObj.src = "..\\video\\"+peerid+".mp4";
+	if(trackid > 0){
+		//videoObj.setAttribute("muted", "true");
+		videoObj.muted = true;
+	}
+	//今はテストautoplayのためにmute
+	//videoObj.muted = true;
+	videoObj.setAttribute("autoplay", "1");
+	videoObj.srcObject = videotrack;
+	videoObj.playsInline = true;
+	
+	videocontainer.appendChild(videoObj);
+	speakerSelector.setAttribute('speakerid', videoObj.id);
+	
+	var bgCanvasObj;
+	bgCanvasObj = document.createElement("canvas");
+	bgCanvasObj.setAttribute("class", "videocanvas");
+	bgCanvasObj.setAttribute("name", "backgroundcanvas");
+	bgCanvasObj.setAttribute("id", peerid+"_"+ trackid+"_bgcanvas");
+	bgCanvasObj.setAttribute("peerid", peerid);
+	bgCanvasObj.setAttribute("trackid", trackid);
+	videocontainer.appendChild(bgCanvasObj);
+	
+	var canvasObj;
+	canvasObj = document.createElement("canvas");
+	canvasObj.setAttribute("class", "videocanvas");
+	canvasObj.setAttribute("name", "clickcanvas");
+	canvasObj.setAttribute("id", peerid+"_"+ trackid+"_canvas");
+	canvasObj.setAttribute("peerid", peerid);
+	canvasObj.setAttribute("trackid", trackid);
+	videocontainer.appendChild(canvasObj);
+	
+	//https://qiita.com/sashim1343/items/e3728bea913cadab677d
+	console.log("teleOpeMode:"+teleOpeMode);
+	if(teleOpeMode){
+		canvasObj.addEventListener("click", canvasClicked);
+		canvasObj.addEventListener( "dblclick", canvasDblClicked);
+	} else {
+		console.log("canvas off");
+		canvasObj.style.display ="none";
+		bgCanvasObj.style.display ="none";
+	}
+	
+	//スピーカー初期化
+	var speakerId = speakerSelector.options[speakerList.selectedIndex].value;
+	if(videoObj.srcObject != null && videoObj.srcObject.getAudioTracks().length > 0){
+		videoObj.setSinkId(speakerId)
+			.then(function() {
+			console.log("setSinkID Success, audio is being played on "+speakerId +" at "+videoObj.id);
+		})
+		.catch(function(err) {
+			console.error("setSinkId Err:", err);
+		});
+		speakerSelector.addEventListener("change", speakerSelectEvent);
+	} else if(videoObj.src != null){
+		videoObj.setSinkId(speakerId)
+			.then(function() {
+			console.log("setSinkID Success, audio is being played on "+speakerId +" at "+videoObj.id);
+		})
+		.catch(function(err) {
+			console.error("setSinkId Err:", err);
+		});
+		speakerSelector.addEventListener("change", speakerSelectEvent);	
+	}
+	//もし録画中だったらリストに加える
+	if(isRecording){
+		recorder.push(new MediaRecorder(videoObj.srcObject));
+		recorderMap.set(recorderCount, recorder[recorderCount]);
+		chunks.push([]); // 格納場所をクリア
+		fileNames.push(remoterPeerID+"_"+videoObj.getAttribute("trackid")+".webm");
+		// 録画進行中に、インターバルに合わせて発生するイベント
+		console.log(fileNames+":"+videoObj.getAttribute("trackid"));
+		recorder[recorderCount].ondataavailable = createCallbackOndataavailable(recorderCount);	
+		
+		// 録画停止時のイベント
+		recorder[recorderCount].onstop = createCallbackOnstop(recorderCount);
+		// 録画スタート
+		recorder[recorderCount].start(1000); // インターバルは1000ms
+		console.log("start recording : "+recorderCount);
+		recorderCount++;
+	}
+	
+	container.appendChild(controller);
+	container.appendChild(videocontainer);
+	
+	if(main.childElementCount == 0){
+		//add to main
+		container.setAttribute("class", "maincontainer");
+		//container.setAttribute("name", "mainvideo");
+		main.appendChild(container);
+		
+		fadeOutBodyImg();
+	} else {
+		//add to sub
+		container.setAttribute("class", "subcontainer");
+		//container.setAttribute("name", "subvideo");
+		sub.appendChild(container);
+	}
+	if(remotePeerIDVideoContainerMap.has(peerid)){
+		
+	} else {
+		remotePeerIDVideoContainerMap.set(peerid, new Array());
+	}
+	remotePeerIDVideoContainerMap.get(peerid).push(container);
+	
+	//新しい映像が加わったのでリサイズ
+	calsSubContainersSize();
+	return container;
+}
+
+function removeRemoteVideo(peerid){
+	var elements = document.getElementsByName(peerid+"_video");
+	//取得した一覧から全てのvalue値を表示する
+	for (var i = 0; i < elements.length; i++) {
+		//elements[i].srcObject.getTracks().forEach(track => track.stop());
+		if(elements[i].srcObject != null){
+			var tracks = elements[i].srcObject.getTracks();
+			if(tracks != null){
+				for(var j = 0; j < tracks.length; j++){
+					tracks[j].stop();
+				}
+			}
+			elements[i].srcObject = null;
+		}
+	}
+	elements = document.getElementsByName(peerid+"_audio");
+	//取得した一覧から全てのvalue値を表示する
+	for (var i = 0; i < elements.length; i++) {
+		//elements[i].srcObject.getTracks().forEach(track => track.stop());
+		if(elements[i].srcObject != null){
+			var tracks = elements[i].srcObject.getTracks();
+			if(tracks != null){
+				for(var j = 0; j < tracks.length; j++){
+					tracks[j].stop();
+				}
+			}
+			elements[i].srcObject = null;
+		}
+	}
+	//main subから削除してmainも消えたら最初の要素をMainにする
+	var main = document.getElementById("main");
+	var sub = document.getElementById("sub");
+	
+	//並び替えてから削除
+	var shouldChangeMain = false;
+	elements = document.getElementsByName(peerid+"_container");
+	for(var i = 0; i < elements.length; i++){
+		for(var j = 0; j < main.children.length; j++){
+			if(main.children[j] == elements[i]){
+				main.removeChild(elements[i]);
+				shouldChangeMain = true;
+				break;
+			}
+		}
+	}
+	
+	if(shouldChangeMain){
+		var noConnection = true;
+		elements = sub.children;
+		for(var i = 0; i<elements.length; i++){
+			if(elements[i].getAttribute("name") != (peerid+"_container")){
+				var mainButtonId = elements[i].getAttribute("peerid")+"_"+elements[i].getAttribute("trackid")+"_mainbutton";
+				console.log("click to set main : "+mainButtonId);
+				document.getElementById(mainButtonId).click();
+				noConnection = false;
+				break;
+			}
+		}
+		
+		if(noConnection){
+			fadeInBodyImg(1000);
+		}
+	}
+	
+	while(true){
+		elements = document.getElementsByName(peerid+"_container");
+		//console.log("remove target size = " +elements.length + ", named = "+peerid+"_container");
+		if(elements.length == 0){
+			break;
+		} else {
+			var found = false;
+			for(var i = 0; i < main.children.length; i++){
+				if(main.children[i] == elements[0]){
+					main.removeChild(elements[0]);
+					found = true;
+					break;
+				}
+			}
+			if(!found){
+				for(var i = 0; i < sub.children.length; i++){
+					if(sub.children[i] == elements[0]){
+						sub.removeChild(elements[0]);
+						found = true;
+						break;
+					}
+				}
+			}
+			if(!found){
+				console.log("not found named :" +peerid+"_container");
+			}
+		}
+	}
+	/*
+	//audio
+	var elements = document.getElementsByName('remote_audio_source_'+remotePeerID);
+	//取得した一覧から全てのvalue値を表示する
+	for (var i = 0; i < elements.length; i++) {
+		//elements[i].srcObject.getTracks().forEach(track => track.stop());
+		if(elements[i].srcObject != null){
+			var tracks = elements[i].srcObject.getTracks();
+			if(tracks != null){
+				for(var j = 0; j < tracks.length; j++){
+					tracks[j].stop();
+				}
+			}
+			elements[i].srcObject = null;
+		}
+	}
+	const remote_audios = document.getElementById("remote_audios");
+	elements = document.getElementsByName("remote_audio_"+remotePeerID);
+	for (var i = 0; i < elements.length; i++) {
+		elements[i].parentNode.removeChild(elements[i]);
+	}
+	*/
+	// remotePeerIDVideoContainerMap = new Map();//peerid, Array of div video container
+	remotePeerIDVideoContainerMap.delete(peerid);
+	
+	//減るのでリサイズ
+	calsSubContainersSize();
+}
+
+function addRemoteSound(peerid, trackid, audiotrack, muteMode){
+	var main = document.getElementById("main");
+	var sub = document.getElementById("sub");
+	
+	var contentID = peerid+"_" + trackid+"_container";
+	var container = document.createElement("div");
+	container.setAttribute("id", peerid+"_" + trackid+"_container");
+	container.setAttribute("name", peerid+"_container");
+	container.setAttribute("peerid", peerid);
+	container.setAttribute("trackid", trackid);
+	
+	var controller = document.createElement("div");
+	controller.setAttribute("class", "controller");
+	//controller.setAttribute("class", "row controller");
+	
+	//紫水晶むらさきすいしょう #e7e7eb R:231 G:231 B:235
+	var svgFillColor = "rgba(231,231,235,1)";
+
+	
+	var prevButton = document.createElement("button");
+	prevButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="'+svgFillColor+'" class="bi bi-arrow-left-square" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15 2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2zM0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm11.5 5.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5z"/></svg>';
+	prevButton.setAttribute("class", "btn btn-default btn-sm");
+	prevButton.setAttribute("type", "button");
+	prevButton.setAttribute("peerid", peerid);
+	prevButton.setAttribute("trackid", trackid);
+	prevButton.setAttribute("id", peerid+"_" + trackid+"_prevbutton");
+	prevButton.addEventListener("click", setSubVideoOrder);
+	controller.appendChild(prevButton);
+	
+	var mainButton = document.createElement("button");
+	//mainButton.innerHTML = "to main";
+	//mainButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-in-up" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M3.5 10a.5.5 0 0 1-.5-.5v-8a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 0 0 1h2A1.5 1.5 0 0 0 14 9.5v-8A1.5 1.5 0 0 0 12.5 0h-9A1.5 1.5 0 0 0 2 1.5v8A1.5 1.5 0 0 0 3.5 11h2a.5.5 0 0 0 0-1h-2z"/><path fill-rule="evenodd" d="M7.646 4.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V14.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3z"/></svg>';
+	mainButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="'+svgFillColor+'" class="bi bi-arrow-up-square" viewBox="0 0 16 16">  <path fill-rule="evenodd" d="M15 2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2zM0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm8.5 9.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V11.5z"/></svg>';
+	//mainButton.setAttribute("class", "btn btn-default btn-sm col-sm-1");
+	mainButton.setAttribute("class", "btn btn-default btn-sm");
+	mainButton.setAttribute("type", "button");
+	mainButton.setAttribute("peerid", peerid);
+	mainButton.setAttribute("trackid", trackid);
+	mainButton.setAttribute("id", peerid+"_" + trackid+"_mainbutton");
+	mainButton.addEventListener("click", setMainVideo);
+	controller.appendChild(mainButton);
+	
+	var nextButton = document.createElement("button");
+	nextButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="'+svgFillColor+'" class="bi bi-arrow-right-square" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15 2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2zM0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm4.5 5.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H4.5z"/></svg>';
+	nextButton.setAttribute("class", "btn btn-default btn-sm");
+	nextButton.setAttribute("type", "button");
+	nextButton.setAttribute("peerid", peerid);
+	nextButton.setAttribute("trackid", trackid);
+	nextButton.setAttribute("id", peerid+"_" + trackid+"_nextbutton");
+	nextButton.addEventListener("click", setSubVideoOrder);
+	controller.appendChild(nextButton);
+	
+	
+	var speakerDiv = document.createElement("div");
+	speakerDiv.setAttribute("class", "col-sm-5");
+	var speakerSelector = document.createElement("select");
+	//speakerSelector.setAttribute("class", "form-select form-select-sm");
+	speakerSelector.setAttribute("size", "1");
+	speakerSelector.setAttribute("style", "width:75pt;");
+	var speakerList = document.getElementById("speaker_list");
+	for(var i = 0; i <speakerList.length; i++){
+		option = document.createElement("option");
+		option.setAttribute("value", speakerList[i].value);
+		option.innerHTML = speakerList[i].innerHTML;
+		speakerSelector.appendChild(option);
+	}
+	//メインのスピーカーに設定
+	speakerSelector.selectedIndex = speakerList.selectedIndex;
+	controller.appendChild(speakerSelector);
+	//speakerDiv.appendChild(speakerSelector);
+	//controller.appendChild(speakerDiv);
+	
+	var videocontainer = document.createElement("div");
+	videocontainer.setAttribute("class", "videocontainer");
+	
+	var imgObj;
+	imgObj = document.createElement("img");
+	imgObj.setAttribute("class", "video");
+	imgObj.setAttribute("name", peerid+"_img");
+	imgObj.setAttribute("id", peerid+"_"+ trackid+"_img");
+	imgObj.setAttribute("peerid", peerid);
+	imgObj.setAttribute("trackid", trackid);
+	imgObj.src = "./pics/soundonly.svg";
+	videocontainer.appendChild(imgObj);
+	
+	var audioObj = new Audio();
+	audioObj.srcObject = audiotrack;
+	//audioObj.src = stream;
+	//audioObj.src = "..\\video\\"+peerid+".mp3";
+	var speakerId = getSelectedSpeaker();
+	//screenObj.volume = 0;
+	(async () => {
+		await audioObj.setSinkId(speakerId)
+			.then(function() {
+			console.log('setSinkID Success, audio is being played on '+speakerId);
+		})
+		.catch(function(err) {
+			console.error('setSinkId Err:', err);
+		});
+		speakerSelector.addEventListener("change", speakerSelectEvent);
+	})();
+	audioObj.play();
+	//var audioObj;
+	//audioObj = document.createElement('audio');
+	audioObj.setAttribute('id', peerid+'_'+ trackid+"_audio");
+	audioObj.setAttribute('class', "soundonly");
+	audioObj.setAttribute('name', peerid+"_audio");
+	audioObj.setAttribute('peerid', peerid);
+	audioObj.setAttribute('trackid', trackid);
+	audioObj.setAttribute('mutemode', muteMode);
+	audioObj.controls=true;
+	speakerSelector.setAttribute('speakerid', audioObj.id);
+	if(trackid > 0){
+		//screenObj.setAttribute('muted', 'true');
+		audioObj.muted = true;
+	}
+	if(muteMode=="true"){
+		audioObj.muted = true;
+		audioObj.controls = false;
+	}
+	audioObj.setAttribute('autoplay', '1');
+	videocontainer.appendChild(audioObj);
+	
+	//録画中ならリストに加える
+	if(isRecording){
+		if(audioObj.srcObject != null && audioObj.getAttribute("mutemode")=="false"){
+			recorder.push(new MediaRecorder(audioObj.srcObject));
+			recorderMap.set(recorderCount, recorder[recorderCount]);
+			chunks.push([]); // 格納場所をクリア
+			fileNames.push(remoterPeerID+"_audioonly_"+audioObj.getAttribute("trackid")+".webm");
+			// 録画進行中に、インターバルに合わせて発生するイベント
+			console.log(fileNames+":"+audioObj.getAttribute("trackid"));
+			recorder[recorderCount].ondataavailable = createCallbackOndataavailable(recorderCount);	
+			
+			// 録画停止時のイベント
+			recorder[recorderCount].onstop = createCallbackOnstop(recorderCount);
+			// 録画スタート
+			recorder[recorderCount].start(1000); // インターバルは1000ms
+			console.log('start recording : '+recorderCount);
+			recorderCount++;
+		} else {
+			//console.log('remote_audio_source_'+key +' srcObjec is null');
+		}
+	}
+	
+	container.appendChild(controller);
+	container.appendChild(videocontainer);
+	
+	if(main.childElementCount == 0){
+		//add to main
+		container.setAttribute("class", "maincontainer");
+		//container.setAttribute("name", "mainvideo");
+		main.appendChild(container);
+	} else {
+		//add to sub
+		container.setAttribute("class", "subcontainer");
+		//container.setAttribute("name", "subvideo");
+		sub.appendChild(container);
+	}
+	if(remotePeerIDVideoContainerMap.has(peerid)){
+		
+	} else {
+		remotePeerIDVideoContainerMap.set(peerid, new Array());
+	}
+	remotePeerIDVideoContainerMap.get(peerid).push(container);
+	
+	//新しい映像が加わったのでリサイズ
+	calsSubContainersSize();
+	return container;
+}
+
+function speakerSelectEvent(event){
+	//個別のスピーカー設定
+	var speakerSelector = this;
+	var speakerId = speakerSelector.options[speakerSelector.selectedIndex].value;
+	console.log("selected speaker id = "+speakerId +" for " +speakerSelector.getAttribute("speakerid"));
+	var mediaObj = document.getElementById(speakerSelector.getAttribute("speakerid"));
+	/*
+	screenObj.setSinkId(speakerId)
+		.then(function() {
+		console.log('setSinkID Success, sub audio is being played on '+speakerId +' at '+screenObj.id);
+	})
+	.catch(function(err) {
+		console.error('setSinkId Err:', err);
+	});
+	*/
+	
+	//screenObj.volume = 0;
+	(async () => {
+		await mediaObj.setSinkId(speakerId)
+			.then(function() {
+			console.log('setSinkID Success, audio is being played on '+speakerId +' at '+mediaObj.id);
+		})
+		.catch(function(err) {
+			console.error('setSinkId Err:', err);
+		});
+	})();	
+}
+
+function windowResizeListener(event){
+	calsSubContainersSize();
+}
+
+function calsSubContainersSize(){
+	var backgroundimg = document.getElementById("backgroundimg");
+	var mainContainers = document.getElementById("main");
+	var subContainers = document.getElementById("sub");
+	var subLayoutSelectButton = document.getElementById("subLayoutSelectButton");
+	var subLayoutSize = subLayoutSelectButton.getAttribute("layout");
+	var workspaceHeight = window.innerHeight - backgroundimg.getBoundingClientRect().top;
+	if(backgroundimg.getBoundingClientRect().top == 0){
+		workspaceHeight = window.innerHeight - mainContainers.getBoundingClientRect().top;
+	}
+	var workspaceWidth = window.innerWidth;
+	
+	var idealWorkspaceHeight = 0;
+	var idealWorkspaceWidth = 0;
+	var maxHeightBasedWidth = 0;
+	var maxWidthBasedHeight = 0;
+	//var controllerMergin = 40;
+	var controllerMergin = 31;
+	if(subLayoutSize == 2){
+		//2
+		maxHeightBasedWidth = 27*workspaceWidth/32+controllerMergin*2;
+		maxWidthBasedHeight = 32*(workspaceHeight-controllerMergin*2)/27;		
+	} else {
+		//3
+		maxHeightBasedWidth = 9*workspaceWidth/12+controllerMergin*2;
+		maxWidthBasedHeight = 12*(workspaceHeight-controllerMergin*2)/9;
+	}
+	
+	if(maxHeightBasedWidth > workspaceHeight){
+		//console.log("横基準だと縦が出るので縦基準に");
+		idealWorkspaceHeight = workspaceHeight;
+		idealWorkspaceWidth = maxWidthBasedHeight;
+	} else if(maxWidthBasedHeight > workspaceWidth){
+		//console.log("縦基準だと横が出るので横基準に");
+		idealWorkspaceWidth = workspaceWidth;
+		idealWorkspaceHeight = maxHeightBasedWidth;
+	} else {
+		console.log("!!!!!ideal video workspace calc error!!!!!");
+	}
+	mainContainers.style.width = idealWorkspaceWidth+"px";
+	subContainers.style.width = (idealWorkspaceWidth-40)+"px";//-40pxはvideo.cssと合わせる
+	//console.log("ideal width = "+ idealWorkspaceWidth+"px");
+	
+	//subcontainer width
+	var subcontainerElements = document.getElementsByClassName("subcontainer");
+	for(var i = 0; i<subcontainerElements.length; i++){
+		//console.log("subcontainerElement = "+subcontainerElements[i].id+ ", calc((100% / "+subLayoutSize+" -5px)");
+		//subcontainerElements[i].style.width = "calc(100% / "+subLayoutSize+" -5px)";
+		subcontainerElements[i].style.width = "calc( calc(96% / "+subLayoutSize+") - 5px)";
+		//subcontainerElements[i].setAttribute("style.width", "calc(100% / "+subLayoutSize+")");
+	}
+	var subcontainerElementHeight = 0;
+	if(subcontainerElements.length > 0){
+		//console.log("sub container "+subcontainerElements[0].offsetHeight+" " +subcontainerElements[0].offsetWidth+" "+(subcontainerElements[0].offsetWidth*9/16));
+		subcontainerElementHeight = subcontainerElements[0].offsetWidth*9/16;
+	}
+	
+	//subcontainersの高さ計算
+	var startY = subContainers.getBoundingClientRect().top;
+	var leftHeight = window.innerHeight - startY - 0;
+	var minHeight = 300;
+	//var mergin = controllerMergin*2;
+	var mergin = 10;
+	//var elements = document.getElementsByName("subvideo");
+	var sub = document.getElementById("sub");
+	var elements = sub.children;
+	var subVideoTotalHeight = 0;
+	
+	if(elements.length>0){
+		var childTotalHeight = 0;
+		for (const el of elements[0].children) {
+			//縦並びしていることを仮定
+			childTotalHeight += el.offsetHeight;
+		}
+		//3個ずつ並ぶ
+		childTotalHeight += 75;//mergin
+		subcontainerElementHeight += controllerMergin;
+		if(Math.floor(elements.length / 3) == 0){
+			subcontainerElementHeight += 15;//top margin 5px
+			mergin = 5;
+		} else {
+			subcontainerElementHeight += 10;//top margin 5px
+		}
+		//console.log(childTotalHeight +" "+subcontainerElementHeight);
+		subVideoTotalHeight = subcontainerElementHeight * (Math.floor(elements.length / 3) +1);
+		//minHeight = minHeight;//1段分
+		minHeight = subcontainerElementHeight;
+		//console.log("subcontainerElementHeight "+subcontainerElementHeight);
+	}
+	
+	if(elements.length == 0){
+		subContainers.style.height = "0px";
+	} else {
+		if(leftHeight < minHeight){
+			//console.log("minHeight");
+			subContainers.style.height = (minHeight-mergin)+"px";
+		} else if(leftHeight <= subVideoTotalHeight){
+			//console.log("leftHeight");
+			subContainers.style.height = (leftHeight-mergin)+"px";
+		} else {
+			//console.log("sub total height");
+			subContainers.style.height = (subVideoTotalHeight-mergin)+"px";
+		}
+	}
+	//console.log(subContainers.style.height+ " <= "+leftHeight+" "+subVideoTotalHeight+" "+minHeight);
+	
+	var elements = document.getElementsByName("clickcanvas");
+	for (var i = 0; i < elements.length; i++) {
+		canvasSizeChanged(elements[i]);
+		//console.log('resize canvas : '+elements[i].getAttribute("id"));
+	}
+}
+
+//windowsがリサイズしたり，main subを入れ替えたりしたら呼び出す
+function canvasSizeChanged(canvasObj){
+	/*
+	canvasのサイズを変更する際はcanvasタグの属性で設定しないといけない
+	参照https://qiita.com/ShinyaOkazawa/items/9e662bf2121548f79d5f
+	*/
+	canvasObj.width =canvasObj.offsetWidth;
+	canvasObj.height =canvasObj.offsetHeight;
+	
+	//backgroundcanvasもついでに
+	var bgObj = document.getElementById(canvasObj.getAttribute("peerid")+"_"+canvasObj.getAttribute("trackid")+"_bgcanvas");
+	if(bgObj != null){
+		bgObj.width =bgObj.offsetWidth;
+		bgObj.height =bgObj.offsetHeight;
+		drawActionPointOnEachCanvas(bgObj);
+	}
+}
+
+//canvasごとに管理
+var singleClickTimerMap = new Map();
+var drawClerTimerMap = new Map();
+//var clicked = false;    // クリック状態を保持するフラグ
+var clickMap = new Map();
+var gazePics;
+gazePics = new Image();
+gazePics.src = "./pics/attention.svg";
+var handPics;
+handPics = new Image();
+handPics.src = "./pics/gestures/palmup-oncanvas.svg";
+
+function canvasDblClicked(event){
+	console.log(this.id+"dblcliecked "+event);
+}
+
+function canvasClicked(event){
+	//console.log(this+"cliecked "+event);
+	var canvasObj = this;
+	canvasSizeChanged(canvasObj);
+	
+	var clickX = event.pageX ;
+	var clickY = event.pageY ;
+	//console.log(clickX +", "+clickY+"/"+canvasObj.width+","+canvasObj.height);
+	var myPeerID = document.getElementById("myuserid");
+
+	// 要素の位置を取得
+	var clientRect = this.getBoundingClientRect() ;
+	var positionX = clientRect.left + window.pageXOffset ;
+	var positionY = clientRect.top + window.pageYOffset ;
+
+	// 要素内におけるクリック位置を計算
+	var x = clickX - positionX ;
+	var y = clickY - positionY ;
+	// キャンバス中心座標
+	var xC = (x-canvasObj.offsetWidth/2);
+	var yC = (y-canvasObj.offsetHeight/2);
+	var directionRad = 0;
+	if(xC == 0){
+		if(yC >= 0) directionRad = Math.PI/2;
+		else directionRad = -Math.PI/2;
+	} else {
+		directionRad = Math.atan2(yC, xC);
+	}
+	
+	var xRatio = x/canvasObj.offsetWidth;
+	var yRatio = y/canvasObj.offsetHeight;
+	console.log("click on canvas "+canvasObj.id+":"+x +"/"+y+", click on page:"+clickX +"/"+clickY+", canvas size:"+canvasObj.width+"/"+canvasObj.height+", canvas offset size:"+canvasObj.offsetWidth+"/"+canvasObj.offsetHeight+", ratio:"+xRatio+"/"+yRatio);
+	
+	var dblClickDuration = 300;//msec
+	var drawMarkDuration = 1000;//msec
+	if(!clickMap.has(canvasObj.id)){
+		clickMap.set(canvasObj.id, false)
+	}
+	
+	if (clickMap.get(canvasObj.id)) {
+		clickMap.delete(canvasObj.id);
+		clickMap.set(canvasObj.id, false);
+		if(singleClickTimerMap.has(canvasObj.id)){
+			clearTimeout(singleClickTimerMap.get(canvasObj.id));
+			singleClickTimerMap.delete(canvasObj.id)
+		}
+		var eventName = "dblclickevent";		
+		var sendText = "{\"peerid\": \""+myPeerID.value+"\", \""+eventName+"\": {\"remotepeerid\":\""+canvasObj.getAttribute('peerid')+"\", \"trackid\":"+canvasObj.getAttribute('trackid')+",\"x\":"+x+", \"y\": "+y+",\"xratio\":"+xRatio+", \"yratio\": "+yRatio+", \"hand\": \""+currenthandgesture+"\"}}";
+		console.log("clicked event "+sendText);
+		publishData(sendText);
+		//canvasに描画
+		var context = canvasObj.getContext( "2d" ) ;
+		context.clearRect(0, 0, canvasObj.offsetWidth, canvasObj.offsetHeight);
+		//var imgWidth = handPics.naturalWidth;
+		//var imgHeight = handPics.naturalHeight;
+		var imgWidth = 100;
+		var imgHeight = 100;
+		
+		context.save();
+		context.translate(x, y);
+		context.rotate(directionRad+Math.PI);
+		if(xRatio >= 0.5){
+			//上下反転
+			context.scale(1, -1);
+			if(yRatio >= 0.5){
+				//right down			
+			} else {
+				//right up
+			}
+		} else {
+			if(yRatio >= 0.5){
+				//left down
+			} else {
+				//left up
+			}
+		}
+		context.drawImage(handPics, 0, -imgHeight/2, imgWidth, imgHeight);
+		context.restore();
+		
+		//return;
+	} else {
+		clickMap.delete(canvasObj.id);
+		clickMap.set(canvasObj.id, true);
+		if(singleClickTimerMap.has(canvasObj.id)){
+			clearTimeout(singleClickTimerMap.get(canvasObj.id));
+			singleClickTimerMap.delete(canvasObj.id)
+			console.log("single click timer reset of "+canvasObj.id);
+		}
+		var singleClickTimer = setTimeout(function () {
+			// ダブルクリックによりclickedフラグがリセットされていない
+			//     -> シングルクリックだった
+			if (clickMap.get(canvasObj.id)) {
+				//canvasに描画
+				var context = canvasObj.getContext( "2d" ) ;
+				context.clearRect(0, 0, canvasObj.offsetWidth, canvasObj.offsetHeight);
+				//var imgWidth = gazePics.naturalWidth;
+				//var imgHeight = gazePics.naturalHeight;
+				var imgWidth = 80;
+				var imgHeight = 80;
+				context.drawImage(gazePics, x-imgWidth/2, y-imgHeight/2, imgWidth, imgHeight);
+				//console.log("natural size : "+imgWidth+"/"+imgHeight);
+				var eventName = "clickevent";			
+				var sendText = "{\"peerid\": \""+myPeerID.value+"\", \""+eventName+"\": {\"remotepeerid\":\""+canvasObj.getAttribute('peerid')+"\", \"trackid\":"+canvasObj.getAttribute('trackid')+", \"x\":"+x+", \"y\": "+y+",\"xratio\":"+xRatio+", \"yratio\": "+yRatio+"}}";
+				console.log("clicked event "+sendText);
+				publishData(sendText);
+			} else {
+				console.log("already clicked ? why ? "+canvasObj.id);
+			}
+			clickMap.delete(canvasObj.id);
+			clickMap.set(canvasObj.id, false);
+		}, dblClickDuration);
+		singleClickTimerMap.set(canvasObj.id, singleClickTimer);
+	}
+	
+	if(drawClerTimerMap.has(canvasObj.id)){
+		clearTimeout(drawClerTimerMap.get(canvasObj.id));
+		drawClerTimerMap.delete(canvasObj.id)
+	}
+	var drawClerTimer = setTimeout(function () {
+		//canvasに描画 Clear
+		var context = canvasObj.getContext( "2d" ) ;
+		context.clearRect(0, 0, canvasObj.width, canvasObj.height);
+		clicked = false;
+		console.log("clear canvas "+canvasObj.id);
+	}, drawMarkDuration);
+	drawClerTimerMap.set(canvasObj.id, drawClerTimer);
+}
+
+function setMainVideo(event){
+	var peerid = this.getAttribute("peerid");
+	var trackid = this.getAttribute("trackid");
+	
+	console.log("set main : "+peerid+"_"+trackid+"_container");
+	var videoContainerElement = document.getElementById(peerid+"_"+trackid+"_container");
+	var videoElement = document.getElementById(peerid+"_"+trackid+"_video");
+	//videoElement.play();
+	
+	var main = document.getElementById("main");
+	var sub = document.getElementById("sub");
+	while (main.lastChild) {
+		if(main.lastChild.id != null){
+			console.log(main.lastChild.id);
+			//sort なしで入れ替え
+			var toSubElement = main.lastChild;
+			main.removeChild(main.lastChild);
+			toSubElement.setAttribute("class", "subcontainer");
+			sub.insertBefore(toSubElement, videoContainerElement);
+			break;//main要素は1つだけ
+		} else {
+			break;
+		}
+		//sort あり
+		//main.removeChild(main.lastChild);
+	}
+	/*
+	//sort あり
+	var sub = document.getElementById("sub");
+	while (sub.lastChild) {
+		sub.removeChild(sub.lastChild);
+	}
+	*/
+	
+	videoContainerElement.setAttribute("class", "maincontainer");
+	videoContainerElement.style.width ="";
+	//videoContainerElement.setAttribute("name", "mainvideo");
+	main.appendChild(videoContainerElement);
+	
+	/*
+	//sort あり
+	for(var[key, value] of remotePeerIDVideoContainerMap){
+		//console.log(key+" has "+value.length+" videos");
+		for (let i = 0; i < value.length; i++) {
+			if(value[i] == videoContainerElement){
+			} else {
+				value[i].setAttribute("class", "subcontainer");
+				//value[i].setAttribute("name", "subvideo");
+				sub.appendChild(value[i]);
+			}
+		}
+	}
+	*/
+	
+	calsSubContainersSize();
+}
+
+
+function setSubVideoOrder(event){
+	//console.log("change "+this.id);
+	var peerid = this.getAttribute("peerid");
+	var trackid = this.getAttribute("trackid");
+	var subVideoContainer = document.getElementById(peerid+"_"+trackid+"_container");
+	var sub = document.getElementById("sub");
+	
+	if(subVideoContainer.getAttribute("class").startsWith("sub")){
+		if(this.id.endsWith("_nextbutton")){
+			var subElements = document.getElementsByClassName("subcontainer");
+			for(var i = 0; i < subElements.length-1; i++){
+				if(subElements[i]==subVideoContainer){
+					//console.log("insert(next) : "+subElements[i+1].id +" " +subVideoContainer.id);
+					sub.insertBefore(subElements[i+1], subVideoContainer);
+					break;
+				}
+			}
+		} else if(this.id.endsWith("_prevbutton")){
+			var subElements = document.getElementsByClassName("subcontainer");
+			for(var i = 1; i < subElements.length; i++){
+				if(subElements[i]==subVideoContainer){
+					//console.log("insert(prev) : "+subVideoContainer.id +" " +subElements[i-1].id);
+					sub.insertBefore(subVideoContainer, subElements[i-1]);
+					break;
+				}
+			}
+		}
+	}
+	
+}
+
+function teleOpeModeChanged() {
+	if (document.getElementById("teleopemodecheckbox").checked) {
+		teleOpeMode = true;
+		var elements = document.getElementsByClassName("videocanvas");
+		for (var i = 0; i < elements.length; i++) {
+			if(elements[i].getAttribute("name") == null){
+			} else if(elements[i].getAttribute("name") == "clickcanvas"){
+				console.log('addEventListener click to '+elements[i].getAttribute("id")+ ', style.display = '+elements[i].style.display + ' to \"\"');
+				elements[i].addEventListener( "click", canvasClicked);
+				elements[i].addEventListener( "dblclick", canvasDblClicked);
+			} else if(elements[i].getAttribute("name") == "backgroundcanvas"){
+			} else {
+			} 
+			elements[i].style.display ="";
+		}
+	} else {
+		teleOpeMode = false;
+		var elements = document.getElementsByClassName("videocanvas");
+		for (var i = 0; i < elements.length; i++) {
+			if(elements[i].getAttribute("name") == null){
+			} else if(elements[i].getAttribute("name") == "clickcanvas"){
+				console.log('removeEventListener click to '+elements[i].getAttribute("id")+ ', style.display = '+elements[i].style.display + ' to none');
+				elements[i].removeEventListener( "click", canvasClicked);
+				elements[i].removeEventListener( "dblclick", canvasDblClicked);
+			} else if(elements[i].getAttribute("name") == "backgroundcanvas"){
+			} else {
+			} 
+			elements[i].style.display ="none";
+		}
+	}
+}
+
+function changeSubLayout(size){
+	var subLayoutSelectButton = document.getElementById("subLayoutSelectButton");
+	console.log("change sublayout to "+size);
+	/*
+	while(subLayoutSelectButton.lastChild){
+		subLayoutSelectButton.removeChild(subLayoutSelectButton.lastChild);
+	}
+	*/
+	if(size == 2){
+		subLayoutSelectButton.setAttribute("layout", 2);
+		subLayoutSelectButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-grid" viewBox="0 0 16 16"><path d="M1 2.5A1.5 1.5 0 0 1 2.5 1h3A1.5 1.5 0 0 1 7 2.5v3A1.5 1.5 0 0 1 5.5 7h-3A1.5 1.5 0 0 1 1 5.5v-3zM2.5 2a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zm6.5.5A1.5 1.5 0 0 1 10.5 1h3A1.5 1.5 0 0 1 15 2.5v3A1.5 1.5 0 0 1 13.5 7h-3A1.5 1.5 0 0 1 9 5.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zM1 10.5A1.5 1.5 0 0 1 2.5 9h3A1.5 1.5 0 0 1 7 10.5v3A1.5 1.5 0 0 1 5.5 15h-3A1.5 1.5 0 0 1 1 13.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zm6.5.5A1.5 1.5 0 0 1 10.5 9h3a1.5 1.5 0 0 1 1.5 1.5v3a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 13.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3z"/></svg>';
+	} else {
+		subLayoutSelectButton.setAttribute("layout", 3);
+		subLayoutSelectButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-grid-3x2-gap" viewBox="0 0 16 16"><path d="M4 4v2H2V4h2zm1 7V9a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1zm0-5V4a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1zm5 5V9a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1zm0-5V4a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1zM9 4v2H7V4h2zm5 0h-2v2h2V4zM4 9v2H2V9h2zm5 0v2H7V9h2zm5 0v2h-2V9h2zm-3-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1V4zm1 4a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1h-2z"/></svg>';
+	}
+	calsSubContainersSize();
+}
+
+
+function closeSetupModal(){
+	var setupModal = document.getElementById("setupModal");
+	var myModal = bootstrap.Modal.getInstance(setupModal);
+	myModal.hide();
+}
+
+function updateActionPointOnCanvas(cmds){
+	//console.log(cmds);
+	var jsonObj = JSON.parse(cmds);
+	drawJsonObjOnCanvas = jsonObj;
+	drawActionPointOnCanvas(null);
+}
+
+function drawActionPointOnCanvas(clickedCanvas){
+	if(clickedCanvas != null){
+		var context = clickedCanvas.getContext( "2d" ) ;
+		context.save();
+		context.clearRect(0, 0, clickedCanvas.width, clickedCanvas.height);
+		context.restore();
+	}
+	if(drawJsonObjOnCanvas != null){
+		var userName = drawJsonObjOnCanvas.user;
+		var canvasElements = document.getElementsByName('backgroundcanvas');
+		for(var i = 0; i<canvasElements.length; i++){
+			if(canvasElements[i].getAttribute("peerid") == userName){
+				drawActionPointOnEachCanvas(canvasElements[i]);
+			}
+		}
+	}
+}
+
+function drawActionPointOnEachCanvas(canvasElement){
+	if(drawJsonObjOnCanvas == null)return;
+	var context = canvasElement.getContext( "2d" ) ;
+	context.save();
+	context.clearRect(0, 0, canvasElement.width, canvasElement.height);
+	for(var j = 0; j<drawJsonObjOnCanvas.points.length; j++){
+		if(drawJsonObjOnCanvas.points[j].trackID == canvasElement.getAttribute("trackid")){
+			if(drawJsonObjOnCanvas.points[j].type == "human"){
+				//context.strokeStyle = "green" ;
+				context.strokeStyle = "rgba(0,255,0,0.5)";
+			} else {
+				//context.strokeStyle = "blue" ;
+				context.strokeStyle = "rgba(0,0,255,0.5)";
+			}
+			context.beginPath () ;
+			context.arc(drawJsonObjOnCanvas.points[j].xRatio*canvasElement.width, drawJsonObjOnCanvas.points[j].yRatio*canvasElement.height, drawJsonObjOnCanvas.points[j].radiusRatio*canvasElement.width/2, 0 * Math.PI / 180, 360 * Math.PI / 180, false ) ;
+			context.lineWidth = 1.5 ;
+			context.stroke() ;
+		}
+	}
+	context.restore();
+}
+
+function selectBehavor(cmds){
+	//console.log(cmds);
+	var jsonObj = JSON.parse(cmds);
+	
+}
+
+//動画によってちょっとアスペクト比が違ったりする場合があるからcanvasのアスペクト比をあわせるけど使わなくて良さそう
+//<video class="mainvideo" autoplay="1" muted controls id="sunnydrop-video" name="video" peerid="sunnydrop" onloadedmetadata="sourceLoaded(this)">
+function sourceLoaded(videoElement){
+	var peerid = videoElement.getAttribute("peerid")
+	 var trackid=videoElement.getAttribute("trackid");
+	var ratio = videoElement.clientHeight/videoElement.clientWidth*100;
+	//console.log(peerid + " paddingTop : "+ratio+"%, " +videoElement.clientWidth+"/"+videoElement.clientHeight);
+	var canvasElement = document.getElementById(peerid+"_"+trackid+"_canvas");
+	if(canvasElement != null){
+		console.log(peerid + " before ratio : "+(canvasElement.offsetHeight/canvasElement.offsetWidth*100)+"%");
+		//canvasElement.style.setProperty("padding-top", ratio+"%");
+		//canvasElement.setAttribute("data-paddingTop", ratio+"%");
+	}
+	canvasElement = document.getElementById(peerid+"_"+trackid+"_bgcanvas");
+	if(canvasElement != null){
+		//canvasElement.style.setProperty("padding-top", ratio+"%");
+		//canvasElement.setAttribute("data-paddingTop", ratio+"%");
+	}
+}
+
+
