@@ -10,6 +10,11 @@
 
 <link rel="stylesheet" href="./css/option.css">
 
+<style>
+html, body {
+  font-family: "keifont";
+}
+</style>
 
 </head>
 <body>
@@ -37,9 +42,15 @@
 </div>
 <div class="row  mb-3">
 	<div class="box-text-websocket input-group  input-group-sm">
-		<span class="input-group-text">web socket url</span>
-		<input type="text" class="form-control" placeholder="ws://127.0.0.1:8000" id="socket_url" aria-describedby="websocketbutton"value=" ws://127.0.0.1:8000" />
-		<button class="btn btn-outline-primary" type="button" id="websocketbutton">Connect</button>
+		<div class="form-check form-switch">
+			<input class="form-check-input" type="checkbox" id="wsockautoconnect">
+			<label class="form-check-label" for="wsockautoconnect">websocket autoconnect</label>
+		</div>
+		<div class="input-group">
+			<span class="input-group-text">web socket url</span>
+			<input type="text" class="form-control" placeholder="ws://127.0.0.1:8000" id="socket_url" aria-describedby="websocketbutton"value="ws://127.0.0.1:8000" />
+			<button class="btn btn-outline-primary" type="button" id="websocketbutton">Connect</button>
+		</div>
 	</div>
 </div>
 <div class="row  mb-3">

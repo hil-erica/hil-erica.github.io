@@ -1,7 +1,8 @@
 window.addEventListener('resize', windowResizeListener);
 
 var remotePeerIDVideoContainerMap = new Map();//peerid, Array of div video container, to sort sub container
-var drawJsonObjOnCanvas = null;
+//var drawJsonObjOnCanvas = null;
+var drawJsonObjOnCanvasUsers = new Map();//peerid, jsonobj for canvas draw
 
 function addRemoteVideo(peerid, trackid, videotrack){
 	var main = document.getElementById("main");
@@ -114,6 +115,12 @@ function addRemoteVideo(peerid, trackid, videotrack){
 	
 	videocontainer.appendChild(videoObj);
 	speakerSelector.setAttribute('speakerid', videoObj.id);
+	
+	var videoLabel = document.createElement("label");
+	videoLabel.setAttribute("for", peerid+"_"+ trackid+"_video");
+	videoLabel.innerHTML = peerid;
+	videoLabel.setAttribute("class", "videolabel");
+	videocontainer.appendChild(videoLabel);
 	
 	var bgCanvasObj;
 	bgCanvasObj = document.createElement("canvas");
@@ -417,6 +424,12 @@ function addRemoteSound(peerid, trackid, audiotrack, muteMode){
 	imgObj.src = "./pics/soundonly.svg";
 	videocontainer.appendChild(imgObj);
 	
+	var imgLabel = document.createElement("label");
+	imgLabel.setAttribute("for", peerid+"_"+ trackid+"_img");
+	imgLabel.innerHTML = peerid;
+	imgLabel.setAttribute("class", "videolabel");
+	videocontainer.appendChild(imgLabel);
+	
 	var audioObj = new Audio();
 	audioObj.srcObject = audiotrack;
 	//audioObj.src = stream;
@@ -537,15 +550,20 @@ function windowResizeListener(event){
 }
 
 function calsSubContainersSize(){
+	var navbar = document.getElementById("navbar");
 	var backgroundimg = document.getElementById("backgroundimg");
 	var mainContainers = document.getElementById("main");
 	var subContainers = document.getElementById("sub");
 	var subLayoutSelectButton = document.getElementById("subLayoutSelectButton");
 	var subLayoutSize = subLayoutSelectButton.getAttribute("layout");
+	var workspaceHeight = window.innerHeight - navbar.getBoundingClientRect().bottom;
+	//console.log(navbar.getBoundingClientRect().bottom +" "+backgroundimg.getBoundingClientRect().top+" "+mainContainers.getBoundingClientRect().top);
+	/*
 	var workspaceHeight = window.innerHeight - backgroundimg.getBoundingClientRect().top;
 	if(backgroundimg.getBoundingClientRect().top == 0){
 		workspaceHeight = window.innerHeight - mainContainers.getBoundingClientRect().top;
 	}
+	*/
 	var workspaceWidth = window.innerWidth;
 	
 	var idealWorkspaceHeight = 0;
@@ -554,7 +572,19 @@ function calsSubContainersSize(){
 	var maxWidthBasedHeight = 0;
 	//var controllerMergin = 40;
 	var controllerMergin = 31;
-	if(subLayoutSize == 2){
+	if(subLayoutSize == 1){
+		//1 1行にSubをすべて並べる
+		var sub = document.getElementById("sub");
+		var numSubs = sub.children.length;
+		if(numSubs == 0){
+			maxHeightBasedWidth = 9*workspaceWidth/16+controllerMergin;
+			maxWidthBasedHeight = 16*(workspaceHeight-controllerMergin)/9;
+		} else {
+			maxHeightBasedWidth = 9*workspaceWidth*(1+1/numSubs)/16+controllerMergin*2;
+			maxWidthBasedHeight = 16*(workspaceHeight-controllerMergin*2)/9/(1+1/numSubs);
+			subLayoutSize = numSubs;
+		}
+	} else if(subLayoutSize == 2){
 		//2
 		maxHeightBasedWidth = 27*workspaceWidth/32+controllerMergin*2;
 		maxWidthBasedHeight = 32*(workspaceHeight-controllerMergin*2)/27;		
@@ -610,7 +640,6 @@ function calsSubContainersSize(){
 			//縦並びしていることを仮定
 			childTotalHeight += el.offsetHeight;
 		}
-		//3個ずつ並ぶ
 		childTotalHeight += 75;//mergin
 		subcontainerElementHeight += controllerMergin;
 		if(Math.floor(elements.length / 3) == 0){
@@ -661,8 +690,6 @@ function canvasSizeChanged(canvasObj){
 	//backgroundcanvasもついでに
 	var bgObj = document.getElementById(canvasObj.getAttribute("peerid")+"_"+canvasObj.getAttribute("trackid")+"_bgcanvas");
 	if(bgObj != null){
-		bgObj.width =bgObj.offsetWidth;
-		bgObj.height =bgObj.offsetHeight;
 		drawActionPointOnEachCanvas(bgObj);
 	}
 }
@@ -768,7 +795,7 @@ function canvasClicked(event){
 		clickMap.set(canvasObj.id, true);
 		if(singleClickTimerMap.has(canvasObj.id)){
 			clearTimeout(singleClickTimerMap.get(canvasObj.id));
-			singleClickTimerMap.delete(canvasObj.id)
+			singleClickTimerMap.delete(canvasObj.id);
 			console.log("single click timer reset of "+canvasObj.id);
 		}
 		var singleClickTimer = setTimeout(function () {
@@ -934,18 +961,25 @@ function teleOpeModeChanged() {
 
 function changeSubLayout(size){
 	var subLayoutSelectButton = document.getElementById("subLayoutSelectButton");
+	var subLayoutSelectImg = document.getElementById("subLayoutSelectImg");
 	console.log("change sublayout to "+size);
 	/*
 	while(subLayoutSelectButton.lastChild){
 		subLayoutSelectButton.removeChild(subLayoutSelectButton.lastChild);
 	}
 	*/
-	if(size == 2){
+	if(size == 1){
+		subLayoutSelectButton.setAttribute("layout", 1);
+		//subLayoutSelectButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-grid" viewBox="0 0 16 16"><path d="M1 2.5A1.5 1.5 0 0 1 2.5 1h3A1.5 1.5 0 0 1 7 2.5v3A1.5 1.5 0 0 1 5.5 7h-3A1.5 1.5 0 0 1 1 5.5v-3zM2.5 2a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zm6.5.5A1.5 1.5 0 0 1 10.5 1h3A1.5 1.5 0 0 1 15 2.5v3A1.5 1.5 0 0 1 13.5 7h-3A1.5 1.5 0 0 1 9 5.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zM1 10.5A1.5 1.5 0 0 1 2.5 9h3A1.5 1.5 0 0 1 7 10.5v3A1.5 1.5 0 0 1 5.5 15h-3A1.5 1.5 0 0 1 1 13.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zm6.5.5A1.5 1.5 0 0 1 10.5 9h3a1.5 1.5 0 0 1 1.5 1.5v3a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 13.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3z"/></svg>';
+		subLayoutSelectImg.setAttribute("src", "./pics/grid-nx1-gap.svg");
+	} else if(size == 2){
 		subLayoutSelectButton.setAttribute("layout", 2);
-		subLayoutSelectButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-grid" viewBox="0 0 16 16"><path d="M1 2.5A1.5 1.5 0 0 1 2.5 1h3A1.5 1.5 0 0 1 7 2.5v3A1.5 1.5 0 0 1 5.5 7h-3A1.5 1.5 0 0 1 1 5.5v-3zM2.5 2a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zm6.5.5A1.5 1.5 0 0 1 10.5 1h3A1.5 1.5 0 0 1 15 2.5v3A1.5 1.5 0 0 1 13.5 7h-3A1.5 1.5 0 0 1 9 5.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zM1 10.5A1.5 1.5 0 0 1 2.5 9h3A1.5 1.5 0 0 1 7 10.5v3A1.5 1.5 0 0 1 5.5 15h-3A1.5 1.5 0 0 1 1 13.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zm6.5.5A1.5 1.5 0 0 1 10.5 9h3a1.5 1.5 0 0 1 1.5 1.5v3a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 13.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3z"/></svg>';
+		//subLayoutSelectButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-grid" viewBox="0 0 16 16"><path d="M1 2.5A1.5 1.5 0 0 1 2.5 1h3A1.5 1.5 0 0 1 7 2.5v3A1.5 1.5 0 0 1 5.5 7h-3A1.5 1.5 0 0 1 1 5.5v-3zM2.5 2a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zm6.5.5A1.5 1.5 0 0 1 10.5 1h3A1.5 1.5 0 0 1 15 2.5v3A1.5 1.5 0 0 1 13.5 7h-3A1.5 1.5 0 0 1 9 5.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zM1 10.5A1.5 1.5 0 0 1 2.5 9h3A1.5 1.5 0 0 1 7 10.5v3A1.5 1.5 0 0 1 5.5 15h-3A1.5 1.5 0 0 1 1 13.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zm6.5.5A1.5 1.5 0 0 1 10.5 9h3a1.5 1.5 0 0 1 1.5 1.5v3a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 13.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3z"/></svg>';
+		subLayoutSelectImg.setAttribute("src", "./pics/grid-2x2.svg");
 	} else {
 		subLayoutSelectButton.setAttribute("layout", 3);
-		subLayoutSelectButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-grid-3x2-gap" viewBox="0 0 16 16"><path d="M4 4v2H2V4h2zm1 7V9a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1zm0-5V4a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1zm5 5V9a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1zm0-5V4a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1zM9 4v2H7V4h2zm5 0h-2v2h2V4zM4 9v2H2V9h2zm5 0v2H7V9h2zm5 0v2h-2V9h2zm-3-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1V4zm1 4a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1h-2z"/></svg>';
+		//subLayoutSelectButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-grid-3x2-gap" viewBox="0 0 16 16"><path d="M4 4v2H2V4h2zm1 7V9a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1zm0-5V4a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1zm5 5V9a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1zm0-5V4a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1zM9 4v2H7V4h2zm5 0h-2v2h2V4zM4 9v2H2V9h2zm5 0v2H7V9h2zm5 0v2h-2V9h2zm-3-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1V4zm1 4a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1h-2z"/></svg>';
+		subLayoutSelectImg.setAttribute("src", "./pics/grid-3x2-gap.svg");
 	}
 	calsSubContainersSize();
 }
@@ -960,33 +994,42 @@ function closeSetupModal(){
 function updateActionPointOnCanvas(cmds){
 	//console.log(cmds);
 	var jsonObj = JSON.parse(cmds);
-	drawJsonObjOnCanvas = jsonObj;
-	drawActionPointOnCanvas(null);
+	if(drawJsonObjOnCanvasUsers.has(jsonObj.userName)){
+		drawJsonObjOnCanvasUsers.delete(jsonObj.userName);
+	}
+	//console.log("set json "+jsonObj.user+" "+jsonObj);
+	drawJsonObjOnCanvasUsers.set(jsonObj.user, jsonObj);
+	//drawJsonObjOnCanvas = jsonObj;
+	drawActionPointOnCanvas(jsonObj);
 }
 
-function drawActionPointOnCanvas(clickedCanvas){
-	if(clickedCanvas != null){
-		var context = clickedCanvas.getContext( "2d" ) ;
-		context.save();
-		context.clearRect(0, 0, clickedCanvas.width, clickedCanvas.height);
-		context.restore();
-	}
-	if(drawJsonObjOnCanvas != null){
-		var userName = drawJsonObjOnCanvas.user;
-		var canvasElements = document.getElementsByName('backgroundcanvas');
-		for(var i = 0; i<canvasElements.length; i++){
-			if(canvasElements[i].getAttribute("peerid") == userName){
-				drawActionPointOnEachCanvas(canvasElements[i]);
-			}
+function drawActionPointOnCanvas(jsonObj){
+	var userName = jsonObj.user;
+	var canvasElements = document.getElementsByName('backgroundcanvas');
+	for(var i = 0; i<canvasElements.length; i++){
+		if(canvasElements[i].getAttribute("peerid") == userName){
+			drawActionPointOnEachCanvas(canvasElements[i]);
 		}
 	}
+	/*
+	var canvasElements = document.getElementsByName('clickcanvas');
+	for(var i = 0; i<canvasElements.length; i++){
+		if(canvasElements[i].getAttribute("peerid") == userName){
+			canvasSizeChanged(canvasElements[i]);
+		}
+	}
+	*/
 }
 
 function drawActionPointOnEachCanvas(canvasElement){
-	if(drawJsonObjOnCanvas == null)return;
+	canvasElement.width =canvasElement.offsetWidth;
+	canvasElement.height =canvasElement.offsetHeight;
+		
 	var context = canvasElement.getContext( "2d" ) ;
 	context.save();
 	context.clearRect(0, 0, canvasElement.width, canvasElement.height);
+	var drawJsonObjOnCanvas = drawJsonObjOnCanvasUsers.get(canvasElement.getAttribute("peerid"))
+	if(drawJsonObjOnCanvas == null)return;
 	for(var j = 0; j<drawJsonObjOnCanvas.points.length; j++){
 		if(drawJsonObjOnCanvas.points[j].trackID == canvasElement.getAttribute("trackid")){
 			if(drawJsonObjOnCanvas.points[j].type == "human"){
@@ -1000,16 +1043,26 @@ function drawActionPointOnEachCanvas(canvasElement){
 			context.arc(drawJsonObjOnCanvas.points[j].xRatio*canvasElement.width, drawJsonObjOnCanvas.points[j].yRatio*canvasElement.height, drawJsonObjOnCanvas.points[j].radiusRatio*canvasElement.width/2, 0 * Math.PI / 180, 360 * Math.PI / 180, false ) ;
 			context.lineWidth = 1.5 ;
 			context.stroke() ;
+			if(drawJsonObjOnCanvas.points[j].label != null){
+				if(drawJsonObjOnCanvas.points[j].type == "human"){
+					//context.strokeStyle = "green" ;
+					context.strokeStyle = "rgba(0,255,0,0.8)";
+					context.fillStyle = "rgba(0,255,0,0.8)";
+				} else {
+					//context.strokeStyle = "blue" ;
+					context.strokeStyle = "rgba(0,0,255,0.8)";
+					context.fillStyle = "rgba(0,0,255,0.8)";
+				}
+				context.lineWidth = 0.1 ;
+				context.font = "12px keifont";
+				//context.strokeText(drawJsonObjOnCanvas.points[j].label, drawJsonObjOnCanvas.points[j].xRatio*canvasElement.width, drawJsonObjOnCanvas.points[j].yRatio*canvasElement.height);
+				context.fillText(drawJsonObjOnCanvas.points[j].label, drawJsonObjOnCanvas.points[j].xRatio*canvasElement.width, drawJsonObjOnCanvas.points[j].yRatio*canvasElement.height);
+			}
 		}
 	}
 	context.restore();
 }
 
-function selectBehavor(cmds){
-	//console.log(cmds);
-	var jsonObj = JSON.parse(cmds);
-	
-}
 
 //動画によってちょっとアスペクト比が違ったりする場合があるからcanvasのアスペクト比をあわせるけど使わなくて良さそう
 //<video class="mainvideo" autoplay="1" muted controls id="sunnydrop-video" name="video" peerid="sunnydrop" onloadedmetadata="sourceLoaded(this)">

@@ -9,12 +9,16 @@
 .box-text-user::before {
   content: "user setting";
   position: absolute;
-  background-color: White;
-  color: SkyBlue;
+  background-color: SkyBlue;
+  color: White;
   font-weight: bold;
   left: 20px;
-  top: -23px;
-  padding: 7px;
+  top: -20px;
+  padding: 5px;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+  border-bottom-left-radius: 10px;
 }
 
 .box-text-mic {
@@ -28,12 +32,16 @@
 .box-text-mic::before {
   content: "microphone";
   position: absolute;
-  background-color: White;
-  color: SkyBlue;
+  background-color: SkyBlue;
+  color: White;
   font-weight: bold;
   left: 20px;
-  top: -23px;
-  padding: 7px;
+  top: -20px;
+  padding: 5px;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+  border-bottom-left-radius: 10px;
 }
 
 .box-text-speaker {
@@ -47,12 +55,16 @@
 .box-text-speaker::before {
   content: "speaker";
   position: absolute;
-  background-color: White;
-  color: SkyBlue;
+  background-color: SkyBlue;
+  color: White;
   font-weight: bold;
   left: 20px;
-  top: -23px;
-  padding: 7px;
+  top: -20px;
+  padding: 5px;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+  border-bottom-left-radius: 10px;
 }
 
 .box-text-camera {
@@ -66,12 +78,16 @@
 .box-text-camera::before {
   content: "camera";
   position: absolute;
-  background-color: White;
-  color: SkyBlue;
+  background-color: SkyBlue;
+  color: White;
   font-weight: bold;
   left: 20px;
-  top: -23px;
-  padding: 7px;
+  top: -20px;
+  padding: 5px;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+  border-bottom-left-radius: 10px;
 }
 
 .horizontal-list {

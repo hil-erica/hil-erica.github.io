@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+
+<html lang="ja">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>影分身</title>
+<link rel="shortcut icon" href="./pics/ninja.ico" type="image/vnd.microsoft.icon">
+
+<!--Boostrap https://getbootstrap.jp/docs/5.0/getting-started/download/-->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<!--Bootstrap icon https://icons.getbootstrap.com/ -->
+
+<!--Bootstrap password https://bootstrap-show-password.wenzhixin.net.cn/home/-->
+<script src="https://unpkg.com/bootstrap-show-password@1.2.1/dist/bootstrap-show-password.min.js"></script>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
+
+<!--floating window library-->
+<script src="https://cdn.jsdelivr.net/npm/jsframe.js/lib/jsframe.min.js"></script>
+
+<!-- skyway -->
+<script src="https://cdn.webrtc.ecl.ntt.com/skyway-4.3.0.js"></script>
+
+<link rel="stylesheet" href="./css/video.css">
+<link rel="stylesheet" href="./css/device.css">
+<link rel="stylesheet" href="./css/ui.css">
+
+<!--自身のカメラの順番を入れ替える-->
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+
+<script src="./js/deSVG.js"></script>
+<script src="./js/device.js"></script>
+<script src="./js/ui.js"></script>
+<script src="./js/communication.js"></script>
+<script src="./js/skyway.js"></script>
+<script src="./js/control.js"></script>
+<script src="./js/chat.js"></script>
+<script src="./js/gamecontroller.js"></script>
+<script src="./js/option.js"></script>
+<script src="./js/recorder.js"></script>
+<script src="./js/globals.js"></script>
+
+
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light" id="navbar">
+	<div class="container-fluid">
+		<img src="./pics/kurima-folder.png" alt="" width="30" height="24" class="d-inline-block align-top" onclick="lockScreenOnOff()">
+		<div class="collapse navbar-collapse" id="navbarSupportedContent">
+			<ul class="navbar-nav me-auto mb-2 mb-md-0">
+				<!--users and chat-->
+				<li class="nav-item">
+					<a class="nav-link active" aria-current="page" href="#" onclick="openCommunication()">
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-whatsapp" viewBox="0 0 16 16">
+							<path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z"/>
+						</svg>
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chat-left-text" viewBox="0 0 16 16">
+							<path d="M14 1a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H4.414A2 2 0 0 0 3 11.586l-2 2V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12.793a.5.5 0 0 0 .854.353l2.853-2.853A1 1 0 0 1 4.414 12H14a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"/>
+							<path d="M3 3.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zM3 6a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9A.5.5 0 0 1 3 6zm0 2.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5z"/>
+						</svg>
+					</a>
+				</li>
+				
+				<!--device-->
+				<li class="nav-item">
+					<a class="nav-link active" aria-current="page" href="#" data-bs-toggle="modal" data-bs-target="#deviceModal">
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-camera-video" viewBox="0 0 16 16">
+							<path fill-rule="evenodd" d="M0 5a2 2 0 0 1 2-2h7.5a2 2 0 0 1 1.983 1.738l3.11-1.382A1 1 0 0 1 16 4.269v7.462a1 1 0 0 1-1.406.913l-3.111-1.382A2 2 0 0 1 9.5 13H2a2 2 0 0 1-2-2V5zm11.5 5.175 3.5 1.556V4.269l-3.5 1.556v4.35zM2 4a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h7.5a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1H2z"/>
+						</svg>
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-headset" viewBox="0 0 16 16">
+							<path d="M8 1a5 5 0 0 0-5 5v1h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6a6 6 0 1 1 12 0v6a2.5 2.5 0 0 1-2.5 2.5H9.366a1 1 0 0 1-.866.5h-1a1 1 0 1 1 0-2h1a1 1 0 0 1 .866.5H11.5A1.5 1.5 0 0 0 13 12h-1a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1h1V6a5 5 0 0 0-5-5z"/>
+						</svg>
+					</a>
+				</li>
+								
+				<!--recorder-->
+				<li class="nav-item">
+					<a class="nav-link active" aria-current="page" href="#" r data-bs-toggle="modal" data-bs-target="#recorderModal" id="recordericon">
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-record-circle" viewBox="0 0 16 16">
+							<path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+							<path d="M11 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+						</svg>
+						<!--
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-record-circle-fill" viewBox="0 0 16 16">
+							<path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-8 3a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+						</svg>
+						-->
+					</a>
+				</li>
+				
+				<!--hand pose-->
+				<li class="nav-item dropdown">
+					<a class="nav-link dropdown-toggle" href="#" id="handGestureDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+						<!--<img class="svg_notselected navicon" id="handImg" src="./pics/gestures/palmup-right.svg" alt="" width="24" height="24">-->
+						<img id="handImg" src="./pics/gestures/palmup-right.svg" alt="" width="24" height="24">
+					</a>
+					<ul class="dropdown-menu dropdown-menu" aria-labelledby="handGestureDropdownMenuLink">
+						<li><a class="dropdown-item" href="#" name="handgesture" handpose="palmup" onclick='handSelected("palmup")'><img class="svg_notselected navicon" src="./pics/gestures/palmup-right.svg" alt="" width="24" height="24">palm up</a></li>
+						<li><a class="dropdown-item" href="#" name="handgesture" handpose="pointing" onclick='handSelected("pointing")'><img class="svg_notselected navicon" src="./pics/gestures/pointing-right.svg" alt="" width="24" height="24">pointing</a></li>
+						<li><a class="dropdown-item" href="#" name="handgesture" handpose="palmside" onclick='handSelected("palmside")'><img class="svg_notselected navicon" src="./pics/gestures/palmside-right.svg" alt="" width="24" height="24">palm side</a></li>
+						<li><a class="dropdown-item" href="#" name="handgesture" handpose="raisehand" onclick='handSelected("raisehand")'><img class="svg_notselected navicon" src="./pics/gestures/raisehand-right.svg" alt="" width="24" height="24">raise hand</a></li>
+					</ul>
+				</li>
+				
+				<!--face-->
+				<li class="nav-item dropdown">
+					<a id="faceImg" class="nav-link dropdown-toggle" href="#" id="faceDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-emoji-neutral" viewBox="0 0 16 16">
+							<path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+							<path d="M4 10.5a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 0-1h-7a.5.5 0 0 0-.5.5zm3-4C7 5.672 6.552 5 6 5s-1 .672-1 1.5S5.448 8 6 8s1-.672 1-1.5zm4 0c0-.828-.448-1.5-1-1.5s-1 .672-1 1.5S9.448 8 10 8s1-.672 1-1.5z"/>
+						</svg>
+					</a>
+					<ul class="dropdown-menu dropdown-menu" aria-labelledby="handGestureDropdownMenuLink">
+						<li>
+							<a class="dropdown-item" href="#" name="facialexpression" face="auto" onclick='faceSelected("auto")'>
+								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-emoji-neutral" viewBox="0 0 16 16">
+									<path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+									<path d="M4 10.5a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 0-1h-7a.5.5 0 0 0-.5.5zm3-4C7 5.672 6.552 5 6 5s-1 .672-1 1.5S5.448 8 6 8s1-.672 1-1.5zm4 0c0-.828-.448-1.5-1-1.5s-1 .672-1 1.5S9.448 8 10 8s1-.672 1-1.5z"/>
+								</svg>
+							auto
+							</a>
+						</li>
+						<li>
+							<a class="dropdown-item" href="#" name="facialexpression" face="positive" onclick='faceSelected("positive")'>
+								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-emoji-smile" viewBox="0 0 16 16">
+									<path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+									<path d="M4.285 9.567a.5.5 0 0 1 .683.183A3.498 3.498 0 0 0 8 11.5a3.498 3.498 0 0 0 3.032-1.75.5.5 0 1 1 .866.5A4.498 4.498 0 0 1 8 12.5a4.498 4.498 0 0 1-3.898-2.25.5.5 0 0 1 .183-.683zM7 6.5C7 7.328 6.552 8 6 8s-1-.672-1-1.5S5.448 5 6 5s1 .672 1 1.5zm4 0c0 .828-.448 1.5-1 1.5s-1-.672-1-1.5S9.448 5 10 5s1 .672 1 1.5z"/>
+								</svg>
+							positive
+							</a>
+						</li>
+						<li>
+							<a class="dropdown-item" href="#" name="facialexpression" face="negative" onclick='faceSelected("negative")'>
+								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-emoji-frown" viewBox="0 0 16 16">
+									<path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+									<path d="M4.285 12.433a.5.5 0 0 0 .683-.183A3.498 3.498 0 0 1 8 10.5c1.295 0 2.426.703 3.032 1.75a.5.5 0 0 0 .866-.5A4.498 4.498 0 0 0 8 9.5a4.5 4.5 0 0 0-3.898 2.25.5.5 0 0 0 .183.683zM7 6.5C7 7.328 6.552 8 6 8s-1-.672-1-1.5S5.448 5 6 5s1 .672 1 1.5zm4 0c0 .828-.448 1.5-1 1.5s-1-.672-1-1.5S9.448 5 10 5s1 .672 1 1.5z"/>
+								</svg>
+							negative
+							</a>
+						</li>
+					</ul>
+				</li>
+				
+				<!--optional application-->
+				<li class="nav-item">
+					<a class="nav-link active" aria-current="page" href="#"  onclick="openOption()">
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-app-indicator" viewBox="0 0 16 16">
+							<path d="M5.5 2A3.5 3.5 0 0 0 2 5.5v5A3.5 3.5 0 0 0 5.5 14h5a3.5 3.5 0 0 0 3.5-3.5V8a.5.5 0 0 1 1 0v2.5a4.5 4.5 0 0 1-4.5 4.5h-5A4.5 4.5 0 0 1 1 10.5v-5A4.5 4.5 0 0 1 5.5 1H8a.5.5 0 0 1 0 1H5.5z"/>
+							<path d="M16 3a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+						</svg>
+					</a>
+				</li>
+				
+			</ul>
+			<form class="d-flex" style="margin-right: 30px">
+				<div class="dropdown">
+					<button class="btn dropdown-toggle" type="button" id="subLayoutSelectButton" data-bs-toggle="dropdown" aria-expanded="false">
+						<img id="subLayoutSelectImg" alt="" width="16" height="16">
+						<!--
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-grid-3x2-gap" viewBox="0 0 16 16">
+							<path d="M4 4v2H2V4h2zm1 7V9a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1zm0-5V4a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1zm5 5V9a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1zm0-5V4a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1zM9 4v2H7V4h2zm5 0h-2v2h2V4zM4 9v2H2V9h2zm5 0v2H7V9h2zm5 0v2h-2V9h2zm-3-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1V4zm1 4a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1h-2z"/>
+						</svg>
+						-->
+					</button>
+					<ul class="dropdown-menu" aria-labelledby="subLayoutSelectButton">
+						<!--grid n-->
+						<li>
+							<a class="dropdown-item" href="#" onclick="changeSubLayout(1)">
+								<img src="./pics/grid-nx1-gap.svg" alt="" width="16" height="16">
+								<!--
+								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-grid" viewBox="0 0 16 16">
+									<path d="M1 2.5A1.5 1.5 0 0 1 2.5 1h3A1.5 1.5 0 0 1 7 2.5v3A1.5 1.5 0 0 1 5.5 7h-3A1.5 1.5 0 0 1 1 5.5v-3zM2.5 2a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zm6.5.5A1.5 1.5 0 0 1 10.5 1h3A1.5 1.5 0 0 1 15 2.5v3A1.5 1.5 0 0 1 13.5 7h-3A1.5 1.5 0 0 1 9 5.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zM1 10.5A1.5 1.5 0 0 1 2.5 9h3A1.5 1.5 0 0 1 7 10.5v3A1.5 1.5 0 0 1 5.5 15h-3A1.5 1.5 0 0 1 1 13.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zm6.5.5A1.5 1.5 0 0 1 10.5 9h3a1.5 1.5 0 0 1 1.5 1.5v3a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 13.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3z"/>
+								</svg>
+								-->
+							</a>
+						</li>
+						<!--grid2-->
+						<li>
+							<a class="dropdown-item" href="#" onclick="changeSubLayout(2)">
+								<img src="./pics/grid-2x2.svg" alt="" width="16" height="16">
+								<!--
+								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-grid" viewBox="0 0 16 16">
+									<path d="M1 2.5A1.5 1.5 0 0 1 2.5 1h3A1.5 1.5 0 0 1 7 2.5v3A1.5 1.5 0 0 1 5.5 7h-3A1.5 1.5 0 0 1 1 5.5v-3zM2.5 2a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zm6.5.5A1.5 1.5 0 0 1 10.5 1h3A1.5 1.5 0 0 1 15 2.5v3A1.5 1.5 0 0 1 13.5 7h-3A1.5 1.5 0 0 1 9 5.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zM1 10.5A1.5 1.5 0 0 1 2.5 9h3A1.5 1.5 0 0 1 7 10.5v3A1.5 1.5 0 0 1 5.5 15h-3A1.5 1.5 0 0 1 1 13.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zm6.5.5A1.5 1.5 0 0 1 10.5 9h3a1.5 1.5 0 0 1 1.5 1.5v3a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 13.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3z"/>
+								</svg>
+								-->
+							</a>
+						</li>
+						<!--grid3-->
+						<li>
+							<a class="dropdown-item" href="#"  onclick="changeSubLayout(3)">
+								<img id="handImg" src="./pics/grid-3x2-gap.svg" alt="" width="16" height="16">
+								<!--
+								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-grid-3x2-gap" viewBox="0 0 16 16">
+									<path d="M4 4v2H2V4h2zm1 7V9a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1zm0-5V4a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1zm5 5V9a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1zm0-5V4a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1zM9 4v2H7V4h2zm5 0h-2v2h2V4zM4 9v2H2V9h2zm5 0v2H7V9h2zm5 0v2h-2V9h2zm-3-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1V4zm1 4a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1h-2z"/>
+								</svg>
+								-->
+							</a>
+						</li>
+					</ul>
+				</div>
+			</form>
+			<form class="d-flex" style="margin-right: 30px">
+				<div class="form-check form-switch">
+					<input class="form-check-input" type="checkbox" id="teleopemodecheckbox" onchange="teleOpeModeChanged()">
+					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-hand-index-thumb" viewBox="0 0 16 16">
+						<path d="M6.75 1a.75.75 0 0 1 .75.75V8a.5.5 0 0 0 1 0V5.467l.086-.004c.317-.012.637-.008.816.027.134.027.294.096.448.182.077.042.15.147.15.314V8a.5.5 0 0 0 1 0V6.435l.106-.01c.316-.024.584-.01.708.04.118.046.3.207.486.43.081.096.15.19.2.259V8.5a.5.5 0 1 0 1 0v-1h.342a1 1 0 0 1 .995 1.1l-.271 2.715a2.5 2.5 0 0 1-.317.991l-1.395 2.442a.5.5 0 0 1-.434.252H6.118a.5.5 0 0 1-.447-.276l-1.232-2.465-2.512-4.185a.517.517 0 0 1 .809-.631l2.41 2.41A.5.5 0 0 0 6 9.5V1.75A.75.75 0 0 1 6.75 1zM8.5 4.466V1.75a1.75 1.75 0 1 0-3.5 0v6.543L3.443 6.736A1.517 1.517 0 0 0 1.07 8.588l2.491 4.153 1.215 2.43A1.5 1.5 0 0 0 6.118 16h6.302a1.5 1.5 0 0 0 1.302-.756l1.395-2.441a3.5 3.5 0 0 0 .444-1.389l.271-2.715a2 2 0 0 0-1.99-2.199h-.581a5.114 5.114 0 0 0-.195-.248c-.191-.229-.51-.568-.88-.716-.364-.146-.846-.132-1.158-.108l-.132.012a1.26 1.26 0 0 0-.56-.642 2.632 2.632 0 0 0-.738-.288c-.31-.062-.739-.058-1.05-.046l-.048.002zm2.094 2.025z"/>
+					</svg>
+					<!--<label class="form-check-label" for="teleopemodecheckbox">tele-ope mode</label>-->
+				</div>
+			</form>
+			<form class="d-flex" style="margin-right: 20px">
+				<div class="form-check form-switch">
+					<input class="form-check-input" type="checkbox" id="mutecheckbox" checked>
+					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-mic" viewBox="0 0 16 16">
+						<path d="M3.5 6.5A.5.5 0 0 1 4 7v1a4 4 0 0 0 8 0V7a.5.5 0 0 1 1 0v1a5 5 0 0 1-4.5 4.975V15h3a.5.5 0 0 1 0 1h-7a.5.5 0 0 1 0-1h3v-2.025A5 5 0 0 1 3 8V7a.5.5 0 0 1 .5-.5z"/>
+						<path d="M10 8a2 2 0 1 1-4 0V3a2 2 0 1 1 4 0v5zM8 0a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V3a3 3 0 0 0-3-3z"/>
+					</svg>
+					<!--<label class="form-check-label" for="mutecheckbox">mic</label>-->
+				</div>
+			</form>
+			<div class="d-flex">
+				<input id="saytext" class="form-control me-4" type="text" placeholder="Speech Text" aria-label="Say">
+				<button class="btn btn-outline-success" type="button" onclick="clickSay()">Say</button>
+			</div>
+
+		</div>
+	</div>
+</nav>
+
+<!--<div class="masonry" style="height: 340px;">-->
+<div>
+	<div id="backgroundimg" class="backgroundimgcontainer">
+	</div>
+	<div id="main" class="maincontainers">
+
+	</div>
+	
+	<div id="sub" class="subcontainers">
+	</div>
+	
+	
+</div>
+<!-- Modal for set up-->
+<div class="modal fade" id="setupModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="setupModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="setupModalLabel">Setup</h5>
+				<!--<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>--></div>
+				<div class="modal-body">
+					<button id="devices_button" class="btn btn-primary" onclick="getDeviceList()"><font size="3">get devices</font></button><br>
+					<div class="box-text-user">
+						<div class="row mb-3">
+							<div class="col-sm-4">
+								<input class="form-control" id="myuserid" placeholder="Enter the user id">
+							</div>
+							<div class="col-sm-8">
+								<input  id="apiKey"data-toggle="password" class="form-control" type="password" placeholder="Enter the api key">
+							</div>
+						</div>
+						
+					</div>
+					<div class="box-text-mic" id="micsetting">
+						<div class="row mb-3">
+							<div class="col-sm-4">
+								<label for="mic_list" class="form-label">device id</label>
+								<select id="mic_list" class="form-select form-select-sm" aria-label=".form-select-sm example">
+		          						<option>(audio)</option>
+		          					</select>
+		          				</div>
+		          				<div class="col-sm-4">
+								<label for="micdelayinput" class="form-label">additional transmit delay[sec]</label><br>
+								<input type="number" id="micdelayinput" value="0" min="0" max="1" step="0.01"> 
+		          				</div>
+	          					<div class="col-sm-4">
+								<label for="echocancelselector" class="form-label">echo cancel</label>
+								<select id="echocancelselector" class="form-select form-select-sm" aria-label=".form-select-sm example"></select>
+							</div>
+						</div>
+						<div class="row mb-3">
+							<div class="col-sm-4">
+								<button id="mic_test" class="btn btn-secondary btn-sm" onclick="micTestRecord()" disabled="true"><font size="3">mic test(start recording)</font></button>
+							</div>
+						</div>
+					</div>
+					
+					<div class="box-text-speaker"  id="speakersetting">
+						<div class="row mb-3">
+							<div class="col-sm-4">
+								<label for="speaker_list" class="form-label">device id</label>
+								<select id="speaker_list" class="form-select form-select-sm" aria-label=".form-select-sm example">
+									<option>(speaker)</option>
+								</select>
+		          				</div>
+						</div>
+						<div class="row mb-3">
+							<div class="col-sm-4">
+								<button id="speaker_test"class="btn btn-secondary btn-sm" onclick="speakerTest()" disabled="true"><font size="3">speaker test</font></button>
+							</div>
+						</div>
+					</div>
+					
+					<div class="box-text-camera">
+						<div id="local_cameras" class="horizontal-list"></div>
+					</div>
+				</div>
+			<div class="modal-footer">
+				<button id="step_button" type="button" class="btn btn-primary" onclick="gotoStandby()" disabled="true">Ready</button>
+				<!--<button id="step_button" type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="standbyDevice()" disabled="true">Ready</button>-->
+				<!--<button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="gotoStandby()"  disabled="true">Ready</button>-->
+			</div>
+		</div>
+	</div>
+</div>
+
+<!--device-->
+<div class="modal fade" id="deviceModal" data-bs-keyboard="false" tabindex="-1" aria-labelledby="deviceModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="deviceModalLabel">Device</h5>
+				<!--<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>-->
+			</div>
+			<div class="modal-body">
+				<div id="micsetting_onnav"></div>
+				<div id="speakersetting_onnav"></div>
+				<div class="box-text-camera" id ="deviceonnavi">
+					<div id="local_cameras_onnav" class="horizontal-list">
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!--record-->
+<div class="modal fade" id="recorderModal" data-bs-keyboard="false" tabindex="-1" aria-labelledby="recorderModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="recorderModalLabel">Recorder</h5>
+				<!--<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>-->
+			</div>
+			<div class="modal-body">
+				<button id="recorder_button" type="button" class="btn btn-primary"  onclick="startstoprecord()">start recording</button>
+				<!--<button id="recorder_button" type="button" class="btn btn-primary"  onclick="startstoprecord()" disabled="true">start recording</button>-->
+				<a href="./utils/MediaTools.zip">WebM Tools</a>
+				<!--<a href="#" id="downloadlink">download all(large size zipping is not supportted)</a>-->
+				<div id="download_each"></div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!--操作選択をさせるモーダル-->
+<div class="modal fade" id="requestSelectModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="requestSelectModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+		<div class="modal-content modal-content-clear">
+			<div class="modal-header">
+				<h5 class="modal-title" id="requestSelectModalLabel">Select</h5>
+			</div>
+			<div class="modal-body modal-body-clear" id="requestSelectModalBody">
+				
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal"  onclick="canncelSelectRequest()" id="canncelButtonSelectRequest">Cancel</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="requestInputModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="requestInputModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+		<div class="modal-content modal-content-clear">
+			<div class="modal-header">
+				<h5 class="modal-title" id="requestInputModalLabel">Input</h5>
+			</div>
+			<div class="modal-body modal-body-clear" id="requestInputModalBody">
+				
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" data-bs-dismiss="modal"  onclick="answerRequest()">Send</button>
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal"  onclick="canncelInputRequest()" id="canncelButtonInputRequest">Cancel</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!--start animation-->
+<div class="start">
+    <p><img src="./pics/teleoperation-akari.png" alt="" onclick="lockScreenOnOff()"></p>
+</div>
+
+
+<script>
+
+$(window).on('load',function(){
+    $('#setupModal').modal('show');
+});
+
+window.onload = ()=> {
+	initialize();
+	getQueryParams();
+	imgNumber = getRandomInt(backImgs.length);
+}
+
+$(function(){
+	//documentに加わっているものを探してImgとReplaceする
+	deSVG('.svg_selected',true);
+	deSVG('.svg_notselected',true);
+});
+
+var lockOnOff = false;
+$(function() {
+	setTimeout(function(){
+		$('.start p').fadeIn(1600);
+		lockOnOff = true;
+	},500); //0.5秒後にロゴをフェードイン!
+	setTimeout(function(){
+		$('.start').fadeOut(750);
+		lockOnOff = false;
+	},3000); //2.5秒後にロゴ含め真っ白背景をフェードアウト！
+});
+
+function lockScreenOnOff(){
+	if(!lockOnOff){
+		$('.start').fadeIn(1600);
+		$('.start p').fadeIn(1600);
+		lockOnOff = true;
+		console.log("lock screen");
+	} else {
+		$('.start').fadeOut(750);
+		lockOnOff = false;
+		console.log("unlock screen");
+	}
+}
+
+
+var imgNumber = 0;
+var backImgs = ["./pics/kagebunshin-in.svg"];
+function getRandomInt(max) {
+	return Math.floor(Math.random() * max);
+}
+
+function fadeInBodyImg(speed){
+	//console.log("fade in");
+	//speed[msec] フェードイン・フェードアウトの処理時間（1000で1秒）
+	$('#backgroundimg').fadeOut(speed,function(){
+		// 背景画像番号変更
+		// 背景画像を変更しフェードイン
+		imgNumber ++;
+		if(imgNumber >= backImgs.length){
+			imgNumber = 0;
+		} 
+		$(this).css({"background-image":"url("+backImgs[imgNumber]+")"}).fadeIn(speed);
+	});
+}
+
+function fadeOutBodyImg(speed){
+	//speed[msec] フェードイン・フェードアウトの処理時間（1000で1秒）
+	//console.log("fade out");
+	$('#backgroundimg').fadeOut(speed,function(){
+		calsSubContainersSize();//フェードアウト後に大きさチェック
+	});
+}
+document.getElementById("saytext").onkeypress = (e) => {
+	const key = e.keyCode || e.charCode || 0;
+	// 13はEnterキーのキーコード
+	if (key == 13) {
+		clickSay();
+	}
+}
+</script>
+
+</body>
+</html>

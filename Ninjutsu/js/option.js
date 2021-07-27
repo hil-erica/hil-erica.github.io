@@ -2,6 +2,14 @@
 var optionFrame;
 var isOptionShow = false;
 
+var webSockUrl = "ws://127.0.0.1:8000";
+var autoWebSockConnect = false;
+
+function initializeOption() {
+	openOption();
+	optionFrame.hide();
+	isOptionShow = false;
+}
 function openOption(){
 	if(optionFrame == null){
 		//const appearance = jsFrame.createFrameAppearance();
@@ -23,16 +31,23 @@ function openOption(){
 			url: 'option.html',//iframe内に表示するURL
 			urlLoaded: (_frame) => {
 				console.log("loaded option.html");
+				optionFrame.$('#wsockautoconnect').checked = autoWebSockConnect;
+				optionFrame.$('#socket_url').value = webSockUrl;
+				
 				optionFrame.on('#controller', 'click', (_frame, evt) => {
-					console.log("controller button click");
+					//console.log("controller button click");
 					openController();
+				});
+				optionFrame.on('#wsockautoconnect', 'change', (_frame, evt) => {
+					//console.log("socket autoconnect to "+optionFrame.$('#wsockautoconnect').checked);
+					autoConnect(optionFrame.$('#wsockautoconnect').checked);
 				});
 				optionFrame.on('#websocketbutton', 'click', (_frame, evt) => {
 					console.log("socket connect button : "+optionFrame.$('#socket_url').value);
 					websocketConnect(optionFrame.$('#socket_url').value);
 				});
 				optionFrame.on('#optionalcommandfile', 'change', (_frame, evt) => {
-					console.log("optionalcommandfile loaded : ");
+					//console.log("optionalcommandfile loaded : ");
 					optionalCommandLoad();
 				});
 				
@@ -119,6 +134,10 @@ function setWebsocketButton(onoff){
 	}
 }
 
+function clickWebsocketButton(){
+	//console.log("try to click");
+	optionFrame.$('#websocketbutton').click();
+}
 function optionalCommandLoad(){
 	var fileChooser =  optionFrame.$('#optionalcommandfile');
 	var files = fileChooser.files; // FileList object

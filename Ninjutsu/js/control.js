@@ -1,6 +1,10 @@
 function clickSay(){
 	var textEmenent = document.getElementById("saytext");
-	if(textEmenent.value  != ""){
+	if(textEmenent.value.startsWith("debug=")){
+		var cmds = textEmenent.value.slice(6);
+		getData("localdebug", cmds, null);
+		textEmenent.value="";
+	}else if(textEmenent.value  != ""){
 		console.log("say : "+textEmenent.value);
 		
 		var sendText = "tts={\"tts\": \""+textEmenent.value+"\"}";
@@ -8,14 +12,6 @@ function clickSay(){
 		
 		textEmenent.value="";
 	}
-}
-
-function selectBehavior(selectedData){
-	console.log("selected behavior: "+selectedData.getAttribute("value"));
-}
-
-function canncelBehavior(){
-	console.log("no selected behavior");
 }
 
 function sleep(waitMsec) {
@@ -178,6 +174,12 @@ function websocketConnect(url){
 		wSocket.onopen = function(event) {
 			console.log("open socket "+event.data);
 			setWebsocketButton(false);
+			if(autoconnectFlag){
+				if(autoconnectTimer != null){
+					clearTimeout(autoconnectTimer);
+					autoconnectTimer = null;
+				}
+			}
 			//document.getElementById('socket_connect_button').innerHTML = "<font size='2'>disconnect</font>";
 			/*
 			var msg = {
@@ -191,14 +193,15 @@ function websocketConnect(url){
 		
 		//エラー発生
 		wSocket.onerror = function(error) {
-			console.log(error.data);
+			console.log(error);
 			setWebsocketButton(true);
 		};
 		
 		//メッセージ受信
 		wSocket.onmessage = function(event) {
 			//console.log(event.data);
-			publishData("socket="+event.data);
+			//publishData("socket="+event.data);
+			publishData(event.data);
 			//相手を選べるようにしておくと良いかも？ex, hi=***でユーザ名がログインしているならそいつだけに送るとか
 		};
 		
@@ -208,6 +211,11 @@ function websocketConnect(url){
 			wSocket = null;
 			//option.js
 			setWebsocketButton(true);
+			if(autoconnectFlag){
+				autoconnectTimer = setInterval(function () {
+					clickWebsocketButton();
+				}, 10000);
+			}
 			//document.getElementById('socket_connect_button').innerHTML = "<font size='2'>connect</font>";
 		};
 		console.log("connected to "+url);
@@ -219,8 +227,242 @@ function websocketConnect(url){
 	}
 }
 
+var autoconnectTimer = null;
+var autoconnectFlag = false;
+function autoConnect(onoff){
+	autoconnectFlag = onoff;
+	if(onoff){
+		if(wSocket == null){
+			autoconnectTimer = setInterval(function () {
+				clickWebsocketButton();
+			}, 10000);
+		}
+	} else {
+		if(autoconnectTimer != null){
+			clearTimeout(autoconnectTimer);
+			autoconnectTimer = null;
+		}
+	}
+}
+
+//selectbehavior
+//排他処理ってどうなるの？
+var requestQueu = new Array();
+var requestTimeout = null;
+var timeoutCounter = 0;
+//clearTimeout(requestTimeout);
+var currentRequest = null;
+
+function requestBehavor(){
+	if(requestQueu.length == 0){
+		return;
+	}
+	currentRequest = requestQueu[0];
+	if(currentRequest.selectobjs != null){
+		var operateModal = document.getElementById("requestSelectModal");
+		if(operateModal != null){
+			var requestModalLabel = document.getElementById("requestSelectModalLabel");
+			if(currentRequest.description != null){
+				requestModalLabel.innerHTML = currentRequest.description;
+			} else {
+				requestModalLabel.innerHTML = "Select";
+			}
+			var canncelButton = document.getElementById("canncelButtonSelectRequest");
+			canncelButton.innerHTML = "Cancel";
+			
+			var bodyDiv = document.getElementById("requestSelectModalBody");
+			while(bodyDiv.lastChild){
+				bodyDiv.removeChild(bodyDiv.lastChild);
+			}
+			
+			if(currentRequest.selectobjs != null){
+				for(var i = 0; i<currentRequest.selectobjs.length; i++){
+					var container = document.createElement("div");
+					container.setAttribute("class", "mb-3");
+					
+					var selectButton = document.createElement("button");
+					selectButton.setAttribute("type", "button");
+					if(currentRequest.selectobjs[i].infolevel != null){
+						selectButton.setAttribute("class", "btn btn-"+currentRequest.selectobjs[i].infolevel);
+					} else {
+						selectButton.setAttribute("class", "btn btn-info");
+					}
+					selectButton.setAttribute("data-bs-dismiss", "modal");
+					selectButton.setAttribute("name", "operatorselect");
+					selectButton.setAttribute("onclick", "selectBehavior(this)");
+					selectButton.setAttribute("requestid", currentRequest.selectobjs[i].id);
+					selectButton.innerHTML = currentRequest.selectobjs[i].label;
+					
+					var selectLabel = document.createElement("label");
+					selectLabel.setAttribute("class", "form-label");
+					selectLabel.innerHTML = currentRequest.selectobjs[i].description;
+					
+					container.appendChild(selectButton);
+					container.appendChild(selectLabel);
+					bodyDiv.appendChild(container);
+				}
+			}
+			
+			var myModal = new bootstrap.Modal(operateModal, {backdrop: "static"});
+			myModal.show();
+			
+			if(currentRequest.timeout != null){
+				timeoutCounter = 0;
+				if(currentRequest.timeout < 0){
+				} else {
+					requestTimeout = setInterval(function () {
+						timeoutCounter ++;
+						if(timeoutCounter >= currentRequest.timeout){
+							canncelButton.click();
+						} else {
+							canncelButton.innerHTML = "Cancel(timeout:"+(currentRequest.timeout-timeoutCounter)+" sec)";
+						}
+					}, 1000);
+				}
+			}
+		}
+	} else if(currentRequest.inputobjs != null){
+		var operateModal = document.getElementById("requestInputModal");
+		if(operateModal != null){
+			var requestModalLabel = document.getElementById("requestInputModalLabel");
+			if(currentRequest.description != null){
+				requestModalLabel.innerHTML = currentRequest.description;
+			} else {
+				requestModalLabel.innerHTML = "Input";
+			}
+			var canncelButton = document.getElementById("canncelButtonInputRequest");
+			canncelButton.innerHTML = "Cancel";
+			
+			var bodyDiv = document.getElementById("requestInputModalBody");
+			while(bodyDiv.lastChild){
+				bodyDiv.removeChild(bodyDiv.lastChild);
+			}
+			
+			if(currentRequest.inputobjs != null){
+				for(var i = 0; i<currentRequest.inputobjs.length; i++){
+					var container = document.createElement("div");
+					container.setAttribute("class", "mb-3");
+					
+					var inputReq = document.createElement("input");
+					inputReq.setAttribute("type", "text");
+					inputReq.setAttribute("class", "form-control");
+					
+					inputReq.setAttribute("name", "operatorinput");
+					inputReq.setAttribute("requestid", currentRequest.inputobjs[i].id);
+					inputReq.innerHTML = currentRequest.inputobjs[i].label;
+					
+					var inputLabel = document.createElement("label");
+					inputLabel.setAttribute("class", "form-label");
+					inputLabel.innerHTML = currentRequest.inputobjs[i].description;
+					
+					container.appendChild(inputLabel);
+					container.appendChild(inputReq);
+					bodyDiv.appendChild(container);
+					
+				}
+			}
+			
+			var myModal = new bootstrap.Modal(operateModal, {backdrop: "static"});
+			myModal.show();
+			
+			if(currentRequest.timeout != null){
+				timeoutCounter = 0;
+				if(currentRequest.timeout < 0){
+				} else {
+					requestTimeout = setInterval(function () {
+						timeoutCounter ++;
+						if(timeoutCounter >= currentRequest.timeout){
+							canncelButton.click();
+						} else {
+							canncelButton.innerHTML = "Cancel(timeout:"+(currentRequest.timeout-timeoutCounter)+" sec)";
+						}
+					}, 1000);
+				}
+			}
+		}
+	}
+	
+}
+
+function doneRequest(){
+	requestQueu.shift();
+	if(requestQueu.length > 0){
+		requestBehavor();
+	}
+}
+
+function selectBehavior(selectedButton){
+	console.log(currentRequest.userid + " " + selectedButton.getAttribute("requestid"));
+	//var jsonObj = JSON.parse(cmds);
+	if(requestTimeout != null){
+		clearTimeout(requestTimeout);
+		requestTimeout = null;
+	}
+	var answerData = {selectdata:selectedButton.getAttribute("requestid")};
+	sendData(currentRequest.userid, "answerrequest="+JSON.stringify(answerData));
+	doneRequest();
+}
+
+function canncelSelectRequest(){
+	console.log("canncelSelectRequest "+currentRequest.userid);
+	if(requestTimeout != null){
+		clearTimeout(requestTimeout);
+		requestTimeout = null;
+	}
+	sendData(currentRequest.userid, "cancelrequest");
+	doneRequest();
+	/*
+	var operateModal = document.getElementById("operateModal");
+	var myModal = bootstrap.Modal.getInstance(operateModal);
+	myModal.hide();
+	*/
+}
+
+function answerRequest(){
+	var operatorInputElements = document.getElementsByName("operatorinput");
+	var answerData = {"answerdata":[]};
+	for(var i = 0; i<operatorInputElements.length; i++){
+		console.log("input : "+operatorInputElements[i].value + " " +currentRequest.userid);
+		var key = operatorInputElements[i].getAttribute("requestid");
+		var value = operatorInputElements[i].value;
+		console.log(key + " " +value);
+		var inputElement = JSON.parse('{"'+key+'" : "'+value+'"}');
+		answerData.answerdata.push(inputElement);
+	}
+	console.log(answerData);
+	sendData(currentRequest.userid, "answerrequest="+JSON.stringify(answerData));
+	//var jsonObj = JSON.parse(cmds);
+	var operateModal = document.getElementById("requestInputModal");
+	var myModal = bootstrap.Modal.getInstance(operateModal);
+	myModal.hide();
+	if(requestTimeout != null){
+		clearTimeout(requestTimeout);
+		requestTimeout = null;
+	}
+	doneRequest();
+}
+
+function canncelInputRequest(){
+	console.log("canncelInputRequest "+currentRequest.userid);
+	if(requestTimeout != null){
+		clearTimeout(requestTimeout);
+		requestTimeout = null;
+	}
+	sendData(currentRequest.userid, "cancelrequest");
+	doneRequest();
+	/*
+	var operateModal = document.getElementById("operateModal");
+	var myModal = bootstrap.Modal.getInstance(operateModal);
+	myModal.hide();
+	*/
+}
+
+
 function getData(fromPeerID, receiveText, dataConnection){
 	//console.log(fromPeerID+ " : " + receiveText);
+	if(wSocket != null){
+		wSocket.send(receiveText);
+	}
 	var myPeerID = document.getElementById("myuserid");
 	if(receiveText.startsWith("numvideo")){
 		if(localMixedStream == null){
@@ -231,17 +473,28 @@ function getData(fromPeerID, receiveText, dataConnection){
 		if(localMixedStream.getVideoTracks().length >= removenumvideo){
 			mediaCall(fromPeerID);
 		} else {
-			dataConnection.send("numvideo="+localMixedStream.getVideoTracks().length);
+			//dataConnection.send("numvideo="+localMixedStream.getVideoTracks().length);
+			sendData(fromPeerID, "numvideo="+localMixedStream.getVideoTracks().length);
 		}
 	} else if(receiveText.startsWith("drawoncanvas=")){
 		//draw on canvas
 		var cmds = receiveText.slice(13);
 		updateActionPointOnCanvas(cmds);
-	} else if(receiveText.startsWith("selectbahavior=")){
+	} else if(receiveText.startsWith("request=")){
 		//open select behaivor modal
-		var cmds = receiveText.slice(15);
-		
+		var cmds = receiveText.slice(8);
+		console.log("request "+cmds);
+		var requestElement = JSON.parse(cmds);
+		requestElement.userid =  fromPeerID;
+		console.log(requestElement);
+		requestQueu.push(requestElement);
+		if(requestQueu.length == 1){
+			requestBehavor();
+		} else {
+			console.log("stack request at "+requestQueu.length+" : "+requestElement);
+		}
 	}  else if(receiveText.startsWith("socket=")){
+		//not used
 		var cmds = receiveText.slice(7);
 		if(wSocket != null){
 			wSocket.send(cmds);

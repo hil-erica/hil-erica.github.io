@@ -1,4 +1,8 @@
+html {
+  font-family: "keifont";
+}
 body {
+ font-family: "keifont";
  overflow-y : hidden;
  /*羊羹色ようかんいろ*/
   background-color: #383c3c;

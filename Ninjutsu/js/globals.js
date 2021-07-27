@@ -49,6 +49,7 @@ function readyToChat(){
 	standbyDevice();
 	fadeInBodyImg(2000);
 	initializeCommunication();
+	initializeOption();
 	isReady = true;
 }
 
@@ -110,6 +111,15 @@ function getQueryParams() {
 					videoMuteMode = true;
 				}
 			}
+			if(key == "websocketurl"){
+				webSockUrl = value;
+			}
+			if(key == "autowebsockconnect"){
+				if(value == "true" || value == "TRUE" || value == "True"){
+					autoWebSockConnect = true;
+				}
+			}
+
 		}
 		return result;
 	}
