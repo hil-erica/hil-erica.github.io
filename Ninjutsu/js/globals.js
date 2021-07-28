@@ -21,7 +21,7 @@ function initialize(){
 		elements[i].style.display ="";
 	}
 	*/
-	changeSubLayout(3);
+	changeSubLayout(1);
 	calsSubContainersSize();
 	initializeJSFrame();
 	console.log("initialize finish");
