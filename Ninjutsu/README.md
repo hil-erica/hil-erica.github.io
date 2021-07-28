@@ -114,6 +114,7 @@ forcelogout=peerid
 - 受信コマンド
   - 正常に選択された場合 : answerrequest={"selectdata":"selected selectobj id"}
   - タイムアウトまたは選択拒否された場合 : cancelrequest
+  
   answerrequest={"selectdata":"hoge.seq"}
 
 
