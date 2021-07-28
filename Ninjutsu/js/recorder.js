@@ -30,7 +30,7 @@ function startstoprecord(){
 		recorder_button.disabled = true;
 		
 		if(recordingTimer != null){
-			clearTimeout(recordingTimer);
+			clearInterval(recordingTimer);
 			recordingTimer = null;
 		}
 		var recordericonElement = document.getElementById("recordericon");

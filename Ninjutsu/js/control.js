@@ -172,11 +172,11 @@ function websocketConnect(url){
 		wSocket = new WebSocket(url);
 		//接続通知
 		wSocket.onopen = function(event) {
-			console.log("open socket "+event.data);
+			console.log("socket established");
 			setWebsocketButton(false);
 			if(autoconnectFlag){
 				if(autoconnectTimer != null){
-					clearTimeout(autoconnectTimer);
+					clearInterval(autoconnectTimer);
 					autoconnectTimer = null;
 				}
 			}
@@ -212,9 +212,11 @@ function websocketConnect(url){
 			//option.js
 			setWebsocketButton(true);
 			if(autoconnectFlag){
-				autoconnectTimer = setInterval(function () {
-					clickWebsocketButton();
-				}, 10000);
+				if(autoconnectTimer == null){//try to connect後失敗してもここに来るから
+					autoconnectTimer = setInterval(function () {
+						clickWebsocketButton();
+					}, 10000);
+				}
 			}
 			//document.getElementById('socket_connect_button').innerHTML = "<font size='2'>connect</font>";
 		};
@@ -233,13 +235,15 @@ function autoConnect(onoff){
 	autoconnectFlag = onoff;
 	if(onoff){
 		if(wSocket == null){
-			autoconnectTimer = setInterval(function () {
-				clickWebsocketButton();
-			}, 10000);
+			if(autoconnectTimer == null){
+				autoconnectTimer = setInterval(function () {
+					clickWebsocketButton();
+				}, 10000);
+			}
 		}
 	} else {
 		if(autoconnectTimer != null){
-			clearTimeout(autoconnectTimer);
+			clearInterval(autoconnectTimer);
 			autoconnectTimer = null;
 		}
 	}
