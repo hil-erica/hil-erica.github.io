@@ -63,9 +63,9 @@ jsonファイルにはJson配列buttonsを定義し，buttonsの要素は必ずi
 （例：送信コマンド）
 otpionalcommand={"id":"dooropen","label":"解錠"}
 
-#### websocketデータのトンネリングプロトコル
+~~#### websocketデータのトンネリングプロトコル~~
 ~~"socket="をヘッダーに利用~~
-#### chatデータのトンネリングプロトコル
+#### chatデータ
 "chat="をヘッダーに利用
 #### TTSプロトコル
 "tts="をヘッダーに利用 （例）"tts={"tts":"セリフ"}"
@@ -79,14 +79,57 @@ forcelogout=peerid
 
 をチャットで送りつける
 
+##### Sayに"debug="をつけるとコマンド受信と同じ処理をする
+
 #### ブラウザへの送信
 
-##### drawoncanvas
+##### drawoncanvas　遠隔地映像にタッチエリアを表示する
+- 送信コマンド drawoncanvas=json
+  - user : だれの画面の設定か
+  - points : 画面に表示される円のリスト
+   - label : なんのタッチエリアかの説明文，円の中心の表示される，必須ではない
+   - type : human/object，人か物かで表示の色が変わる
+   - trackID : userのどのvideo trackかを指定する
+   - xRatio : videoの横向きの相対座標（原点は左上）
+   - yRatio :videoの縦向きの相対座標（原点は左上）
+   - radiusRation : 半径
+   
+  drawoncanvas={"user":"erica", "points":[{"xRatio":0.84375,"yRatio":0.7453703703703703,"radiusRatio":0.4166666666666667, "trackID":0, "label":"","type":"human"}, {"xRatio":0.4817708333333333,"yRatio":0.2962962962962963,"radiusRatio":0.4166666666666667, "trackID":0, "label":"","type":"human"}, {"xRatio":0.18229166666666666,"yRatio":0.8287037037037037,"radiusRatio":0.4166666666666667, "trackID":0, "label":"","type":"human"}, {"xRatio":0.296875,"yRatio":0.6157407407407407,"radiusRatio":0.2604166666666667, "trackID":1, "label":"desk","type":"object"}]}
 
 
-drawoncanvas={"user":"erica", "points":[{"xRatio":0.84375,"yRatio":0.7453703703703703,"radiusRatio":0.4166666666666667, "trackID":0, "label":"","type":"human"}, {"xRatio":0.4817708333333333,"yRatio":0.2962962962962963,"radiusRatio":0.4166666666666667, "trackID":0, "label":"","type":"human"}, {"xRatio":0.18229166666666666,"yRatio":0.8287037037037037,"radiusRatio":0.4166666666666667, "trackID":0, "label":"","type":"human"}, {"xRatio":0.296875,"yRatio":0.6157407407407407,"radiusRatio":0.2604166666666667, "trackID":1, "label":"desk","type":"object"}]}
+##### request システムから操作者に遠隔操作を要求する
+###### 選択リクエスト
+- 送信コマンド request=json
+  - description : モーダルのタイトル表示，何を選ぶかの指示を書く
+  - timeout : 選択するまでのタイムアウト，負の数または未設定でタイムアウトなし[sec]
+  - selectobjs : 選択候補リスト
+   - id : 選択された際のid
+   - label : ボタンに表示する内容
+   - description : ボタン横の詳細内容
+    - infolevel : primary, secondary, success, danger, warning, info　でボタンの色が変わる，デフォルトはinfo
+  
+    request={"timeout":10,"description":"全体説明選んでねとか選択してね","selectobjs":[{"id":"hoge.seq","label":"hogeだよ","infolevel":"primary","description":"詳細説明"},{"id":"foo.seq","label":"fooだよ","description":"詳細説明"}]}
 
 
-##### request
+- 受信コマンド
+  - 正常に選択された場合 : answerrequest={"selectdata":"selected selectobj id"}
+  - タイムアウトまたは選択拒否された場合 : cancelrequest
+  answerrequest={"selectdata":"hoge.seq"}
 
 
+###### 入力リクエスト
+- 送信コマンド request=json
+  - description : モーダルのタイトル表示，何を選ぶかの指示を書く
+  - timeout : 選択するまでのタイムアウト，負の数または未設定でタイムアウトなし[sec]
+  - selectobjs : 選択候補リスト
+   - id : 格納する変数名
+   - description : 入力内容の説明
+   - type : string/int/float, 変数の型チェック（未実装）
+    - necessary : true/false, 必須項目かどうか（未実装）
+
+   request={"timeout":10,"description":"相手の名前をひらがなで入力してください","inputobjs":[{"id":"姓","type":"string","description":"相手の名字ををひらがなで入力","necessary":true},{"id":"名","type":"string","description":"相手の名前をひらがなで入力","necessary":false}]}
+
+- 受信コマンド
+  - 正常に入力された場合 : answerrequest={"answerdata":[]}
+  - タイムアウトまたは選択拒否された場合 : cancelrequest
+  answerrequest={"answerdata":[{"姓":"さとう"},{"名":"ひろのぶ"}]}
