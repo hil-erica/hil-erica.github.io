@@ -63,7 +63,7 @@ jsonファイルにはJson配列buttonsを定義し，buttonsの要素は必ずi
 （例：送信コマンド）
 otpionalcommand={"id":"dooropen","label":"解錠"}
 
-~~#### websocketデータのトンネリングプロトコル~~
+#### ~~websocketデータのトンネリングプロトコル~~
 ~~"socket="をヘッダーに利用~~
 #### chatデータ
 "chat="をヘッダーに利用
