@@ -125,11 +125,12 @@ forcelogout=peerid
    - id : 格納する変数名
    - description : 入力内容の説明
    - type : string/int/float, 変数の型チェック（未実装）
-    - necessary : true/false, 必須項目かどうか（未実装）
-
+   - necessary : true/false, 必須項目かどうか（未実装）
+   
    request={"timeout":10,"description":"相手の名前をひらがなで入力してください","inputobjs":[{"id":"姓","type":"string","description":"相手の名字ををひらがなで入力","necessary":true},{"id":"名","type":"string","description":"相手の名前をひらがなで入力","necessary":false}]}
 
 - 受信コマンド
   - 正常に入力された場合 : answerrequest={"answerdata":[]}
   - タイムアウトまたは選択拒否された場合 : cancelrequest
+  
   answerrequest={"answerdata":[{"姓":"さとう"},{"名":"ひろのぶ"}]}
