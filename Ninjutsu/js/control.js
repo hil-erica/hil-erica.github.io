@@ -1,3 +1,9 @@
+var requestModalOpenSound = new Audio("./sounds/決定、ボタン押下39.mp3");
+var answerRequestSound = new Audio("./sounds/決定、ボタン押下22.mp3");
+var cancelRequestSound = new Audio("./sounds/キャンセル4.mp3");
+var stackRequestSound = new Audio("./sounds/警告音2.mp3");
+
+
 function clickSay(){
 	var textEmenent = document.getElementById("saytext");
 	if(textEmenent.value.startsWith("debug=")){
@@ -279,35 +285,35 @@ function requestBehavor(){
 				bodyDiv.removeChild(bodyDiv.lastChild);
 			}
 			
-			if(currentRequest.selectobjs != null){
-				for(var i = 0; i<currentRequest.selectobjs.length; i++){
-					var container = document.createElement("div");
-					container.setAttribute("class", "mb-3");
-					
-					var selectButton = document.createElement("button");
-					selectButton.setAttribute("type", "button");
-					if(currentRequest.selectobjs[i].infolevel != null){
-						selectButton.setAttribute("class", "btn btn-"+currentRequest.selectobjs[i].infolevel);
-					} else {
-						selectButton.setAttribute("class", "btn btn-info");
-					}
-					selectButton.setAttribute("data-bs-dismiss", "modal");
-					selectButton.setAttribute("name", "operatorselect");
-					selectButton.setAttribute("onclick", "selectBehavior(this)");
-					selectButton.setAttribute("requestid", currentRequest.selectobjs[i].id);
-					selectButton.innerHTML = currentRequest.selectobjs[i].label;
-					
-					var selectLabel = document.createElement("label");
-					selectLabel.setAttribute("class", "form-label");
-					selectLabel.innerHTML = currentRequest.selectobjs[i].description;
-					
-					container.appendChild(selectButton);
-					container.appendChild(selectLabel);
-					bodyDiv.appendChild(container);
+			for(var i = 0; i<currentRequest.selectobjs.length; i++){
+				var container = document.createElement("div");
+				container.setAttribute("class", "mb-3");
+				
+				var selectButton = document.createElement("button");
+				selectButton.setAttribute("type", "button");
+				if(currentRequest.selectobjs[i].infolevel != null){
+					selectButton.setAttribute("class", "btn btn-"+currentRequest.selectobjs[i].infolevel);
+				} else {
+					selectButton.setAttribute("class", "btn btn-info");
 				}
+				selectButton.setAttribute("data-bs-dismiss", "modal");
+				selectButton.setAttribute("name", "operatorselect");
+				selectButton.setAttribute("onclick", "selectBehavior(this)");
+				selectButton.setAttribute("requestid", currentRequest.selectobjs[i].id);
+				selectButton.innerHTML = currentRequest.selectobjs[i].label;
+				
+				var selectLabel = document.createElement("label");
+				selectLabel.setAttribute("class", "form-label");
+				selectLabel.innerHTML = currentRequest.selectobjs[i].description;
+				
+				container.appendChild(selectButton);
+				container.appendChild(selectLabel);
+				bodyDiv.appendChild(container);
 			}
 			
 			var myModal = new bootstrap.Modal(operateModal, {backdrop: "static"});
+			requestModalOpenSound.currentTime = 0;
+			requestModalOpenSound.play();
 			myModal.show();
 			
 			if(currentRequest.timeout != null){
@@ -342,31 +348,31 @@ function requestBehavor(){
 				bodyDiv.removeChild(bodyDiv.lastChild);
 			}
 			
-			if(currentRequest.inputobjs != null){
-				for(var i = 0; i<currentRequest.inputobjs.length; i++){
-					var container = document.createElement("div");
-					container.setAttribute("class", "mb-3");
-					
-					var inputReq = document.createElement("input");
-					inputReq.setAttribute("type", "text");
-					inputReq.setAttribute("class", "form-control");
-					
-					inputReq.setAttribute("name", "operatorinput");
-					inputReq.setAttribute("requestid", currentRequest.inputobjs[i].id);
-					inputReq.innerHTML = currentRequest.inputobjs[i].label;
-					
-					var inputLabel = document.createElement("label");
-					inputLabel.setAttribute("class", "form-label");
-					inputLabel.innerHTML = currentRequest.inputobjs[i].description;
-					
-					container.appendChild(inputLabel);
-					container.appendChild(inputReq);
-					bodyDiv.appendChild(container);
-					
-				}
+			for(var i = 0; i<currentRequest.inputobjs.length; i++){
+				var container = document.createElement("div");
+				container.setAttribute("class", "mb-3");
+				
+				var inputReq = document.createElement("input");
+				inputReq.setAttribute("type", "text");
+				inputReq.setAttribute("class", "form-control");
+				
+				inputReq.setAttribute("name", "operatorinput");
+				inputReq.setAttribute("requestid", currentRequest.inputobjs[i].id);
+				inputReq.innerHTML = currentRequest.inputobjs[i].label;
+				
+				var inputLabel = document.createElement("label");
+				inputLabel.setAttribute("class", "form-label");
+				inputLabel.innerHTML = currentRequest.inputobjs[i].description;
+				
+				container.appendChild(inputLabel);
+				container.appendChild(inputReq);
+				bodyDiv.appendChild(container);
+				
 			}
 			
 			var myModal = new bootstrap.Modal(operateModal, {backdrop: "static"});
+			requestModalOpenSound.currentTime = 0;
+			requestModalOpenSound.play();
 			myModal.show();
 			
 			if(currentRequest.timeout != null){
@@ -384,8 +390,10 @@ function requestBehavor(){
 				}
 			}
 		}
+	} else {
+		console.log("wrong request : "+currentRequest);
+		doneRequest();
 	}
-	
 }
 
 function doneRequest(){
@@ -396,8 +404,11 @@ function doneRequest(){
 }
 
 function selectBehavior(selectedButton){
-	console.log(currentRequest.userid + " " + selectedButton.getAttribute("requestid"));
+	//console.log(currentRequest.userid + " " + selectedButton.getAttribute("requestid"));
 	//var jsonObj = JSON.parse(cmds);
+	answerRequestSound.currentTime = 0;
+	answerRequestSound.play();
+			
 	if(requestTimeout != null){
 		clearTimeout(requestTimeout);
 		requestTimeout = null;
@@ -408,7 +419,10 @@ function selectBehavior(selectedButton){
 }
 
 function canncelSelectRequest(){
-	console.log("canncelSelectRequest "+currentRequest.userid);
+	//console.log("canncelSelectRequest "+currentRequest.userid);
+	cancelRequestSound.currentTime = 0;
+	cancelRequestSound.play();
+	
 	if(requestTimeout != null){
 		clearTimeout(requestTimeout);
 		requestTimeout = null;
@@ -423,6 +437,9 @@ function canncelSelectRequest(){
 }
 
 function answerRequest(){
+	answerRequestSound.currentTime = 0;
+	answerRequestSound.play();
+	
 	var operatorInputElements = document.getElementsByName("operatorinput");
 	var answerData = {"answerdata":[]};
 	for(var i = 0; i<operatorInputElements.length; i++){
@@ -447,7 +464,10 @@ function answerRequest(){
 }
 
 function canncelInputRequest(){
-	console.log("canncelInputRequest "+currentRequest.userid);
+	//console.log("canncelInputRequest "+currentRequest.userid);
+	cancelRequestSound.currentTime = 0;
+	cancelRequestSound.play();
+	
 	if(requestTimeout != null){
 		clearTimeout(requestTimeout);
 		requestTimeout = null;
@@ -495,6 +515,9 @@ function getData(fromPeerID, receiveText, dataConnection){
 		if(requestQueu.length == 1){
 			requestBehavor();
 		} else {
+			stackRequestSound.currentTime = 0;
+			stackRequestSound.play();
+			alert(requestElement.userid +" requests teleoperatopm!");
 			console.log("stack request at "+requestQueu.length+" : "+requestElement);
 		}
 	}  else if(receiveText.startsWith("socket=")){
