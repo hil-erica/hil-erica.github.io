@@ -33,6 +33,9 @@ function openOption(){
 				console.log("loaded option.html");
 				optionFrame.$('#wsockautoconnect').checked = autoWebSockConnect;
 				optionFrame.$('#socket_url').value = webSockUrl;
+				if(autoWebSockConnect == true){
+					autoConnect(optionFrame.$('#wsockautoconnect').checked);
+				}
 				
 				optionFrame.on('#controller', 'click', (_frame, evt) => {
 					//console.log("controller button click");
