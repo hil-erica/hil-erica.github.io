@@ -190,8 +190,8 @@ function removeButtonClicked(){
 	console.log(this.getAttribute("userCounter") +" : remove button clicked");
 	var inputGroupDiv = userFrame.$('#userinterface_'+this.getAttribute("userCounter"));
 	userFrame.$('#contacttab').removeChild(inputGroupDiv);
-	index = inputGroupDiv.indexOf(inputGroupDiv);
-	inputGroupDiv.splice(index, 1);
+	var index = chatUserList.indexOf(inputGroupDiv);
+	chatUserList.splice(index, 1);
 }
 
 
