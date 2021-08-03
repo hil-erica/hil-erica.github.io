@@ -104,11 +104,12 @@ forcelogout=peerid
   - timeout : 選択するまでのタイムアウト，負の数または未設定でタイムアウトなし[sec]
   - selectobjs : 選択候補リスト
    - id : 選択された際のid
+   - type : button/input, デフォルトはボタン
    - label : ボタンに表示する内容
    - description : ボタン横の詳細内容
     - infolevel : primary, secondary, success, danger, warning, info　でボタンの色が変わる，デフォルトはinfo
   
-    request={"timeout":10,"description":"全体説明選んでねとか選択してね","selectobjs":[{"id":"hoge.seq","label":"hogeだよ","infolevel":"primary","description":"詳細説明"},{"id":"foo.seq","label":"fooだよ","description":"詳細説明"}]}
+    request={"timeout":-1,"description":"全体説明選んでねとか選択してね","selectobjs":[{"id":"hoge.seq","type":"button","label":"hogeだよ","infolevel":"primary","description":"詳細説明"},{"id":"foo.seq","type":"input","label":"fooだよ","description":"詳細説明"}]}
 
 
 - 受信コマンド
