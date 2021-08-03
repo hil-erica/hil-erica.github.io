@@ -289,26 +289,86 @@ function requestBehavor(){
 				var container = document.createElement("div");
 				container.setAttribute("class", "mb-3");
 				
-				var selectButton = document.createElement("button");
-				selectButton.setAttribute("type", "button");
-				if(currentRequest.selectobjs[i].infolevel != null){
-					selectButton.setAttribute("class", "btn btn-"+currentRequest.selectobjs[i].infolevel);
+				if(currentRequest.selectobjs[i].type != null && currentRequest.selectobjs[i].type == "input"){
+					var selectButton = document.createElement("button");
+					selectButton.setAttribute("type", "button");
+					if(currentRequest.selectobjs[i].infolevel != null){
+						selectButton.setAttribute("class", "btn btn-"+currentRequest.selectobjs[i].infolevel);
+					} else {
+						selectButton.setAttribute("class", "btn btn-info");
+					}
+					//selectButton.setAttribute("data-bs-dismiss", "modal");
+					selectButton.setAttribute("name", "operatorselect");
+					//selectButton.setAttribute("onclick", "selectBehavior(this)");
+					selectButton.setAttribute("requestid", currentRequest.selectobjs[i].id);
+					selectButton.innerHTML = currentRequest.selectobjs[i].label;
+					selectButton.disabled = true;
+					
+					var selectLabel = document.createElement("label");
+					selectLabel.setAttribute("class", "form-label");
+					selectLabel.innerHTML = currentRequest.selectobjs[i].description;
+					
+					var inputReq = document.createElement("input");
+					inputReq.setAttribute("type", "text");
+					inputReq.setAttribute("class", "form-control");
+					
+					inputReq.setAttribute("name", "operatorinput");
+					inputReq.setAttribute("requestid", currentRequest.selectobjs[i].id);
+					//inputReq.innerHTML = currentRequest.selectobjs[i].label;
+					inputReq.onkeypress = (e) => {
+						const key = e.keyCode || e.charCode || 0;
+						//console.log(key+" "+inputReq.value);
+						// 13はEnterキーのキーコード
+						if (key == 13) {
+							selectButton.click();
+						}
+						/*
+						if(inputReq.value == ""){
+							selectButton.disabled = true;
+						} else {
+							selectButton.disabled = false;
+						}
+						*/
+						selectButton.disabled = false;
+					}
+					
+					container.appendChild(selectButton);
+					container.appendChild(selectLabel);
+					container.appendChild(inputReq);
+					selectButton.addEventListener("click", function() {
+						if(inputReq.value != ""){
+							var myModal = bootstrap.Modal.getInstance(operateModal);
+							myModal.hide();
+							selectButton.setAttribute("inputvalue", inputReq.value);
+							selectBehavior(selectButton);
+						} else {
+							alert("input : "+selectButton.innerHTML);
+						}
+					});
+					bodyDiv.appendChild(container);
 				} else {
-					selectButton.setAttribute("class", "btn btn-info");
+					var selectButton = document.createElement("button");
+					selectButton.setAttribute("type", "button");
+					if(currentRequest.selectobjs[i].infolevel != null){
+						selectButton.setAttribute("class", "btn btn-"+currentRequest.selectobjs[i].infolevel);
+					} else {
+						selectButton.setAttribute("class", "btn btn-info");
+					}
+					selectButton.setAttribute("data-bs-dismiss", "modal");
+					selectButton.setAttribute("name", "operatorselect");
+					selectButton.setAttribute("onclick", "selectBehavior(this)");
+					selectButton.setAttribute("requestid", currentRequest.selectobjs[i].id);
+					selectButton.innerHTML = currentRequest.selectobjs[i].label;
+					
+					var selectLabel = document.createElement("label");
+					selectLabel.setAttribute("class", "form-label");
+					selectLabel.innerHTML = currentRequest.selectobjs[i].description;
+					
+					container.appendChild(selectButton);
+					container.appendChild(selectLabel);
+					bodyDiv.appendChild(container);
 				}
-				selectButton.setAttribute("data-bs-dismiss", "modal");
-				selectButton.setAttribute("name", "operatorselect");
-				selectButton.setAttribute("onclick", "selectBehavior(this)");
-				selectButton.setAttribute("requestid", currentRequest.selectobjs[i].id);
-				selectButton.innerHTML = currentRequest.selectobjs[i].label;
 				
-				var selectLabel = document.createElement("label");
-				selectLabel.setAttribute("class", "form-label");
-				selectLabel.innerHTML = currentRequest.selectobjs[i].description;
-				
-				container.appendChild(selectButton);
-				container.appendChild(selectLabel);
-				bodyDiv.appendChild(container);
 			}
 			
 			var myModal = new bootstrap.Modal(operateModal, {backdrop: "static"});
@@ -414,6 +474,9 @@ function selectBehavior(selectedButton){
 		requestTimeout = null;
 	}
 	var answerData = {selectdata:selectedButton.getAttribute("requestid")};
+	if(selectedButton.hasAttribute("inputvalue")){
+		answerData.inputvalue = selectedButton.getAttribute("inputvalue");
+	}
 	sendData(currentRequest.userid, "answerrequest="+JSON.stringify(answerData));
 	doneRequest();
 }
@@ -517,7 +580,7 @@ function getData(fromPeerID, receiveText, dataConnection){
 		} else {
 			stackRequestSound.currentTime = 0;
 			stackRequestSound.play();
-			alert(requestElement.userid +" requests teleoperatopm!");
+			alert(requestElement.userid +" requests teleoperation!");
 			console.log("stack request at "+requestQueu.length+" : "+requestElement);
 		}
 	}  else if(receiveText.startsWith("socket=")){

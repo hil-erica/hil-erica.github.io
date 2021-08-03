@@ -28,6 +28,15 @@ body {
   
 }
 
+video {
+  /* iPhone safariの枠線を消す*/
+  filter: drop-shadow(0px 0px rgba(0,0,0,0));
+
+  /* PCのChromeの枠線を消す*/
+  outline: none;
+  border: none;
+}
+
 .start {
 	background: #f7fcfe;
 	position: fixed;

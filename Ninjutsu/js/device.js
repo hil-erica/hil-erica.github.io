@@ -453,6 +453,35 @@ function mainSpeakerSelectEvent(event){
 	var mainSpeakerSelector = this;
 	var mainSpeakerId = mainSpeakerSelector.options[mainSpeakerSelector.selectedIndex].value;
 	console.log("selected main speaker id = "+mainSpeakerId);
+	//change sound
+	requestModalOpenSound.setSinkId(mainSpeakerId)
+		.then(function() {
+		console.log('setSinkID Success, audio is being played on '+mainSpeakerId +' for requestModalOpenSound');
+	})
+	.catch(function(err) {
+		console.error('setSinkId Err:', err);
+	});
+	answerRequestSound.setSinkId(mainSpeakerId)
+		.then(function() {
+		console.log('setSinkID Success, audio is being played on '+mainSpeakerId +' for answerRequestSound');
+	})
+	.catch(function(err) {
+		console.error('setSinkId Err:', err);
+	});
+	cancelRequestSound.setSinkId(mainSpeakerId)
+		.then(function() {
+		console.log('setSinkID Success, audio is being played on '+mainSpeakerId +' for cancelRequestSound');
+	})
+	.catch(function(err) {
+		console.error('setSinkId Err:', err);
+	});
+	stackRequestSound.setSinkId(mainSpeakerId)
+		.then(function() {
+		console.log('setSinkID Success, audio is being played on '+mainSpeakerId +' for stackRequestSound');
+	})
+	.catch(function(err) {
+		console.error('setSinkId Err:', err);
+	});
 }
 
 function getSelectedAudio() {

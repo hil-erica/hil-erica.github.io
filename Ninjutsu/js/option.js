@@ -53,6 +53,13 @@ function openOption(){
 					//console.log("optionalcommandfile loaded : ");
 					optionalCommandLoad();
 				});
+				optionFrame.on('#socket_url', 'keypress', (_frame, evt) => {
+					var wsURL = optionFrame.$('#socket_url').value;
+					var indexURL = wsURL.indexOf("://");
+					var httpsURL = "https://"+wsURL.substring(indexURL+3, wsURL.length);
+					optionFrame.$('#installcertificateLink').setAttribute("href", httpsURL);
+					optionFrame.$('#installcertificateLink').innerHTML = httpsURL;
+				});
 				
 				addGestureButtons();
 			}
