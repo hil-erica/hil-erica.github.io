@@ -336,13 +336,14 @@ function requestBehavor(){
 					container.appendChild(selectLabel);
 					container.appendChild(inputReq);
 					selectButton.addEventListener("click", function() {
+						//console.log(this.innerHTML +" clicked");
 						if(inputReq.value != ""){
 							var myModal = bootstrap.Modal.getInstance(operateModal);
 							myModal.hide();
-							selectButton.setAttribute("inputvalue", inputReq.value);
-							selectBehavior(selectButton);
+							this.setAttribute("inputvalue", inputReq.value);
+							selectBehavior(this);
 						} else {
-							alert("input : "+selectButton.innerHTML);
+							alert("input : "+this.innerHTML);
 						}
 					});
 					bodyDiv.appendChild(container);
