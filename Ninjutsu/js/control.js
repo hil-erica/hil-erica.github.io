@@ -302,7 +302,7 @@ function requestBehavor(){
 					//selectButton.setAttribute("onclick", "selectBehavior(this)");
 					selectButton.setAttribute("requestid", currentRequest.selectobjs[i].id);
 					selectButton.innerHTML = currentRequest.selectobjs[i].label;
-					selectButton.disabled = true;
+					//selectButton.disabled = true;
 					
 					var selectLabel = document.createElement("label");
 					selectLabel.setAttribute("class", "form-label");
