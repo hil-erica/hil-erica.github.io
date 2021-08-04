@@ -311,6 +311,7 @@ function requestBehavor(){
 					var inputReq = document.createElement("input");
 					inputReq.setAttribute("type", "text");
 					inputReq.setAttribute("class", "form-control");
+					inputReq.setAttribute("autocomplete", "off");
 					
 					inputReq.setAttribute("name", "operatorinput");
 					inputReq.setAttribute("requestid", currentRequest.selectobjs[i].id);
@@ -416,7 +417,8 @@ function requestBehavor(){
 				var inputReq = document.createElement("input");
 				inputReq.setAttribute("type", "text");
 				inputReq.setAttribute("class", "form-control");
-				
+				inputReq.setAttribute("autocomplete", "off");
+					
 				inputReq.setAttribute("name", "operatorinput");
 				inputReq.setAttribute("requestid", currentRequest.inputobjs[i].id);
 				inputReq.innerHTML = currentRequest.inputobjs[i].label;
