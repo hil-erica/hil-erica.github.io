@@ -300,6 +300,7 @@ function requestBehavor(){
 					//selectButton.setAttribute("data-bs-dismiss", "modal");
 					selectButton.setAttribute("name", "operatorselect");
 					//selectButton.setAttribute("onclick", "selectBehavior(this)");
+					selectButton.setAttribute("id", "selectrequestbutton-"+currentRequest.selectobjs[i].id);
 					selectButton.setAttribute("requestid", currentRequest.selectobjs[i].id);
 					selectButton.innerHTML = currentRequest.selectobjs[i].label;
 					//selectButton.disabled = true;
@@ -321,7 +322,10 @@ function requestBehavor(){
 						//console.log(key+" "+inputReq.value);
 						// 13はEnterキーのキーコード
 						if (key == 13) {
-							this.click();
+							var buttonElement = document.getElementById("selectrequestbutton-"+this.getAttribute("requestid");
+							if(buttonElement != null){
+								buttonElement.click();
+							}
 						}
 						/*
 						if(inputReq.value == ""){
