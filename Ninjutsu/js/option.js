@@ -2,8 +2,9 @@
 var optionFrame;
 var isOptionShow = false;
 
-var webSockUrl = "ws://127.0.0.1:8000";
+var webSockUrl = "wss://127.0.0.1:8000";
 var autoWebSockConnect = false;
+var speechHistoryUrl = "https://127.0.0.1/erica_database/console/realtime/display_realtime_dialog.php";
 
 function initializeOption() {
 	openOption();
@@ -33,10 +34,15 @@ function openOption(){
 				console.log("loaded option.html");
 				optionFrame.$('#wsockautoconnect').checked = autoWebSockConnect;
 				optionFrame.$('#socket_url').value = webSockUrl;
+				optionFrame.$('#speechhistory_url').value = speechHistoryUrl;
 				if(autoWebSockConnect == true){
 					autoConnect(optionFrame.$('#wsockautoconnect').checked);
 				}
 				
+				optionFrame.on('#open_speechhistory', 'click', (_frame, evt) => {
+					//console.log("controller button click");
+					openSpeechHistory(optionFrame.$('#speechhistory_url').value);
+				});
 				optionFrame.on('#controller', 'click', (_frame, evt) => {
 					//console.log("controller button click");
 					openController();

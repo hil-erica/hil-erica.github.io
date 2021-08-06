@@ -39,6 +39,29 @@ html {
   box-sizing: inherit;
 }
 
+.box-text-controllers {
+  position: relative;
+  border: 3px solid SkyBlue;
+  border-radius: 5px;
+  margin: 20px 0;
+  padding: 20px 20px 5px 20px;
+  width: 90%;
+}
+
+.box-text-controllers::before {
+  content: "controllers";
+  position: absolute;
+  background-color: SkyBlue;
+  color: White;
+  font-weight: bold;
+  left: 20px;
+  top: -20px;
+  padding: 5px;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+  border-bottom-left-radius: 10px;
+}
 
 .box-text-gestures {
   position: relative;
@@ -97,6 +120,30 @@ html {
 
 .box-text-websocket::before {
   content: "websocket";
+  position: absolute;
+  background-color: SkyBlue;
+  color: White;
+  font-weight: bold;
+  left: 20px;
+  top: -20px;
+  padding: 5px;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+  border-bottom-left-radius: 10px;
+}
+
+.box-text-speechhistory {
+  position: relative;
+  border: 3px solid SkyBlue;
+  border-radius: 5px;
+  margin: 20px 0;
+  padding: 20px 20px 5px 20px;
+  width: 90%;
+}
+
+.box-text-speechhistory::before {
+  content: "speechhistory";
   position: absolute;
   background-color: SkyBlue;
   color: White;

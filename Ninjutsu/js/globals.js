@@ -114,6 +114,9 @@ function getQueryParams() {
 			if(key == "websocketurl"){
 				webSockUrl = value;
 			}
+			if(key == "speechhistoryurl"){
+				speechHistoryUrl = value;
+			}
 			if(key == "autowebsockconnect"){
 				if(value == "true" || value == "TRUE" || value == "True"){
 					autoWebSockConnect = true;
