@@ -321,7 +321,7 @@ function requestBehavor(){
 						//console.log(key+" "+inputReq.value);
 						// 13はEnterキーのキーコード
 						if (key == 13) {
-							selectButton.click();
+							this.click();
 						}
 						/*
 						if(inputReq.value == ""){
@@ -330,7 +330,7 @@ function requestBehavor(){
 							selectButton.disabled = false;
 						}
 						*/
-						selectButton.disabled = false;
+						//selectButton.disabled = false;
 					}
 					
 					container.appendChild(selectButton);
