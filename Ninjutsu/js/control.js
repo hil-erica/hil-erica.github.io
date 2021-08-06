@@ -322,7 +322,7 @@ function requestBehavor(){
 						//console.log(key+" "+inputReq.value);
 						// 13はEnterキーのキーコード
 						if (key == 13) {
-							var buttonElement = document.getElementById("selectrequestbutton-"+this.getAttribute("requestid"));
+							var buttonElement = document.getElementById("selectrequestbutton-"+inputReq.getAttribute("requestid"));
 							if(buttonElement != null){
 								buttonElement.click();
 							}
