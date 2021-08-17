@@ -13,6 +13,7 @@ var thisPeer;
 var remotePeerIDMediaConMap = new Map();
 var remotePeerIDDataConMap = new Map();
 var checkMemberTimerId;
+
 function logout(){
 	console.log("try to log out");
 	/*
@@ -43,8 +44,13 @@ function gotoStandby() {
 	
 	//thisPeer.on('error', console.error);
 	thisPeer.on('error', error => {
-		//console.log("hoge"+error);
-		alert(error);
+		console.log("skyway error detected ! = "+error.type+" : "+error.message);
+		if(error.type=="list-error" || error.type=="server-error"){
+		} else {
+			alert(error.type+" : "+error.message);
+			clearInterval(checkMemberTimerId);
+			updateSignalingState(false);
+		}
 	});
 	
 	thisPeer.on("close", () => {
@@ -61,6 +67,7 @@ function gotoStandby() {
 	if(remotePeerIDMediaConMap.has("")),get ,set
 	*/
 	thisPeer.once('open', id => {
+		updateSignalingState(true);
 		let peers = thisPeer.listAllPeers(peers => {
 			loginUsers = [];
 			for(var i = 0; i< peers.length; i++){

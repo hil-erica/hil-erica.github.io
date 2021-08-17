@@ -194,6 +194,18 @@ function removeButtonClicked(){
 	chatUserList.splice(index, 1);
 }
 
+function updateSignalingState(isConnected){
+	if(userFrame != null){
+		var signalingState = userFrame.$('#signalingState');
+		if(isConnected){
+			signalingState.innerHTML = "Log in users:";
+			signalingState.removeAttribute("style");
+		} else {
+			signalingState.innerHTML = "signaling server disconnected:";
+			signalingState.setAttribute("style", "color: red");
+		}
+	}
+}
 
 function updateLoginInfo(){
 	var accessible_list = userFrame.$('#accessible_list');
@@ -216,7 +228,7 @@ function updateLoginInfo(){
 		var userLogins = false;
 		for(var j = 0; j < loginUsers.length; j++){
 			//console.log("check login "+loginUsers[j] +" vs " +userInput.value);
-			if(loginUsers[j] == userInput.value){
+			if(loginUsers[j] == userInput.value && userInput.value != myuserid.value){
 				//login
 				userLogins = true;
 				break;
