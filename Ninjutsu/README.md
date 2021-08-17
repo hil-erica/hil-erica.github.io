@@ -10,6 +10,12 @@ WebsocketやChat Historyを開く際SSL認証が必要になるのでChromeの�
 
 start "C:\Program Files\Google\Chrome\Application\chrome.exe" "https://hil-erica.github.io/Ninjutsu/kagebunshin.html?skywaykey=***&&myuserid=hoge&remoteuserid=foo&capturesize=720&autowebsockconnect=true&websocketurl=wss://127.0.0.1:8000&teleopemode=true"  --ignore-certificate-errors
 
+またはChromeの設定で
+
+chrome://flags/#allow-insecure-localhost
+
+を有効にする
+
 
 Firefoxではアドレスバーに about:config とうち，media.setsinkid.enabled をtrueにすること（じゃないとSpeakerデバイスにアクセスできない）
 
