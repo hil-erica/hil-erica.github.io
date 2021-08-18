@@ -213,6 +213,7 @@ function updateLoginInfo(){
 	for(var j = 0; j < loginUsers.length; j++){
 		loginmenbers +=loginUsers[j]+"; ";
 	}
+	
 	if(accessible_list != null){
 		accessible_list.value = loginmenbers;
 	} else {

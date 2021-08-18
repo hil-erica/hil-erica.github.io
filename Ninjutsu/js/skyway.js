@@ -47,7 +47,8 @@ function gotoStandby() {
 		console.log("skyway error detected ! = "+error.type+" : "+error.message);
 		if(error.type=="list-error" || error.type=="server-error"){
 		} else {
-			alert(error.type+" : "+error.message);
+			//alert(error.type+" : "+error.message);
+			addInformation(error.type+" : "+error.message);
 			clearInterval(checkMemberTimerId);
 			updateSignalingState(false);
 		}
