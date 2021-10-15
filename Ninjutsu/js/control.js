@@ -485,6 +485,10 @@ function selectBehavior(selectedButton){
 		answerData.inputvalue = selectedButton.getAttribute("inputvalue");
 	}
 	sendData(currentRequest.userid, "answerrequest="+JSON.stringify(answerData));
+	//操作者陪席アバタにも送信
+	if(wSocket != null){
+		wSocket.send("answerrequest="+JSON.stringify(answerData));
+	}
 	doneRequest();
 }
 
@@ -498,6 +502,10 @@ function canncelSelectRequest(){
 		requestTimeout = null;
 	}
 	sendData(currentRequest.userid, "cancelrequest");
+	//操作者陪席アバタにも送信
+	if(wSocket != null){
+		wSocket.send("cancelrequest");
+	}
 	doneRequest();
 	/*
 	var operateModal = document.getElementById("operateModal");
@@ -522,6 +530,10 @@ function answerRequest(){
 	}
 	console.log(answerData);
 	sendData(currentRequest.userid, "answerrequest="+JSON.stringify(answerData));
+	//操作者陪席アバタにも送信
+	if(wSocket != null){
+		wSocket.send("answerrequest="+JSON.stringify(answerData));
+	}
 	//var jsonObj = JSON.parse(cmds);
 	var operateModal = document.getElementById("requestInputModal");
 	var myModal = bootstrap.Modal.getInstance(operateModal);
@@ -543,6 +555,10 @@ function canncelInputRequest(){
 		requestTimeout = null;
 	}
 	sendData(currentRequest.userid, "cancelrequest");
+	//操作者陪席アバタにも送信
+	if(wSocket != null){
+		wSocket.send("cancelrequest");
+	}
 	doneRequest();
 	/*
 	var operateModal = document.getElementById("operateModal");
