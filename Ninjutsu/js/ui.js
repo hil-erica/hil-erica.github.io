@@ -614,7 +614,7 @@ function calsSubContainersSize(){
 	for(var i = 0; i<subcontainerElements.length; i++){
 		//console.log("subcontainerElement = "+subcontainerElements[i].id+ ", calc((100% / "+subLayoutSize+" -5px)");
 		//subcontainerElements[i].style.width = "calc(100% / "+subLayoutSize+" -5px)";
-		subcontainerElements[i].style.width = "calc( calc(96% / "+subLayoutSize+") - 5px)";
+		subcontainerElements[i].style.width = "calc( calc(95% / "+subLayoutSize+") - 5px)";
 		//subcontainerElements[i].setAttribute("style.width", "calc(100% / "+subLayoutSize+")");
 	}
 	var subcontainerElementHeight = 0;
