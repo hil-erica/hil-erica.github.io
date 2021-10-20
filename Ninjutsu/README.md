@@ -33,6 +33,7 @@ https://hil-erica.github.io/Ninjutsu/kagebunshin.html?apikey=***&myuserid=erica&
 - websocketurl : websocket url
 - autowebsockconnect : true/false
 - speechhistoryurl : リアルタイム対話コンソールを表示する
+- answerrequest : requestコマンドを表示するかどうか
 
 ### datachannelについて
 
