@@ -594,17 +594,23 @@ function getData(fromPeerID, receiveText, dataConnection){
 		//open select behaivor modal
 		var cmds = receiveText.slice(8);
 		console.log("request "+cmds);
-		var requestElement = JSON.parse(cmds);
-		requestElement.userid =  fromPeerID;
-		console.log(requestElement);
-		requestQueu.push(requestElement);
-		if(requestQueu.length == 1){
-			requestBehavor();
+		if(answerRequest){
+			var requestElement = JSON.parse(cmds);
+			requestElement.userid =  fromPeerID;
+			console.log(requestElement);
+			requestQueu.push(requestElement);
+			if(requestQueu.length == 1){
+				if(answerRequest){
+					requestBehavor();
+				}
+			} else {
+				stackRequestSound.currentTime = 0;
+				stackRequestSound.play();
+				alert(requestElement.userid +" requests teleoperation!");
+				console.log("stack request at "+requestQueu.length+" : "+requestElement);
+			}
 		} else {
-			stackRequestSound.currentTime = 0;
-			stackRequestSound.play();
-			alert(requestElement.userid +" requests teleoperation!");
-			console.log("stack request at "+requestQueu.length+" : "+requestElement);
+			console.log("ignore request "+cmds);
 		}
 	}  else if(receiveText.startsWith("socket=")){
 		//not used

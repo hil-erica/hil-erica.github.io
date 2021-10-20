@@ -122,7 +122,13 @@ function getQueryParams() {
 					autoWebSockConnect = true;
 				}
 			}
-
+			if(key == "answerrequest"){
+				if(value == "true" || value == "TRUE" || value == "True"){
+					answerRequest = true;
+				}else {
+					answerRequest = false;
+				}
+			}
 		}
 		return result;
 	}

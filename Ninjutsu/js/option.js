@@ -5,6 +5,7 @@ var isOptionShow = false;
 var webSockUrl = "wss://127.0.0.1:8000";
 var autoWebSockConnect = false;
 var speechHistoryUrl = "https://127.0.0.1/erica_database/console/realtime/display_realtime_dialog.php";
+var answerRequest=true;
 
 function initializeOption() {
 	openOption();
@@ -38,6 +39,7 @@ function openOption(){
 				if(autoWebSockConnect == true){
 					autoConnect(optionFrame.$('#wsockautoconnect').checked);
 				}
+				optionFrame.$('#answerRequestBehavorSelect').checked = answerRequest;
 				
 				optionFrame.on('#open_speechhistory', 'click', (_frame, evt) => {
 					//console.log("controller button click");
@@ -66,7 +68,9 @@ function openOption(){
 					optionFrame.$('#installcertificateLink').setAttribute("href", httpsURL);
 					optionFrame.$('#installcertificateLink').innerHTML = httpsURL;
 				});
-				
+				optionFrame.on('#answerRequestBehavorSelect', 'change', (_frame, evt) => {
+					answerRequest = optionFrame.$('#answerRequestBehavorSelect').checked;
+				});
 				addGestureButtons();
 			}
 			

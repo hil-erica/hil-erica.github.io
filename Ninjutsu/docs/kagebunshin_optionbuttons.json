@@ -1,0 +1,49 @@
+{
+  "buttons": [
+    {
+      "id": "teleoperation_start",
+      "label": "遠隔操作開始",
+      "type": "workingmemory",
+      "scope": "interaction",
+      "name": "teleoperation_start",
+      "string": "start"
+    },
+    {
+      "id": "teleoperation_end",
+      "label": "遠隔操作終了",
+      "type": "workingmemory",
+      "scope": "interaction",
+      "name": "teleoperation_end",
+      "string": "end"
+    },
+    {
+      "id": "attractiveness_increase",
+      "label": "興味度合い増加",
+      "type": "internalstate",
+      "internalstatetype": "attractiveness",
+      "isrelative": true,
+      "attractiveness": 0.2,
+      "changeduration": 500
+    },
+    {
+      "id": "attractiveness_decrease",
+      "label": "興味度合い減少",
+      "type": "internalstate",
+      "internalstatetype": "attractiveness",
+      "isrelative": true,
+      "attractiveness": -0.2,
+      "changeduration": 1000
+    }
+  ],
+  "buttonelementsample": {
+    "id": "buttonsample",
+    "label": "表示されるテキスト",
+    "type": "workingmemory",
+    "scope": "interaction/robot/human",
+    "name": "変数名",
+    "string": "値はstring/int/double/booleanどれか",
+    "int": 1,
+    "double": -1.5,
+    "boolean": true
+  }
+}
