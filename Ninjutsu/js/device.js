@@ -498,6 +498,7 @@ function getSelectedSpeaker() {
 	return id;
 }
 
+var micGain = 1;
 async function getSelectedMicStream(){
 	var audioId = getSelectedAudio();
 	if(audioId == "don't send audio"){
@@ -590,9 +591,17 @@ async function getSelectedMicStream(){
 		document.getElementById("mutecheckbox").addEventListener('change', function( event ) {
 			console.log("set mic mute = "+!document.getElementById("mutecheckbox").checked);
 			if(document.getElementById("mutecheckbox").checked){
-				gain.gain.value=1; 			
+				gain.gain.value=micGain; 			
 			} else {
 				gain.gain.value=0; 
+			}
+		} ) ;
+		document.getElementById("micvolumeslider").addEventListener('input', function( event ) {
+			console.log("set mic gain = "+document.getElementById("micvolumeslider").value);
+			micGain = document.getElementById("micvolumeslider").value;
+			gain.gain.value = micGain;
+			if(document.getElementById("mutecheckbox").checked == false){
+				document.getElementById("mutecheckbox").checked = true;
 			}
 		} ) ;
 		//document.getElementById("echocancelselector").disabled = true;
