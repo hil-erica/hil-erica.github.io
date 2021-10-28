@@ -262,6 +262,7 @@ var requestTimeout = null;
 var timeoutCounter = 0;
 //clearTimeout(requestTimeout);
 var currentRequest = null;
+var requestModal = null;
 
 function requestBehavor(){
 	if(requestQueu.length == 0){
@@ -377,10 +378,10 @@ function requestBehavor(){
 				
 			}
 			
-			var myModal = new bootstrap.Modal(operateModal, {backdrop: "static"});
+			requestModal = new bootstrap.Modal(operateModal, {backdrop: "static"});
 			requestModalOpenSound.currentTime = 0;
 			requestModalOpenSound.play();
-			myModal.show();
+			requestModal.show();
 			
 			if(currentRequest.timeout != null){
 				timeoutCounter = 0;
@@ -437,10 +438,10 @@ function requestBehavor(){
 				
 			}
 			
-			var myModal = new bootstrap.Modal(operateModal, {backdrop: "static"});
+			requestModal = new bootstrap.Modal(operateModal, {backdrop: "static"});
 			requestModalOpenSound.currentTime = 0;
 			requestModalOpenSound.play();
-			myModal.show();
+			requestModal.show();
 			
 			if(currentRequest.timeout != null){
 				timeoutCounter = 0;
@@ -464,6 +465,7 @@ function requestBehavor(){
 }
 
 function doneRequest(){
+	requestModal = null;
 	requestQueu.shift();
 	if(requestQueu.length > 0){
 		requestBehavor();
@@ -512,6 +514,21 @@ function canncelSelectRequest(){
 	var myModal = bootstrap.Modal.getInstance(operateModal);
 	myModal.hide();
 	*/
+}
+
+//close modal and if has more request open nect
+function skipBehavor(){
+	if(requestModal != null){
+		requestModal.hide();
+	}
+	cancelRequestSound.currentTime = 0;
+	cancelRequestSound.play();
+	
+	if(requestTimeout != null){
+		clearTimeout(requestTimeout);
+		requestTimeout = null;
+	}
+	doneRequest();
 }
 
 function answerRequest(){
@@ -612,12 +629,36 @@ function getData(fromPeerID, receiveText, dataConnection){
 		} else {
 			console.log("ignore request "+cmds);
 		}
-	}  else if(receiveText.startsWith("socket=")){
+	} else if(receiveText.startsWith("answerrequest=")){
+		//requestの答えを受信, cancelrequest, answerrequest
+		//複数人で1台のアバタを操作したときに他の人が答えたらその他の入力待ちを解除する
+		var cmds = receiveText.slice(14);
+		console.log("someoneanswered="+receiveText);
+		publishData("someoneanswered="+receiveText);
+	} else if(receiveText.startsWith("cancelrequest")){
+		//requestの答えを受信, cancelrequest
+		//複数人で1台のアバタを操作したときに他の人が答えたらその他の入力待ちを解除する
+		console.log("someoneanswered=cancelrequest");
+		publishData("someoneanswered=cancelrequest");
+	} else if(receiveText.startsWith("someoneanswered=")){
+		//複数人で1台のアバタを操作したときに他の人が答えたらその他の入力待ちを解除する
+		var cmds = receiveText.slice(16);
+		//console.log("request "+cmds);
+		if(requestQueu.length > 0){
+			//誰かが答えたので次のリクへストへ
+			if(answerRequest){
+				skipBehavor();
+			}
+		} else {
+		}
+	} else if(receiveText.startsWith("socket=")){
 		//not used
+		/*
 		var cmds = receiveText.slice(7);
 		if(wSocket != null){
 			wSocket.send(cmds);
 		}
+		*/
 	} else if(receiveText.startsWith("tts=")){
 		//for external system
 	} else if(receiveText.startsWith("optionalcommand=")){

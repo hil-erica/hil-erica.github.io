@@ -584,10 +584,11 @@ function calsSubContainersSize(){
 			maxWidthBasedHeight = 16*(workspaceHeight-controllerMergin*2)/9/(1+1/numSubs);
 			subLayoutSize = numSubs;
 		}
+		subContainers.style.overflowY = "hidden";
 	} else if(subLayoutSize == 2){
 		//2
 		maxHeightBasedWidth = 27*workspaceWidth/32+controllerMergin*2;
-		maxWidthBasedHeight = 32*(workspaceHeight-controllerMergin*2)/27;		
+		maxWidthBasedHeight = 32*(workspaceHeight-controllerMergin*2)/27;
 	} else {
 		//3
 		maxHeightBasedWidth = 9*workspaceWidth/12+controllerMergin*2;
@@ -611,10 +612,23 @@ function calsSubContainersSize(){
 	
 	//subcontainer width
 	var subcontainerElements = document.getElementsByClassName("subcontainer");
+	const scrollBar = subContainers.offsetWidth - subContainers.clientWidth;
+	if(subLayoutSize != 1 && subcontainerElements.length > 0 && (subcontainerElements.length/subLayoutSize>1)){
+		//2段組み以上
+		subContainers.style.overflowY = "auto";
+	} else {
+		subContainers.style.overflowY = "hidden";
+	}
 	for(var i = 0; i<subcontainerElements.length; i++){
 		//console.log("subcontainerElement = "+subcontainerElements[i].id+ ", calc((100% / "+subLayoutSize+" -5px)");
 		//subcontainerElements[i].style.width = "calc(100% / "+subLayoutSize+" -5px)";
-		subcontainerElements[i].style.width = "calc( calc(95% / "+subLayoutSize+") - 5px)";
+		//subcontainerElements[i].style.width = "calc( calc(95% / "+subLayoutSize+") - 5px)";
+		if(subcontainerElements.length == 1){
+			subcontainerElements[i].style.width = "calc( calc(100%  - "+scrollBar+"px)/ "+subLayoutSize+")";
+		} else {
+			subcontainerElements[i].style.width = "calc( calc(99%  - "+scrollBar+"px)/ "+subLayoutSize+")";
+		}
+		//console.log("calc( calc(100%  - "+scrollBar+"px)/ "+subLayoutSize+")");
 		//subcontainerElements[i].setAttribute("style.width", "calc(100% / "+subLayoutSize+")");
 	}
 	var subcontainerElementHeight = 0;
@@ -846,9 +860,12 @@ function setMainVideo(event){
 	var videoContainerElement = document.getElementById(peerid+"_"+trackid+"_container");
 	var videoElement = document.getElementById(peerid+"_"+trackid+"_video");
 	//videoElement.play();
-	
 	var main = document.getElementById("main");
 	var sub = document.getElementById("sub");
+	if(main.lastChild == videoContainerElement){
+		//mainのmainボタンを間違って押した場合
+		return;
+	}
 	while (main.lastChild) {
 		if(main.lastChild.id != null){
 			console.log(main.lastChild.id);

@@ -27,8 +27,14 @@
  margin-top: 10px;
  margin-bottom: 10px;
  height: 300px;
+ 
  overflow-x:auto;
  overflow-y:auto; 
+ /*
+ overflow: hidden;
+ overflow-y: hidden;
+ overflow: hidden;
+ */
 }
 
 .subcontainer {
