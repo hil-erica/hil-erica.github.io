@@ -32,7 +32,8 @@ https://hil-erica.github.io/Ninjutsu/kagebunshin.html?apikey=***&myuserid=erica&
 - videomutemode : true/false, trueだと映像のトラック数をCallする側に合わせるようにするため，Call側が自分の映像トラックを０にすれば映像のやり取りは生じない
 - websocketurl : websocket url
 - autowebsockconnect : true/false
-- speechhistoryurl : リアルタイム対話コンソールを表示する
+~~- speechhistoryurl : リアルタイム対話コンソールを表示する~~
+- externalwebsiteurl : 外部サイトを表示する
 - answerrequest : requestコマンドを表示するかどうか
 
 ### datachannelについて
