@@ -35,6 +35,8 @@ https://hil-erica.github.io/Ninjutsu/kagebunshin.html?apikey=***&myuserid=erica&
 - ~~speechhistoryurl : リアルタイム対話コンソールを表示する~~
 - externalwebsiteurl : 外部サイトを表示する
 - answerrequest : requestコマンドを表示するかどうか
+- roswebsocketurl : ROS websocket url
+- autorosconnect : true/false
 
 ### datachannelについて
 
