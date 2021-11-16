@@ -4,6 +4,9 @@ WebRTCツールSkyWayを使ってアバタの遠隔操作を行うサイト
 https://webrtc.ecl.ntt.com/
 
 サポートしているのはChromeのみ(Windows, Android)
+
+## ブラウザの設定
+### SSL認証の設定
 WebsocketやChat Historyを開く際SSL認証が必要になるのでChromeの起動オプションで--ignore-certificate-errorsをつけると警告が出なくて楽
 
 ---batファイル例---
@@ -16,7 +19,12 @@ chrome://flags/#allow-insecure-localhost
 
 を有効にする
 
+### websocketでROSに動画をPublishする場合の設定
+MediaStreamTrackProcessorを使用するために（Chrome 88以降で、次のフラグを有効にする必要がある）
 
+chrome://flags/#enable-experimental-web-platform-features
+
+### Firefox
 Firefoxではアドレスバーに about:config とうち，media.setsinkid.enabled をtrueにすること（じゃないとSpeakerデバイスにアクセスできない）
 
 ## 影分身
