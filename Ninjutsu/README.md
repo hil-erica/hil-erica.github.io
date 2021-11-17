@@ -44,6 +44,7 @@ https://hil-erica.github.io/Ninjutsu/kagebunshin.html?apikey=***&myuserid=erica&
 - externalwebsiteurl : 外部サイトを表示する
 - answerrequest : requestコマンドを表示するかどうか
 - roswebsocketurl : ROS websocket url
+- sendvideo2ros : true/false
 - autorosconnect : true/false
 
 ### datachannelについて
