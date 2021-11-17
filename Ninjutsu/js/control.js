@@ -171,6 +171,7 @@ function sendAttractivenessDecrease(){
 
 
 var wSocket = null;
+var wSocketIsConnected = false;
 function websocketConnect(url){
 	//var url = document.getElementById('socket_url').value;
 	console.log("clicked "+url);
@@ -179,6 +180,7 @@ function websocketConnect(url){
 		//接続通知
 		wSocket.onopen = function(event) {
 			console.log("socket established");
+			wSocketIsConnected = true;
 			setWebsocketButton(false);
 			if(autoconnectFlag){
 				if(autoconnectTimer != null){
@@ -201,6 +203,7 @@ function websocketConnect(url){
 		wSocket.onerror = function(error) {
 			console.log(error);
 			setWebsocketButton(true);
+			//wSocketIsConnected = false;
 		};
 		
 		//メッセージ受信
@@ -215,6 +218,7 @@ function websocketConnect(url){
 		wSocket.onclose = function() {
 			console.log("closed socket");
 			wSocket = null;
+			wSocketIsConnected = false;
 			//option.js
 			setWebsocketButton(true);
 			if(autoconnectFlag){
@@ -231,6 +235,8 @@ function websocketConnect(url){
 		if(wSocket.readyState == 1){
 			wSocket.close();
 			console.log("close socket");
+			wSocket = null;
+			wSocketIsConnected = false;
 		}
 	}
 }
@@ -240,7 +246,7 @@ var autoconnectFlag = false;
 function autoConnect(onoff){
 	autoconnectFlag = onoff;
 	if(onoff){
-		if(wSocket == null){
+		if(!wSocketIsConnected){
 			if(autoconnectTimer == null){
 				autoconnectTimer = setInterval(function () {
 					clickWebsocketButton();
@@ -488,7 +494,7 @@ function selectBehavior(selectedButton){
 	}
 	sendData(currentRequest.userid, "answerrequest="+JSON.stringify(answerData));
 	//操作者陪席アバタにも送信
-	if(wSocket != null){
+	if(wSocketIsConnected){
 		wSocket.send("answerrequest="+JSON.stringify(answerData));
 	}
 	doneRequest();
@@ -505,7 +511,7 @@ function canncelSelectRequest(){
 	}
 	sendData(currentRequest.userid, "cancelrequest");
 	//操作者陪席アバタにも送信
-	if(wSocket != null){
+	if(wSocketIsConnected){
 		wSocket.send("cancelrequest");
 	}
 	doneRequest();
@@ -548,7 +554,7 @@ function answerRequest(){
 	console.log(answerData);
 	sendData(currentRequest.userid, "answerrequest="+JSON.stringify(answerData));
 	//操作者陪席アバタにも送信
-	if(wSocket != null){
+	if(wSocketIsConnected){
 		wSocket.send("answerrequest="+JSON.stringify(answerData));
 	}
 	//var jsonObj = JSON.parse(cmds);
@@ -573,7 +579,7 @@ function canncelInputRequest(){
 	}
 	sendData(currentRequest.userid, "cancelrequest");
 	//操作者陪席アバタにも送信
-	if(wSocket != null){
+	if(wSocketIsConnected){
 		wSocket.send("cancelrequest");
 	}
 	doneRequest();
@@ -587,7 +593,7 @@ function canncelInputRequest(){
 
 function getData(fromPeerID, receiveText, dataConnection){
 	//console.log(fromPeerID+ " : " + receiveText);
-	if(wSocket != null){
+	if(wSocketIsConnected){
 		wSocket.send(receiveText);
 	}
 	var myPeerID = document.getElementById("myuserid");

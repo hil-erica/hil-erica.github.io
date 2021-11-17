@@ -3,7 +3,7 @@ var infoFrame;
 var isInfoShow = false;
 var logText = "";
 
-function initializeOption() {
+function initializeInformation() {
 	openInformation();
 	infoFrame.hide();
 	isInfoShow = false;

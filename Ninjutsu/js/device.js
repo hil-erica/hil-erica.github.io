@@ -45,6 +45,7 @@ async function addCamera(deviceID, deviceLabel) {
 	checkBoxObj.setAttribute('type', 'checkbox');
 	checkBoxObj.setAttribute('name', 'use-camera');
 	checkBoxObj.setAttribute('videoid', deviceID);
+	//checkBoxObj.setAttribute('class', 'form-check-input');
 	checkBoxObj.checked = true;
 	//checkBoxObj.setAttribute('disabled');
 	//checkBoxObj.setAttribute('checked');
@@ -298,6 +299,17 @@ function micSelectEvent(event){
 				value.replaceStream(localMixedStream);
 			}
 		});
+	}
+}
+
+function localCameraSelectEvent(event){
+	console.log("local camera checkbox changed "+this.id);
+	if(isReady){
+		makeLocalStream(); 
+		for(var[key, value] of remotePeerIDMediaConMap){
+			console.log("replace media stream of "+key);
+			value.replaceStream(localMixedStream);
+		}
 	}
 }
 
@@ -651,10 +663,35 @@ function standbyDevice(){
 		} else {
 			useCameras.push("local_camera_view_"+elements[i].getAttribute("videoid"));
 			console.log("append camera : "+elements[i].getAttribute("videoid")+", "+elements[i].id);
+			elements[i].addEventListener('change', localCameraSelectEvent);
 		}
 	}
 	for(var i = 0; i< useCameras.length; i++){
 		var videoContainer = document.getElementById(useCameras[i]);
+		
+		//相手に送るか，ROSに送るかチェックボックスを追加
+		var videoid = videoContainer.getAttribute("videoid");
+		var checkBoxLabelObj = document.getElementById("local_camera_label_" + videoid);
+		checkBoxLabelObj.innerHTML = "send to users&nbsp;";
+		
+		var sendRosInput = document.getElementById("sendvideo2ros");
+		if(sendRosInput.checked){
+			var checkBoxLabelObj = document.createElement('label');
+			checkBoxLabelObj.setAttribute('id', 'local_camera_ros_label_' + videoid);
+			checkBoxLabelObj.innerHTML = 'send to ROS';
+			var checkBoxObj = document.createElement('input');
+			checkBoxObj.setAttribute('id', 'local_camera_ros_checkBox_' + videoid);
+			checkBoxObj.setAttribute('type', 'checkbox');
+			checkBoxObj.setAttribute('name', 'use-camera');
+			checkBoxObj.setAttribute('videoid', videoid);
+			checkBoxObj.setAttribute('teleopetype', 'avatar');
+			checkBoxObj.setAttribute('videocontainerid', "local_camera_video_"+videoid);
+			checkBoxObj.checked = true;
+			checkBoxObj.addEventListener('change', rosSendCheckBoxChanged);
+			videoContainer.appendChild(checkBoxObj);
+			videoContainer.appendChild(checkBoxLabelObj);
+		}
+		
 		navVideoContainer.appendChild(videoContainer);//これするとelements要素が変わっちゃうっぽい
 	}
 	

@@ -73,6 +73,27 @@ function addRemoteVideo(peerid, trackid, videotrack){
 	
 	controller.appendChild(speakerSelector);
 	
+	//ros send option
+	var sendRosInput = document.getElementById("sendvideo2ros");
+	if(sendRosInput.checked){
+		var checkBoxLabelObj = document.createElement('label');
+		checkBoxLabelObj.setAttribute('id',  peerid+"_" + trackid+"_ros_label");
+		checkBoxLabelObj.setAttribute("peerid", peerid);
+		checkBoxLabelObj.setAttribute("trackid", trackid);
+		checkBoxLabelObj.innerHTML = 'send to ROS';
+		var checkBoxObj = document.createElement('input');
+		checkBoxObj.setAttribute('id',  peerid+"_" + trackid+"_ros_checkBox");
+		checkBoxObj.setAttribute('type', 'checkbox');
+		checkBoxObj.setAttribute("peerid", peerid);
+		checkBoxObj.setAttribute("trackid", trackid);
+		checkBoxObj.setAttribute('teleopetype', 'operator');
+		checkBoxObj.setAttribute('videocontainerid', peerid+"_"+ trackid+"_video");
+		
+		checkBoxObj.checked = true;
+		checkBoxObj.addEventListener('change', rosSendCheckBoxChanged);
+		controller.appendChild(checkBoxObj);
+		controller.appendChild(checkBoxLabelObj);
+	}
 	/*
 	var optionDiv = document.createElement("div");
 	optionDiv.setAttribute("class", "col-sm-5");
@@ -215,6 +236,10 @@ function addRemoteVideo(peerid, trackid, videotrack){
 	
 	//新しい映像が加わったのでリサイズ
 	calsSubContainersSize();
+	
+	//ros
+	onNewUserVideoConnected(videoObj);
+	
 	return container;
 }
 
@@ -224,6 +249,9 @@ function removeRemoteVideo(peerid){
 	for (var i = 0; i < elements.length; i++) {
 		//elements[i].srcObject.getTracks().forEach(track => track.stop());
 		if(elements[i].srcObject != null){
+			//ros
+			stopVideoStreamer(elements[i].id);
+	
 			var tracks = elements[i].srcObject.getTracks();
 			if(tracks != null){
 				for(var j = 0; j < tracks.length; j++){

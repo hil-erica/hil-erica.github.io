@@ -114,7 +114,14 @@ function makeLocalStream(){
 		for (var i = 0; i < elements.length; i++) {
 			//elements[i].srcObject.getTracks().forEach(track => track.stop());
 			//elements[i].srcObject = null;
-			if(elements[i].srcObject.getVideoTracks().length > 0){
+			var checkBoxObj = document.getElementById('local_camera_checkBox_' + elements[i].getAttribute("videoid"));
+			var sendVideoTrack = true;
+			if(checkBoxObj != null){
+				if(!checkBoxObj.checked){
+					sendVideoTrack = false;
+				}
+			}
+			if(elements[i].srcObject.getVideoTracks().length > 0 && sendVideoTrack){
 				localMixedStream.addTrack(elements[i].srcObject.getVideoTracks()[0]);
 			}
 			console.log('remove audio track from local mic stream');

@@ -2,11 +2,6 @@
 var optionFrame;
 var isOptionShow = false;
 
-var webSockUrl = "wss://127.0.0.1:8000";
-var autoWebSockConnect = false;
-var speechHistoryUrl = "https://127.0.0.1/erica_database/console/realtime/display_realtime_dialog.php";
-var answerRequest=true;
-
 function initializeOption() {
 	openOption();
 	optionFrame.hide();
@@ -33,43 +28,15 @@ function openOption(){
 			url: 'option.html',//iframe内に表示するURL
 			urlLoaded: (_frame) => {
 				console.log("loaded option.html");
-				optionFrame.$('#wsockautoconnect').checked = autoWebSockConnect;
-				optionFrame.$('#socket_url').value = webSockUrl;
-				optionFrame.$('#speechhistory_url').value = speechHistoryUrl;
-				if(autoWebSockConnect == true){
-					autoConnect(optionFrame.$('#wsockautoconnect').checked);
-				}
-				optionFrame.$('#answerRequestBehavorSelect').checked = answerRequest;
 				
-				optionFrame.on('#open_speechhistory', 'click', (_frame, evt) => {
-					//console.log("controller button click");
-					openSpeechHistory(optionFrame.$('#speechhistory_url').value);
-				});
 				optionFrame.on('#controller', 'click', (_frame, evt) => {
 					//console.log("controller button click");
 					openController();
 				});
-				optionFrame.on('#wsockautoconnect', 'change', (_frame, evt) => {
-					//console.log("socket autoconnect to "+optionFrame.$('#wsockautoconnect').checked);
-					autoConnect(optionFrame.$('#wsockautoconnect').checked);
-				});
-				optionFrame.on('#websocketbutton', 'click', (_frame, evt) => {
-					console.log("socket connect button : "+optionFrame.$('#socket_url').value);
-					websocketConnect(optionFrame.$('#socket_url').value);
-				});
+				
 				optionFrame.on('#optionalcommandfile', 'change', (_frame, evt) => {
 					//console.log("optionalcommandfile loaded : ");
 					optionalCommandLoad();
-				});
-				optionFrame.on('#socket_url', 'keypress', (_frame, evt) => {
-					var wsURL = optionFrame.$('#socket_url').value;
-					var indexURL = wsURL.indexOf("://");
-					var httpsURL = "https://"+wsURL.substring(indexURL+3, wsURL.length);
-					optionFrame.$('#installcertificateLink').setAttribute("href", httpsURL);
-					optionFrame.$('#installcertificateLink').innerHTML = httpsURL;
-				});
-				optionFrame.on('#answerRequestBehavorSelect', 'change', (_frame, evt) => {
-					answerRequest = optionFrame.$('#answerRequestBehavorSelect').checked;
 				});
 				addGestureButtons();
 			}
@@ -144,20 +111,6 @@ function setGestureIconOnRunning(gestureid){
 	}, 1000);
 }
 
-function setWebsocketButton(onoff){
-	if(onoff){
-		optionFrame.$('#websocketbutton').innerHTML = "Connect";
-		optionFrame.$('#socket_url').readOnly = false;
-	} else {
-		optionFrame.$('#websocketbutton').innerHTML = "Disconnect";
-		optionFrame.$('#socket_url').readOnly = true;
-	}
-}
-
-function clickWebsocketButton(){
-	//console.log("try to click");
-	optionFrame.$('#websocketbutton').click();
-}
 function optionalCommandLoad(){
 	var fileChooser =  optionFrame.$('#optionalcommandfile');
 	var files = fileChooser.files; // FileList object

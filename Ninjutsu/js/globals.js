@@ -49,7 +49,9 @@ function readyToChat(){
 	standbyDevice();
 	fadeInBodyImg(2000);
 	initializeCommunication();
+	initializeInformation();
 	initializeOption();
+	initializeSetting();
 	isReady = true;
 }
 
@@ -114,14 +116,30 @@ function getQueryParams() {
 			if(key == "websocketurl"){
 				webSockUrl = value;
 			}
-			if(key == "speechhistoryurl"){
-				speechHistoryUrl = value;
+			if(key == "speechhistoryurl" || key == "externalwebsiteurl"){
+				externalWebSiteUrl = value;
 			}
 			if(key == "autowebsockconnect"){
 				if(value == "true" || value == "TRUE" || value == "True"){
 					autoWebSockConnect = true;
 				}
 			}
+			if(key == "autorosconnect"){
+				if(value == "true" || value == "TRUE" || value == "True"){
+					autoRosConnect = true;
+				}
+			}
+			if(key == "roswebsocketurl"){
+				rosWebSockUrl = value;
+			}
+			if(key == "sendvideo2ros"){
+				if(value == "true" || value == "TRUE" || value == "True"){
+					document.getElementById("sendvideo2ros").checked = true;
+				} else {
+					document.getElementById("sendvideo2ros").checked = false;
+				}
+			}
+			
 			if(key == "answerrequest"){
 				if(value == "true" || value == "TRUE" || value == "True"){
 					answerRequest = true;
