@@ -10,6 +10,7 @@ function openStream(stream, remotePeerID, mediaConnection){
 	//AudioContextを使ってMediaStreamを作り直すとvideo.setSinkIDで別々に出力できるようになった，じゃないとどれか1つのsinkIDを書き換えるとすべてskywayからもらったMediaStreamの音声の出力先が連動して変わってしまう，多分そんなに音質悪化はないかな？
 	//もとのAudioStreamを再生しないとそれをソースにしたAudioContextにデータが流れない，AudioContextがStreamするデータはSetSinkIdがちゃんと働くので実際に音を流すのはAudioContext経由にしたい，ってことでMuteでバックグラウンドでskywayでもらったstreamを再生しておく
 	
+	//もし画面共有を最初のVideoTrackに確保するとここ修正
 	if(stream.getVideoTracks().length == 0){
 		if(stream.getAudioTracks().length > 0){
 			/*
@@ -82,6 +83,7 @@ function openStream(stream, remotePeerID, mediaConnection){
 
 function makeLocalStream(){
 	var myPeerID = document.getElementById("myuserid");
+	//localMixedStream = null;
 	localMixedStream = new webkitMediaStream();
 	//取得した一覧から全てのvalue値を表示する
 	if(localMicStream != null){
@@ -118,6 +120,7 @@ function makeLocalStream(){
 			var sendVideoTrack = true;
 			if(checkBoxObj != null){
 				if(!checkBoxObj.checked){
+					console.log("don't send "+elements[i].getAttribute("videoid"));
 					sendVideoTrack = false;
 				}
 			}

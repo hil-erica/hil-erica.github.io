@@ -139,7 +139,9 @@ function getQueryParams() {
 					document.getElementById("sendvideo2ros").checked = false;
 				}
 			}
-			
+			if(key =="rosframeid"){
+				document.getElementById("ros_frameid_header").value = value;
+			}
 			if(key == "answerrequest"){
 				if(value == "true" || value == "TRUE" || value == "True"){
 					answerRequest = true;

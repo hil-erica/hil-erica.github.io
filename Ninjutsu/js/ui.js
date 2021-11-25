@@ -545,6 +545,10 @@ function addRemoteSound(peerid, trackid, audiotrack, muteMode){
 	return container;
 }
 
+//相手の画面共有動画
+function addRemoteDisplayMedia(peerid, videotrack){
+}
+
 function speakerSelectEvent(event){
 	//個別のスピーカー設定
 	var speakerSelector = this;

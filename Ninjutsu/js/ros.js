@@ -160,7 +160,7 @@ function sendVideoToROS(videoid, userType,videotrack){
 		var topicName = "/avatar_vision/"+myPeerID.value+"/"+userType+"/image_"+localCameraIndex+"/compressed";
 		console.log(userType+' topic = '+topicName+ ', id='+videoid+', '+rosVideoStreamerMap.size+' videos sent');
 		
-		var rosVideoStreamer = new ROSVideoStreamer(rosSocket, topicName, videotrack);
+		var rosVideoStreamer = new ROSVideoStreamer(rosSocket, topicName, videotrack, localCameraIndex);
 		rosVideoStreamerMap.set(videoid, rosVideoStreamer);
 		rosVideoStreamer.start();
 	}
@@ -196,7 +196,7 @@ class ROSVideoStreamer {
 	processor = null;
 	topic = null;
 	*/
-	constructor(rosSocket, topicName, videoTrack) {
+	constructor(rosSocket, topicName, videoTrack, trackNum) {
 		/*
 		//負荷軽減のためにTopicごとにSocketつくる．．．あまり変わらなそう
 		if(rosSocketIsConnected){
@@ -225,6 +225,7 @@ class ROSVideoStreamer {
 		this.rosSocket = rosSocket;
 		this.topicName = topicName;
 		this.videoTrack = videoTrack;
+		this.trackNum = trackNum;
 	}
 	
 	getTopicName(){
@@ -269,7 +270,11 @@ class ROSVideoStreamer {
 				// image jpeg publish
 				var data = canvasElement.toDataURL('image/jpeg');
 				//console.log(data);
+				var ros_frameid_headerElement = document.getElementById("ros_frameid_header");
 				var imageMessage = new ROSLIB.Message({
+					header : {
+						frame_id : ros_frameid_headerElement.value+this.trackNum
+					},
 					format : "jpeg",
 					data : data.replace("data:image/jpeg;base64,", "")
 				});
