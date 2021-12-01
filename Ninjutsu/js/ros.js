@@ -149,7 +149,7 @@ function sendVideoToROS(videoid, userType,videotrack){
 			var rosVideoStreamerSent = rosVideoStreamerMap.get(sentvideoid);
 			//console.log('id:' + sentvideoid + ' topicName:' + rosVideoStreamerSent.getTopicName() );
 			if(sentvideoid == videoid){
-				consolo.log(videoid +" is already sent to ROS");
+				console.log(videoid +" is already sent to ROS");
 				return;
 			}
 			if(rosVideoStreamerSent.getTopicName() == ("/avatar_vision/"+myPeerID.value+"/"+userType+"/image_"+localCameraIndex+"/compressed")){
@@ -189,6 +189,7 @@ function autorosConnect(onoff){
 
 //topicname, /avatar_vision/*envname*/operator or avatar/image_index/compressed, index starts from 1
 // ex, /avatar_vision/test/operator/image_1/compressed  /avatar_vision/test/avatar/image_1/compressed
+var canvasElement = document.createElement("canvas");
 
 class ROSVideoStreamer {
 	/*
@@ -238,7 +239,7 @@ class ROSVideoStreamer {
 		}) => {
 			//ここが複数にするとたまる
 			if (value) {
-				var canvasElement = document.createElement("canvas");
+				//var canvasElement = document.createElement("canvas");
 				//var roscanvasesElement = document.getElementById("roscanvases");
 				//roscanvasesElement.appendChild(canvasElement);
 				/*
@@ -248,7 +249,7 @@ class ROSVideoStreamer {
 				canvasElement.height = value.codedHeight;
 				*/
 				//小さく
-				var maxWidth = 640;//max full hdと仮定して最大4枚まで送りたいとなると1920/2=960:540
+				var maxWidth = 640;//max full hdと仮定して最大4枚まで送りたいとなると1920/2=960:540, 640, 320
 				var maxHeight = parseInt(maxWidth*9/16);
 				if(value.codedWidth > maxWidth){
 					canvasElement.style.width = maxWidth+'px';
@@ -287,7 +288,7 @@ class ROSVideoStreamer {
 				//this.topic.publish(imageMessage);
 				
 				//roscanvasesElement.removeChild(canvasElement);
-				canvasElement = null;
+				//canvasElement = null;
 				
 				value.close();
 				/*
