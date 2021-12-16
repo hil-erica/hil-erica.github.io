@@ -3,6 +3,8 @@ window.addEventListener('resize', windowResizeListener);
 var remotePeerIDVideoContainerMap = new Map();//peerid, Array of div video container, to sort sub container
 //var drawJsonObjOnCanvas = null;
 var drawJsonObjOnCanvasUsers = new Map();//peerid, jsonobj for canvas draw
+var targetSelected = false;
+var selectedTargetID = "none";
 
 function addRemoteVideo(peerid, trackid, videotrack){
 	var main = document.getElementById("main");
@@ -1043,6 +1045,13 @@ function closeSetupModal(){
 function updateActionPointOnCanvas(cmds){
 	//console.log(cmds);
 	var jsonObj = JSON.parse(cmds);
+	if(jsonObj.selected != null && jsonObj.currentpoint != null){
+		targetSelected = jsonObj.selected;
+		selectedTargetID = jsonObj.currentpoint;
+	} else {
+		targetSelected = false;
+		selectedTargetID = "none";
+	}
 	if(drawJsonObjOnCanvasUsers.has(jsonObj.userName)){
 		drawJsonObjOnCanvasUsers.delete(jsonObj.userName);
 	}
@@ -1081,7 +1090,10 @@ function drawActionPointOnEachCanvas(canvasElement){
 	if(drawJsonObjOnCanvas == null)return;
 	for(var j = 0; j<drawJsonObjOnCanvas.points.length; j++){
 		if(drawJsonObjOnCanvas.points[j].trackID == canvasElement.getAttribute("trackid")){
-			if(drawJsonObjOnCanvas.points[j].type == "human"){
+			if(targetSelected && drawJsonObjOnCanvas.points[j].id == selectedTargetID){
+				//選択中
+				context.strokeStyle = "rgba(255,0,0,0.5)";
+			} else if(drawJsonObjOnCanvas.points[j].type == "human"){
 				//context.strokeStyle = "green" ;
 				context.strokeStyle = "rgba(0,255,0,0.5)";
 			} else {
@@ -1093,7 +1105,11 @@ function drawActionPointOnEachCanvas(canvasElement){
 			context.lineWidth = 1.5 ;
 			context.stroke() ;
 			if(drawJsonObjOnCanvas.points[j].label != null){
-				if(drawJsonObjOnCanvas.points[j].type == "human"){
+				if(targetSelected && drawJsonObjOnCanvas.points[j].id == selectedTargetID){
+					//選択中
+					context.strokeStyle = "rgba(255,0,0,0.8)";
+					context.fillStyle = "rgba(255,0,0,0.8)";
+				} else if(drawJsonObjOnCanvas.points[j].type == "human"){
 					//context.strokeStyle = "green" ;
 					context.strokeStyle = "rgba(0,255,0,0.8)";
 					context.fillStyle = "rgba(0,255,0,0.8)";
