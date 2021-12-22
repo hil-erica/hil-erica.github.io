@@ -2,7 +2,7 @@
 //<script src="http://static.robotwebtools.org/EventEmitter2/current/eventemitter2.min.js"></script>
 //<script src="http://static.robotwebtools.org/roslibjs/current/roslib.min.js"></script>
 // Connecting to ROS 
-
+'use strict';
 //
 var rosSocket = null;
 var rosSocketIsConnected = false;
@@ -87,6 +87,9 @@ function onRosConnect(){
 	for (var i = 0; i < elements.length; i++) {
 		onNewUserVideoConnected(elements[i]);
 	}
+	if(useAnimationFrameLoopToSend){
+		videoSendLoop();
+	}
 }
 
 function onNewUserVideoConnected(videoElement){
@@ -129,6 +132,9 @@ function rosSendCheckBoxChanged(){
 //接続中の送信を止める
 function onRosDisconnect(){
 	console.log("close all ROSVideoStreamers");
+	if(useAnimationFrameLoopToSend){
+		videoSendLoopStop();
+	}
 	//すべての配信を止める
 	for (let sentvideoid of rosVideoStreamerMap.keys()) {
 		var rosVideoStreamerSent = rosVideoStreamerMap.get(sentvideoid);
@@ -189,7 +195,42 @@ function autorosConnect(onoff){
 
 //topicname, /avatar_vision/*envname*/operator or avatar/image_index/compressed, index starts from 1
 // ex, /avatar_vision/test/operator/image_1/compressed  /avatar_vision/test/avatar/image_1/compressed
+var maxWidth = 640;//max full hdと仮定して最大4枚まで送りたいとなると1920/2=960:540, 640, 320
 var canvasElement = document.createElement("canvas");
+var maxHeight = parseInt(maxWidth*9/16);
+canvasElement.style.width = maxWidth+'px';
+canvasElement.style.height = maxHeight+'px';
+canvasElement.width = maxWidth;
+canvasElement.height = maxHeight;
+var canvasCtx = canvasElement.getContext('2d', {storage: "discardable"});
+
+var useAnimationFrameLoopToSend = true;
+//canvasへのdrawImageを使うので描画よりも頻度が高いのは良くないかもってことで．．．でも20fpsくらいは出るのでPCによっては十分だし，順番にCanvasに書くから行儀良さそう
+var startTime = new Date().getTime();　//描画開始時刻を取得
+var prevTime =  new Date().getTime();　//描画開始時刻を取得
+var requestId; 
+async function videoSendLoop(){
+	requestId = null;
+	requestId = window.requestAnimationFrame(videoSendLoop);
+	/*
+	var currentTime = new Date().getTime();　//経過時刻を取得
+	var status = (currentTime-prevTime) // 描画開始時刻から経過時刻を引く
+	prevTime = currentTime;
+	console.log(status);
+	*/
+	for (let sentvideoid of rosVideoStreamerMap.keys()) {
+		var rosVideoStreamerSent = rosVideoStreamerMap.get(sentvideoid);
+		//console.log("try to start "+rosVideoStreamerSent.topicName);
+		//まっても変わらん，4トラック送ると10FPSにまで落ちる
+		await rosVideoStreamerSent.readChunkAndWait();//trackごとまつ
+		//rosVideoStreamerSent.readChunkAndWait();//trackごとまたない
+		//console.log("try to end "+rosVideoStreamerSent.topicName);
+	}
+}
+function videoSendLoopStop(){
+	window.cancelAnimationFrame(requestId);
+	requestId = null;
+}
 
 class ROSVideoStreamer {
 	/*
@@ -198,7 +239,6 @@ class ROSVideoStreamer {
 	topic = null;
 	*/
 	constructor(rosSocket, topicName, videoTrack, trackNum) {
-		/*
 		//負荷軽減のためにTopicごとにSocketつくる．．．あまり変わらなそう
 		if(rosSocketIsConnected){
 			//connect
@@ -222,8 +262,8 @@ class ROSVideoStreamer {
 		
 			this.rosSocket.connect(rosURL);
 		}
-		*/
-		this.rosSocket = rosSocket;
+		
+		//this.rosSocket = rosSocket;
 		this.topicName = topicName;
 		this.videoTrack = videoTrack;
 		this.trackNum = trackNum;
@@ -234,14 +274,13 @@ class ROSVideoStreamer {
 	}
 	
 	//https://pretagteam.com/question/javascript-extract-video-frames-reliably
-	readChunk() {
-		this.reader.read().then(async ({done, value
+	async readChunkAndWait() {
+		await this.reader.read().then(async ({done, value
 		}) => {
 			//ここが複数にするとたまる
+			//console.log("start "+this.topicName);
 			if (value) {
 				//var canvasElement = document.createElement("canvas");
-				//var roscanvasesElement = document.getElementById("roscanvases");
-				//roscanvasesElement.appendChild(canvasElement);
 				/*
 				canvasElement.style.width = value.codedWidth+'px';
 				canvasElement.style.height = value.codedHeight+'px';
@@ -249,7 +288,6 @@ class ROSVideoStreamer {
 				canvasElement.height = value.codedHeight;
 				*/
 				//小さく
-				var maxWidth = 640;//max full hdと仮定して最大4枚まで送りたいとなると1920/2=960:540, 640, 320
 				var maxHeight = parseInt(maxWidth*9/16);
 				if(value.codedWidth > maxWidth){
 					canvasElement.style.width = maxWidth+'px';
@@ -263,13 +301,26 @@ class ROSVideoStreamer {
 					canvasElement.height = value.codedHeight;
 				}
 				
-				var canvasCtx = canvasElement.getContext('2d');
-				canvasCtx.drawImage(value, 0, 0, canvasElement.width, canvasElement.height);
-				//console.log(value.codedWidth +", "+value.codedHeight +" -> "+canvasElement.style.width+", "+canvasElement.style.height+" -> "+canvasElement.width+", "+canvasElement.height);
+				//var canvasCtx = canvasElement.getContext('2d', {storage: "discardable"});
 				
-				//canvasCtx.drawImage(value, 0, 0, canvasElement.height, canvasElement.width);
+				//drawImage causes memory leak
+				canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+				canvasCtx.drawImage(value, 0, 0, canvasElement.width, canvasElement.height);
+				
 				// image jpeg publish
+				//const bitmap = await createImageBitmap(value, {resizeWidth: maxWidth, resizeHeight: maxHeight, resizeQuality: "high"});
+				//console.log(bitmap);
+				//bitmap.close();
+				
 				var data = canvasElement.toDataURL('image/jpeg');
+				
+				// Canvas を破棄するとき
+				//canvasCtx = null;
+				//canvasElement.height = 0;
+				//canvasElement.width = 0;
+				//canvasElement.remove();
+				//canvasElement = null;
+				
 				//console.log(data);
 				var ros_frameid_headerElement = document.getElementById("ros_frameid_header");
 				var imageMessage = new ROSLIB.Message({
@@ -279,41 +330,121 @@ class ROSVideoStreamer {
 					format : "jpeg",
 					data : data.replace("data:image/jpeg;base64,", "")
 				});
-				
+				data = null;
 				//ここでそれぞれのTopicにアスセスせにゃならんのだが
 				//console.log(this.topic);
-				this.topic.publish(imageMessage);
+				
+				if(!this.stopped)this.topic.publish(imageMessage);
+				
 				//console.log(this.topicName);
 				//console.log(imageMessage);
 				//this.topic.publish(imageMessage);
 				
-				//roscanvasesElement.removeChild(canvasElement);
 				//canvasElement = null;
 				
 				value.close();
-				/*
-				const bitmap = await createImageBitmap(value);
-				const index = frames.length;
-				frames.push(bitmap);
-				select.append(new Option("Frame #" + (index + 1), index));
-				value.close();
-				*/
 			}
 			
 			//rosSocketIsConnectedのフラグは実際ROSとのコネクションが切れてから変わるのでROSとのコネクションが切れたらエラーが出るのは避けられぬ
 			if (!done && !this.stopped) {
-				this.readChunk();
+				////もしvideoSendLoopを使わないなら
+				if(!useAnimationFrameLoopToSend){
+					//this.readChunk();
+				}
 			} else {
 				//select.disabled = false;
 			}
+			//console.log("done "+this.topicName);
 		});
 	}
-	
+	readChunk() {
+		this.reader.read().then(async ({done, value
+		}) => {
+			//ここが複数にするとたまる
+			//console.log("start "+this.topicName);
+			if (value) {
+				//var canvasElement = document.createElement("canvas");
+				/*
+				canvasElement.style.width = value.codedWidth+'px';
+				canvasElement.style.height = value.codedHeight+'px';
+				canvasElement.width = value.codedWidth;
+				canvasElement.height = value.codedHeight;
+				*/
+				//小さく
+				var maxHeight = parseInt(maxWidth*9/16);
+				if(value.codedWidth > maxWidth){
+					canvasElement.style.width = maxWidth+'px';
+					canvasElement.style.height = maxHeight+'px';
+					canvasElement.width = maxWidth;
+					canvasElement.height = maxHeight;
+				} else {
+					canvasElement.style.width = value.codedWidth+'px';
+					canvasElement.style.height = value.codedHeight+'px';
+					canvasElement.width = value.codedWidth;
+					canvasElement.height = value.codedHeight;
+				}
+				
+				//var canvasCtx = canvasElement.getContext('2d', {storage: "discardable"});
+				
+				//drawImage causes memory leak
+				canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+				canvasCtx.drawImage(value, 0, 0, canvasElement.width, canvasElement.height);
+				
+				// image jpeg publish
+				//const bitmap = await createImageBitmap(value, {resizeWidth: maxWidth, resizeHeight: maxHeight, resizeQuality: "high"});
+				//console.log(bitmap);
+				//bitmap.close();
+				var data = canvasElement.toDataURL('image/jpeg');
+				
+				// Canvas を破棄するとき
+				//canvasCtx = null;
+				//canvasElement.height = 0;
+				//canvasElement.width = 0;
+				//canvasElement.remove();
+				//canvasElement = null;
+				
+				//console.log(data);
+				var ros_frameid_headerElement = document.getElementById("ros_frameid_header");
+				var imageMessage = new ROSLIB.Message({
+					header : {
+						frame_id : ros_frameid_headerElement.value+this.trackNum
+					},
+					format : "jpeg",
+					data : data.replace("data:image/jpeg;base64,", "")
+				});
+				data = null;
+				//ここでそれぞれのTopicにアスセスせにゃならんのだが
+				//console.log(this.topic);
+				
+				if(!this.stopped)this.topic.publish(imageMessage);
+				
+				//console.log(this.topicName);
+				//console.log(imageMessage);
+				//this.topic.publish(imageMessage);
+				
+				//canvasElement = null;
+				
+				value.close();
+			}
+			
+			//rosSocketIsConnectedのフラグは実際ROSとのコネクションが切れてから変わるのでROSとのコネクションが切れたらエラーが出るのは避けられぬ
+			if (!done && !this.stopped) {
+				////もしvideoSendLoopを使わないなら
+				if(!useAnimationFrameLoopToSend){
+					this.readChunk();
+				}
+			} else {
+				//select.disabled = false;
+			}
+			//console.log("done "+this.topicName);
+		});
+	}
 	start(){
 		this.topic = new ROSLIB.Topic({
 			ros : this.rosSocket,
 			name : this.topicName,
-			messageType : 'sensor_msgs/CompressedImage'
+			messageType : 'sensor_msgs/CompressedImage',
+			queue_size : 1
 		});
 		
 		//console.log(this.videoTrack.getVideoTracks().length);
@@ -323,33 +454,19 @@ class ROSVideoStreamer {
 				this.videoTrack.getVideoTracks()[0]
 			);
 			//https://note.com/skyway/n/ned76e8596d9c
-			/*
-			const writable = new WritableStream({
-				start() {
-					console.log("WritableStream started.");
-				},
-				async write(videoFrame) {
-					console.log(videoFrame);
-					//console.log(videoFrame.width +", "+videoFrame.height);
-					const imageBitmap = await createImageBitmap(videoFrame);
-					imageBitmap.close();
-					videoFrame.close();
-				},
-				stop() {
-					console.log("WritableStream stopped.");
-				},
-			});
-			this.processor.readable.pipeTo(writable);
-			*/
 			this.reader = this.processor.readable.getReader();
 			this.stopped = false;//stop flag
-			this.readChunk();
+			////もしvideoSendLoopを使わないなら
+			if(!useAnimationFrameLoopToSend){
+				this.readChunk();
+			}
 		}
 	}
 	
 	//https://zenn.dev/mganeko/articles/videotrackreader
 	stop(){
 		console.log("stop publish "+this.topicName);
+		this.rosSocket.close();
 		this.stopped = true;
 		//this.readerをなにかせんでもいいのか？
 		//processor.readable.cancel(); // streamがlockされているため、cancel()できない
