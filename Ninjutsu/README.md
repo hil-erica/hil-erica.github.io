@@ -47,6 +47,7 @@ https://hil-erica.github.io/Ninjutsu/kagebunshin.html?apikey=***&myuserid=erica&
 - rosframeid : ros mjpeg header
 - sendvideo2ros : true/false
 - autorosconnect : true/false
+- vcodec: video codec option = VP8, VP9, H264, default=VP9
 
 ### datachannelについて
 
