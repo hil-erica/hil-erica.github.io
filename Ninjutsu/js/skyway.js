@@ -13,6 +13,7 @@ var thisPeer;
 var remotePeerIDMediaConMap = new Map();
 var remotePeerIDDataConMap = new Map();
 var checkMemberTimerId;
+var vCodec="VP9";//H264, VP8, VP9
 
 function logout(){
 	console.log("try to log out");
@@ -98,11 +99,14 @@ function gotoStandby() {
 		//かかってきたイベント
 		// Register callee handler
 		thisPeer.on('call', mediaConnection => {
+			const answerOption = {
+				videoCodec: vCodec,
+			};
 			if(localMixedStream == null){
 				makeLocalStream();
 			}
 			console.log('local stream videotrack = '+localMixedStream.getVideoTracks().length+', audiotrack = '+localMixedStream.getAudioTracks().length);
-			mediaConnection.answer(localMixedStream);
+			mediaConnection.answer(localMixedStream, answerOption);
 			
 			updateConnectUI(mediaConnection.remoteId, false);
 			
@@ -196,7 +200,9 @@ function callRemoteOne(remotePeerID) {
 
 //自分で電話
 function mediaCall(remotePeerID){
-	var mediaConnection = thisPeer.call(remotePeerID, localMixedStream);
+	var mediaConnection = thisPeer.call(remotePeerID, localMixedStream, {
+		videoCodec: vCodec,
+	});
 	if(mediaConnection == null){
 		return false;
 	}

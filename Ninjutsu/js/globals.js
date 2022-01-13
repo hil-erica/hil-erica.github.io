@@ -4,6 +4,7 @@ var teleOpeMode = false;
 var currenthandgesture = "palmup";
 var isReady = false;
 
+var isNode = (typeof process !== "undefined" && typeof require !== "undefined");
 
 function initialize(){
 	/*
@@ -24,7 +25,7 @@ function initialize(){
 	changeSubLayout(1);
 	calsSubContainersSize();
 	initializeJSFrame();
-	console.log("initialize finish");
+	console.log("initialize finish, isNode = "+isNode);
 }
 
 window.addEventListener('beforeunload', (event) => {
@@ -148,6 +149,9 @@ function getQueryParams() {
 				}else {
 					answerRequest = false;
 				}
+			}
+			if(key == "vcodec"){
+				vCodec = value;
 			}
 		}
 		return result;
