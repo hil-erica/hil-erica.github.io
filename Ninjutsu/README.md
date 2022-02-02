@@ -187,4 +187,4 @@ forcelogout=peerid
 ### websocketでROSに動画をPublishする場合の設定
 ROSには従来Canvas描画ビットマップを取得してCanvasにDrawImageしJpegとして取得しWebSocketでMJpegとして送信していたが，DrawImage関数でメモリリークが起きるかつ，コマごとに描画するのでブラウザが重くなるため廃止
 ~~MediaStreamTrackProcessorを使用するために（Chrome 88以降で、次のフラグを有効にする必要がある）
-chrome://flags/#enable-experimental-web-platform-features
+chrome://flags/#enable-experimental-web-platform-features~~
