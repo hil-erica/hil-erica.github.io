@@ -19,11 +19,6 @@ chrome://flags/#allow-insecure-localhost
 
 を有効にする
 
-### websocketでROSに動画をPublishする場合の設定
-MediaStreamTrackProcessorを使用するために（Chrome 88以降で、次のフラグを有効にする必要がある）
-
-chrome://flags/#enable-experimental-web-platform-features
-
 ### Firefox
 Firefoxではアドレスバーに about:config とうち，media.setsinkid.enabled をtrueにすること（じゃないとSpeakerデバイスにアクセスできない）
 
@@ -43,10 +38,12 @@ https://hil-erica.github.io/Ninjutsu/kagebunshin.html?apikey=***&myuserid=erica&
 - ~~speechhistoryurl : リアルタイム対話コンソールを表示する~~
 - externalwebsiteurl : 外部サイトを表示する
 - answerrequest : requestコマンドを表示するかどうか
-- roswebsocketurl : ROS websocket url
-- rosframeid : ros mjpeg header
-- sendvideo2ros : true/false
-- autorosconnect : true/false
+- streaming2local : true/false, getDevicesで映像音声をローカルにストリーミングするかどうかオプション，デフォルトではfalse
+- streamingwebsocketurl : 映像音声をローカルにストリーミングするホスト名，ポートは順々に埋められる
+- ~~roswebsocketurl : ROS websocket url
+- ~~rosframeid : ros mjpeg header
+- ~~sendvideo2ros : true/false
+- ~~autorosconnect : true/false
 - vcodec: video codec option = VP8, VP9, H264, default=VP9
 
 ### datachannelについて
@@ -164,3 +161,30 @@ forcelogout=peerid
   - タイムアウトまたは選択拒否された場合 : cancelrequest
   
   answerrequest={"answerdata":[{"姓":"さとう"},{"名":"ひろのぶ"}]}
+
+
+
+
+## websocketで自他のメディアをストリーミングする場合の設定
+映像をMediaRecorderで取得し，WebSocketでローカルにストリーミングし，さらにUDPでストリーミングする(SSLWebSocketUDPStreamer.jarを利用)
+- ビデオコーデックH264を使う場合
+  - Skywayの仕様上送受信される解像度が640*480になる
+  - 自分の映像
+  - Gstreamerを使用して受信する例) gst-launch-1.0 -v udpsrc port=20000 ! h264parse ! avdec_h264 ! videoconvert ! autovideosink sync=false
+- ビデオコーデックVP9を使う場合
+  - 自分の映像はH264のまま
+  - ストリーミングを受信するアプリをストリーミング開始よりも先に立ち上げておかないとMediaRecorderで取得したトラック情報が取得できずデコードに失敗する可能性がある
+  - Gstreamerを使用して受信する例）gst-launch-1.0 udpsrc port=20002 ! matroskademux name=demux demux.video_0 ! queue ! vp9parse ! vp9dec ! videoconvert ! videoscale ! autovideosink sync=false
+- 問題点
+  - 1つのVideoエレメントに複数のMediaRecorderを適応すると遠隔地の映像が乱れるため，ローカルにストリーミングと録画機能を併用する際1メディアに対す複数のMediaRecorderを起動するのは危険．録画されるWebm形式の動画ではEBML形式でヘッダーがかかれておりそれがないとVLCでも再生できない．ヘッダーだけ抽出して必要な動画部分だけBlobで保存してもメディアの圧縮された各データにはTimecodeが保存されておりMediaRecorderがスタートした時刻からの相対位置が保存されてしまう．そのためデータ容量的には必要な部分しか保存されてないが，再生してみるとMediaRecorderが開始した時刻からずっと録画されている時間シークになる．そのため，先にストリーミングが始まっていた場合は，いったんMediaRecorderを止め，新たにMediaRecorderをスタートする方式にした．しかし，途中でMediaRecorderを止めるとVP9をパースしていたGstreamerが落ちる．また，VP9をパースするにはGstreamerでもWebmのヘッダーが必要となりそれが抜けてもエラーで落ちる．GstreamerのためにMediaRecorderで取得したヘッダーからすべてのデータを送信することもできるがUDPのため順序が入れ替わったりする恐れがありパースに失敗する．
+- 解決策・対処
+  - VP9を使わずH264なら問題ない，途中からでもパースできる（Gstreamerのvp9parserがが完全じゃないのかな？まあBadpackageだし）
+  - ROSがわのGstreamerも落ちたら自動再起動にしてほしい
+  - MediaRecorderをRTPプロトコルに変換→そんな面倒なことしてられん
+  - すべていったんローカルにストリーミングしてそこでいい感じに録画とUDPStreamingに割り振ってくれればいい→WebSocketBrdgeをGstreamer？を入れてよくする
+
+
+### websocketでROSに動画をPublishする場合の設定
+ROSには従来Canvas描画ビットマップを取得してCanvasにDrawImageしJpegとして取得しWebSocketでMJpegとして送信していたが，DrawImage関数でメモリリークが起きるかつ，コマごとに描画するのでブラウザが重くなるため廃止
+~~MediaStreamTrackProcessorを使用するために（Chrome 88以降で、次のフラグを有効にする必要がある）
+chrome://flags/#enable-experimental-web-platform-features
