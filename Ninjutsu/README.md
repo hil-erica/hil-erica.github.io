@@ -40,10 +40,10 @@ https://hil-erica.github.io/Ninjutsu/kagebunshin.html?apikey=***&myuserid=erica&
 - answerrequest : requestコマンドを表示するかどうか
 - streaming2local : true/false, getDevicesで映像音声をローカルにストリーミングするかどうかオプション，デフォルトではfalse
 - streamingwebsocketurl : 映像音声をローカルにストリーミングするホスト名，ポートは順々に埋められる
-- ~~roswebsocketurl : ROS websocket url
-- ~~rosframeid : ros mjpeg header
-- ~~sendvideo2ros : true/false
-- ~~autorosconnect : true/false
+- ~~roswebsocketurl : ROS websocket url~~
+- ~~rosframeid : ros mjpeg header~~
+- ~~sendvideo2ros : true/false~~
+- ~~autorosconnect : true/false~~
 - vcodec: video codec option = VP8, VP9, H264, default=VP9
 
 ### datachannelについて
@@ -186,5 +186,6 @@ forcelogout=peerid
 
 ### websocketでROSに動画をPublishする場合の設定
 ROSには従来Canvas描画ビットマップを取得してCanvasにDrawImageしJpegとして取得しWebSocketでMJpegとして送信していたが，DrawImage関数でメモリリークが起きるかつ，コマごとに描画するのでブラウザが重くなるため廃止
+
 ~~MediaStreamTrackProcessorを使用するために（Chrome 88以降で、次のフラグを有効にする必要がある）
 chrome://flags/#enable-experimental-web-platform-features~~
