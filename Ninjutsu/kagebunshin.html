@@ -49,9 +49,10 @@
 <script src="./js/option.js"></script>
 <script src="./js/information.js"></script>
 <script src="./js/externalwebsite.js"></script>
-<script src="./js/recorder.js"></script>
+<!--<script src="./js/recorder.js"></script>-->
 <script src="./js/globals.js"></script>
 <script src="./js/setting.js"></script>
+<script src="./js/mediastreamer.js"></script>
 <script src="./js/ros.js"></script>
 
 
@@ -349,8 +350,8 @@
 					
 					<div class="box-text-camera">
 						<div class="form-check form-switch">
-							<input class="form-check-input" type="checkbox" id="sendvideo2ros">
-							<label class="form-check-label" for="sendvideo2ros">send videos to ROS</label>
+							<input class="form-check-input" type="checkbox" id="streaming2local">
+							<label class="form-check-label" for="streaming2local">streaming videos to local sockets</label>
 						</div>
 						
 						<div id="local_cameras" class="horizontal-list"></div>
@@ -399,7 +400,7 @@
 			<div class="modal-body">
 				<button id="recorder_button" type="button" class="btn btn-primary"  onclick="startstoprecord()">start recording</button>
 				<!--<button id="recorder_button" type="button" class="btn btn-primary"  onclick="startstoprecord()" disabled="true">start recording</button>-->
-				<a href="./utils/MediaTools.zip">WebM Tools</a>
+				&nbsp;<a href="./utils/MediaTools.zip">WebM Tools</a>
 				<!--<a href="#" id="downloadlink">download all(large size zipping is not supportted)</a>-->
 				<div id="download_each"></div>
 			</div>
@@ -445,6 +446,30 @@
 				</div>
 				
 				<div class="row  mb-3">
+					<div class="box-text-mediastreamer">
+						<!--
+						<div class="form-check form-switch">
+							<input class="form-check-input" type="checkbox" id="mediastreamsocketautoconnect">
+							<label class="form-check-label" for="mediastreamsocketautoconnect">MediaStream socket autoconnect</label>
+						</div>
+						-->
+						<label class="h6">Set the first web socket port number</label>
+						<div class="input-group  input-group-sm">
+							<span class="input-group-text">websocket url</span>
+							<input type="text" class="form-control" placeholder="wss://127.0.0.1" id="mediastream_socket_url" aria-describedby="mediastreamwebsocketbutton" value="wss://127.0.0.1" autocomplete="off"/>
+							<span class="input-group-text">local media first port:</span>
+							<input type="number" class="form-control" placeholder="8100" id="local_mediastream_socket_port" aria-describedby="mediastreamwebsocketbutton" value="8100" autocomplete="off"/>
+							<span class="input-group-text">remote media firsrt port:</span>
+							<input type="number" class="form-control" placeholder="8200" id="remote_mediastream_socket_port" aria-describedby="mediastreamwebsocketbutton" value="8200" autocomplete="off"/>
+							<button class="btn btn-outline-primary" type="button" id="mediastreamwebsocketbutton">Start Streaming</button>
+						</div>
+						<label class="h6">access https protocol at first time to install a ssl certificate</label>&nbsp;<a class="h6" id="installcertificateLink4LocalMediaStreamer" href="https://127.0.0.1:8100"  target="_blank" rel="noopener">https://127.0.0.1:8100</a>&nbsp;<a class="h6" id="installcertificateLink4RemoteMediaStreamer" href="https://127.0.0.1:82000"  target="_blank" rel="noopener">https://127.0.0.1:8200</a>
+						&nbsp;<a href="./utils/SSLWebSocketUDPStreamer.zip">SSLWebSocketUDPStreamer</a>&nbsp;<a href="./utils/UDPStreamingReceiver.zip">UDPStreamingReceiver</a>
+					</div>
+				</div>
+				
+				<!--
+				<div class="row  mb-3">
 					<div class="box-text-ros">
 						<div class="form-check form-switch">
 							<input class="form-check-input" type="checkbox" id="rosautoconnect">
@@ -462,6 +487,7 @@
 						<label class="h6">access https protocol at first time to install a ssl certificate</label>&nbsp;<a class="h6" id="installcertificateLink4ROS" href="https://127.0.0.1:10090"  target="_blank" rel="noopener">https://127.0.0.1:10090</a>
 					</div>
 				</div>
+				-->
 				
 				<div class="row  mb-3">
 					<div class="box-text-otheroptions">

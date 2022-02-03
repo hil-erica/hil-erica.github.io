@@ -30,6 +30,20 @@ function initialize(){
 
 window.addEventListener('beforeunload', (event) => {
 	console.log("beforeunload event");
+	//websocket close
+	if(wSocket != null && wSocket.readyState == 1){
+		wSocket.close();
+		console.log("close socket");
+		wSocket = null;
+	}
+	
+	//mediastreaming websocket close
+	for (var [key, value] of mapURL2Websocket.entries()) {
+		//mediarecorder stop
+		value.close();
+		console.log("close websocket for streaming : ", key);
+	}
+	
 	logout();
 });
 
@@ -125,6 +139,17 @@ function getQueryParams() {
 					autoWebSockConnect = true;
 				}
 			}
+			if(key == "streamingwebsocketurl"){
+				document.getElementById("mediastream_socket_url").value=value;
+			}
+			if(key == "streaming2local"){
+				if(value == "true" || value == "TRUE" || value == "True"){
+					document.getElementById("streaming2local").checked = true;
+				} else {
+					document.getElementById("streaming2local").checked = false;
+				}
+			}
+			/*
 			if(key == "autorosconnect"){
 				if(value == "true" || value == "TRUE" || value == "True"){
 					autoRosConnect = true;
@@ -140,6 +165,7 @@ function getQueryParams() {
 					document.getElementById("sendvideo2ros").checked = false;
 				}
 			}
+			*/
 			if(key =="rosframeid"){
 				document.getElementById("ros_frameid_header").value = value;
 			}

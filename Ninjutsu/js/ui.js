@@ -76,15 +76,15 @@ function addRemoteVideo(peerid, trackid, videotrack){
 	controller.appendChild(speakerSelector);
 	
 	//ros send option
-	var sendRosInput = document.getElementById("sendvideo2ros");
+	var sendRosInput = document.getElementById("streaming2local");
 	if(sendRosInput.checked){
 		var checkBoxLabelObj = document.createElement('label');
-		checkBoxLabelObj.setAttribute('id',  peerid+"_" + trackid+"_ros_label");
+		checkBoxLabelObj.setAttribute('id',  peerid+"_" + trackid+"_streaming_label");
 		checkBoxLabelObj.setAttribute("peerid", peerid);
 		checkBoxLabelObj.setAttribute("trackid", trackid);
-		checkBoxLabelObj.innerHTML = 'send to ROS';
+		checkBoxLabelObj.innerHTML = 'streaming to local';
 		var checkBoxObj = document.createElement('input');
-		checkBoxObj.setAttribute('id',  peerid+"_" + trackid+"_ros_checkBox");
+		checkBoxObj.setAttribute('id',  peerid+"_" + trackid+"_streaming_checkBox");
 		checkBoxObj.setAttribute('type', 'checkbox');
 		checkBoxObj.setAttribute("peerid", peerid);
 		checkBoxObj.setAttribute("trackid", trackid);
@@ -92,7 +92,7 @@ function addRemoteVideo(peerid, trackid, videotrack){
 		checkBoxObj.setAttribute('videocontainerid', peerid+"_"+ trackid+"_video");
 		
 		checkBoxObj.checked = true;
-		checkBoxObj.addEventListener('change', rosSendCheckBoxChanged);
+		checkBoxObj.addEventListener('change', streamingLocalCheckBoxChanged);
 		controller.appendChild(checkBoxObj);
 		controller.appendChild(checkBoxLabelObj);
 	}
@@ -197,20 +197,12 @@ function addRemoteVideo(peerid, trackid, videotrack){
 	}
 	//もし録画中だったらリストに加える
 	if(isRecording){
-		recorder.push(new MediaRecorder(videoObj.srcObject));
-		recorderMap.set(recorderCount, recorder[recorderCount]);
-		chunks.push([]); // 格納場所をクリア
-		fileNames.push(remoterPeerID+"_"+videoObj.getAttribute("trackid")+".webm");
-		// 録画進行中に、インターバルに合わせて発生するイベント
-		console.log(fileNames+":"+videoObj.getAttribute("trackid"));
-		recorder[recorderCount].ondataavailable = createCallbackOndataavailable(recorderCount);	
-		
-		// 録画停止時のイベント
-		recorder[recorderCount].onstop = createCallbackOnstop(recorderCount);
-		// 録画スタート
-		recorder[recorderCount].start(1000); // インターバルは1000ms
-		console.log("start recording : "+recorderCount);
-		recorderCount++;
+		addVideoRecorder(videoObj, peerid);
+	}
+	if(isMediaStreaming){
+		var remote_mediastream_socket_port_Input = document.getElementById('remote_mediastream_socket_port');
+		var remoteVideoFirstPort=remote_mediastream_socket_port_Input.value;
+		addVideoStreamer(videoObj, remoteVideoFirstPort, remoteVideosStreamingPorts);
 	}
 	
 	container.appendChild(controller);
@@ -251,9 +243,8 @@ function removeRemoteVideo(peerid){
 	for (var i = 0; i < elements.length; i++) {
 		//elements[i].srcObject.getTracks().forEach(track => track.stop());
 		if(elements[i].srcObject != null){
-			//ros
-			stopVideoStreamer(elements[i].id);
-	
+			//streaming
+			videoSrcRemoved4MediaRecorder(elements[i].id);
 			var tracks = elements[i].srcObject.getTracks();
 			if(tracks != null){
 				for(var j = 0; j < tracks.length; j++){
@@ -500,24 +491,7 @@ function addRemoteSound(peerid, trackid, audiotrack, muteMode){
 	
 	//録画中ならリストに加える
 	if(isRecording){
-		if(audioObj.srcObject != null && audioObj.getAttribute("mutemode")=="false"){
-			recorder.push(new MediaRecorder(audioObj.srcObject));
-			recorderMap.set(recorderCount, recorder[recorderCount]);
-			chunks.push([]); // 格納場所をクリア
-			fileNames.push(remoterPeerID+"_audioonly_"+audioObj.getAttribute("trackid")+".webm");
-			// 録画進行中に、インターバルに合わせて発生するイベント
-			console.log(fileNames+":"+audioObj.getAttribute("trackid"));
-			recorder[recorderCount].ondataavailable = createCallbackOndataavailable(recorderCount);	
-			
-			// 録画停止時のイベント
-			recorder[recorderCount].onstop = createCallbackOnstop(recorderCount);
-			// 録画スタート
-			recorder[recorderCount].start(1000); // インターバルは1000ms
-			console.log('start recording : '+recorderCount);
-			recorderCount++;
-		} else {
-			//console.log('remote_audio_source_'+key +' srcObjec is null');
-		}
+		addAudioRecorder(audioObj, peerid);
 	}
 	
 	container.appendChild(controller);

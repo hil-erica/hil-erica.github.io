@@ -21,6 +21,7 @@ async function addCamera(deviceID, deviceLabel) {
 	screenObj.setAttribute('name', 'local_camera_video');
 	screenObj.setAttribute('class', "localvideo");
 	screenObj.setAttribute('autoplay', '1');
+	screenObj.setAttribute('trackid', numView-1);
 	//controlsを入れるとダブルクリックで最大化したりPictureInPicureモードとかできる
 	//screenObj.setAttribute('controls', '1');
 	//screenObj.setAttribute('style', 'border: 1px solid;');
@@ -674,20 +675,20 @@ function standbyDevice(){
 		var checkBoxLabelObj = document.getElementById("local_camera_label_" + videoid);
 		checkBoxLabelObj.innerHTML = "send to users&nbsp;";
 		
-		var sendRosInput = document.getElementById("sendvideo2ros");
+		var sendRosInput = document.getElementById("streaming2local");
 		if(sendRosInput.checked){
 			var checkBoxLabelObj = document.createElement('label');
-			checkBoxLabelObj.setAttribute('id', 'local_camera_ros_label_' + videoid);
-			checkBoxLabelObj.innerHTML = 'send to ROS';
+			checkBoxLabelObj.setAttribute('id', 'local_camera_streaming_label_' + videoid);
+			checkBoxLabelObj.innerHTML = 'streaming to local';
 			var checkBoxObj = document.createElement('input');
-			checkBoxObj.setAttribute('id', 'local_camera_ros_checkBox_' + videoid);
+			checkBoxObj.setAttribute('id', 'local_camera_streaming_checkBox_' + videoid);
 			checkBoxObj.setAttribute('type', 'checkbox');
 			checkBoxObj.setAttribute('name', 'use-camera');
 			checkBoxObj.setAttribute('videoid', videoid);
 			checkBoxObj.setAttribute('teleopetype', 'avatar');
 			checkBoxObj.setAttribute('videocontainerid', "local_camera_video_"+videoid);
 			checkBoxObj.checked = true;
-			checkBoxObj.addEventListener('change', rosSendCheckBoxChanged);
+			checkBoxObj.addEventListener('change', streamingLocalCheckBoxChanged);
 			videoContainer.appendChild(checkBoxObj);
 			videoContainer.appendChild(checkBoxLabelObj);
 		}

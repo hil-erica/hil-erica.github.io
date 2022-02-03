@@ -93,25 +93,14 @@ function makeLocalStream(){
 	}
 	var elements = document.getElementsByName('local_camera_video');
 	if(elements.length == 0){
+		/*
 		if(isRecording){
 			//record sound only
 			if(localMicStream != null && localMicStream.getAudioTracks().length > 0){
-				recorder.push(new MediaRecorder(localMicStream));
-				recorderMap.set(recorderCount, recorder[recorderCount]);
-				chunks.push([]); // 格納場所をクリア
-				fileNames.push(myPeerID.value+"_audioonly.webm");
-				// 録画進行中に、インターバルに合わせて発生するイベント
-				console.log(fileNames+":"+"audiolny");
-				recorder[recorderCount].ondataavailable = createCallbackOndataavailable(recorderCount);	
-				
-				// 録画停止時のイベント
-				recorder[recorderCount].onstop = createCallbackOnstop(recorderCount);
-				// 録画スタート
-				recorder[recorderCount].start(1000); // インターバルは1000ms
-				console.log('start recording : '+recorderCount);
-				recorderCount++;
+				addAudioRecorder(localMicStream, myPeerID);
 			}
-		}		
+		}
+		*/		
 	} else {
 		for (var i = 0; i < elements.length; i++) {
 			//elements[i].srcObject.getTracks().forEach(track => track.stop());
@@ -135,39 +124,15 @@ function makeLocalStream(){
 			if(localMicStream != null){
 				elements[i].srcObject.addTrack(localMicStream.getAudioTracks()[0]);
 			}
+			/*
 			if(isRecording){
 				if(elements[i].srcObject != null){
-					recorder.push(new MediaRecorder(elements[i].srcObject));
-					recorderMap.set(recorderCount, recorder[recorderCount]);
-					chunks.push([]); // 格納場所をクリア
-					fileNames.push(myPeerID.value+"_"+i+".webm");
-					// 録画進行中に、インターバルに合わせて発生するイベント
-					console.log(fileNames+":"+recorderCount);
-					recorder[recorderCount].ondataavailable = createCallbackOndataavailable(recorderCount);	
-					/*
-					recorder[recorderCount].ondataavailable = function(evt) {
-						console.log(fileNamesp[recorderCount]+":"+recorderCount);
-						console.log("data available: evt.data.type=" + evt.data.type + " size=" + evt.data.size);
-						chunks[recorderCount].push(evt.data);
-					};
-					*/
-
-					// 録画停止時のイベント
-					recorder[recorderCount].onstop = createCallbackOnstop(recorderCount);
-					/*
-					recorder[recorder.length-1].onstop = function(evt) {
-						console.log('recorder.onstop()');
-						recorder[recorderCount] = null;
-					};
-					*/
-					// 録画スタート
-					recorder[recorderCount].start(1000); // インターバルは1000ms
-					console.log('start recording : '+recorderCount);
-					recorderCount++;
+					addAudioRecorder(elements[i].srcObject, myPeerID);
 				} else {
 					console.log('local_camera_video'+' srcObjec is null');
 				}
 			}
+			*/
 			/*
 			if(elements[i].srcObject.getAudioTracks().length == 0){
 				console.log('add audio track to local mic stream');

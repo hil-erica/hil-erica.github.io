@@ -79,6 +79,30 @@
   border-bottom-left-radius: 10px;
 }
 
+.box-text-mediastreamer {
+  position: relative;
+  border: 3px solid SkyBlue;
+  border-radius: 5px;
+  margin: 20px 0;
+  padding: 20px 20px 5px 20px;
+  width: 90%;
+}
+
+.box-text-mediastreamer::before {
+  content: "MediaStream websocket";
+  position: absolute;
+  background-color: SkyBlue;
+  color: White;
+  font-weight: bold;
+  left: 20px;
+  top: -20px;
+  padding: 5px;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+  border-bottom-left-radius: 10px;
+}
+
 .box-text-otheroptions {
   position: relative;
   border: 3px solid SkyBlue;

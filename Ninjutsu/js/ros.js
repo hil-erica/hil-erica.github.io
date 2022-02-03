@@ -7,6 +7,7 @@
 var rosSocket = null;
 var rosSocketIsConnected = false;
 var rosURL = "";
+var debugMode = false;
 
 function rosWebSocketConnect(url){
 	//var url = document.getElementById('socket_url').value;
@@ -15,7 +16,20 @@ function rosWebSocketConnect(url){
 	if(!rosSocketIsConnected){
 		//connect
 		rosSocket = new ROSLIB.Ros();
-
+		
+		if(debugMode){
+			console.log('Debug Mode Connected to ros');
+			rosSocketIsConnected = true;
+			setROSsocketButton(false);
+			if(autorosconnectFlag){
+				if(autorosconnectTimer != null){
+					clearInterval(autorosconnectTimer);
+					autorosconnectTimer = null;
+				}
+			}
+			
+			onRosConnect();
+		}
 		rosSocket.on('connection', function() {
 			console.log('Connected to ros');
 			rosSocketIsConnected = true;
@@ -243,7 +257,7 @@ class ROSVideoStreamer {
 		if(rosSocketIsConnected){
 			//connect
 			this.rosSocket = new ROSLIB.Ros();
-
+			
 			this.rosSocket.on('connection', function() {
 				console.log('Sub ROS Client Connected to ros');
 				//isRosConnected = true;
@@ -280,6 +294,7 @@ class ROSVideoStreamer {
 			//ここが複数にするとたまる
 			//console.log("start "+this.topicName);
 			if (value) {
+				//console.log(value);
 				//var canvasElement = document.createElement("canvas");
 				/*
 				canvasElement.style.width = value.codedWidth+'px';
@@ -334,7 +349,7 @@ class ROSVideoStreamer {
 				//ここでそれぞれのTopicにアスセスせにゃならんのだが
 				//console.log(this.topic);
 				
-				if(!this.stopped)this.topic.publish(imageMessage);
+				if(!debugMode && !this.stopped)this.topic.publish(imageMessage);
 				
 				//console.log(this.topicName);
 				//console.log(imageMessage);

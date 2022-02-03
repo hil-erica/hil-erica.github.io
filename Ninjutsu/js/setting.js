@@ -33,6 +33,7 @@ function initializeSetting() {
 	});
 	
 	//ros
+	/*
 	var rosautoBtn = document.getElementById('rosautoconnect');
 	rosautoBtn.checked = autoRosConnect;
 	rosautoBtn.addEventListener('change', function(){
@@ -56,6 +57,49 @@ function initializeSetting() {
 	rossockBtn.addEventListener('click', function(){
 		console.log("socket connect button : "+document.getElementById('ros_socket_url').value);
 		rosWebSocketConnect(document.getElementById('ros_socket_url').value);
+		
+		//debug
+		mediaStreamingStartStop();
+	});
+	*/
+	
+	
+	//media streamer
+	var mediastream_socket_url_Input = document.getElementById('mediastream_socket_url');
+	var local_mediastream_socket_port_Input = document.getElementById('local_mediastream_socket_port');
+	var remote_mediastream_socket_port_Input = document.getElementById('remote_mediastream_socket_port');
+	//mediastream_socket_url_Input.value = rosWebSockUrl;
+	mediastream_socket_url_Input.addEventListener('keypress', function(){
+		var wsURL = mediastream_socket_url_Input.value;
+		var indexURL = wsURL.indexOf("://");
+		var httpsURL = "https://"+wsURL.substring(indexURL+3, wsURL.length)+":"+local_mediastream_socket_port_Input.value;
+		document.getElementById('installcertificateLink4LocalMediaStreamer').setAttribute("href", httpsURL);
+		document.getElementById('installcertificateLink4LocalMediaStreamer').innerHTML = httpsURL;
+		
+		httpsURL = "https://"+wsURL.substring(indexURL+3, wsURL.length)+":"+remote_mediastream_socket_port_Input.value;
+		document.getElementById('installcertificateLink4RemoteMediaStreamer').setAttribute("href", httpsURL);
+		document.getElementById('installcertificateLink4RemoteMediaStreamer').innerHTML = httpsURL;
+	});
+	local_mediastream_socket_port_Input.addEventListener('keypress', function(){
+		var wsURL = mediastream_socket_url_Input.value;
+		var indexURL = wsURL.indexOf("://");
+		var httpsURL = "https://"+wsURL.substring(indexURL+3, wsURL.length)+":"+local_mediastream_socket_port_Input.value;
+		document.getElementById('installcertificateLink4LocalMediaStreamer').setAttribute("href", httpsURL);
+		document.getElementById('installcertificateLink4LocalMediaStreamer').innerHTML = httpsURL;
+	});
+	
+	remote_mediastream_socket_port_Input.addEventListener('keypress', function(){
+		var wsURL = remote_mediastream_socket_url_Input.value;
+		var indexURL = wsURL.indexOf("://");
+		var httpsURL = "https://"+wsURL.substring(indexURL+3, wsURL.length)+":"+remote_mediastream_socket_port_Input.value;
+		document.getElementById('installcertificateLink4RemoteMediaStreamer').setAttribute("href", httpsURL);
+		document.getElementById('installcertificateLink4RemoteMediaStreamer').innerHTML = httpsURL;
+	});
+	
+	var mediastreamsockBtn = document.getElementById('mediastreamwebsocketbutton');
+	mediastreamsockBtn.addEventListener('click', function(){
+		console.log("mediastream connect button");
+		mediaStreamingStartStop();
 	});
 	
 	//external web site
@@ -75,6 +119,20 @@ function initializeSetting() {
 		answerRequest = this.checked;
 	});
 	
+}
+
+function setMediastreamButton(onoff){
+	if(onoff){
+		document.getElementById('mediastreamwebsocketbutton').innerHTML = "Start Streaming";
+		document.getElementById('mediastream_socket_url').readOnly = false;
+		document.getElementById('local_mediastream_socket_port').readOnly = false;
+		document.getElementById('remote_mediastream_socket_port').readOnly = false;
+	} else {
+		document.getElementById('mediastreamwebsocketbutton').innerHTML = "Streaming Now";
+		document.getElementById('mediastream_socket_url').readOnly = true;
+		document.getElementById('local_mediastream_socket_port').readOnly = true;
+		document.getElementById('remote_mediastream_socket_port').readOnly = true;
+	}
 }
 
 function setWebsocketButton(onoff){
