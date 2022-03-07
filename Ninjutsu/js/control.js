@@ -3,6 +3,8 @@ var answerRequestSound = new Audio("./sounds/決定、ボタン押下22.mp3");
 var cancelRequestSound = new Audio("./sounds/キャンセル4.mp3");
 var stackRequestSound = new Audio("./sounds/警告音2.mp3");
 
+//sharedscreenを使っているかどうか
+var remotePeerIDSharingscreenFlagMap = new Map();//peerid, true/false
 
 function clickSay(){
 	var textEmenent = document.getElementById("saytext");
@@ -48,7 +50,7 @@ function handSelected(id) {
 	
 	//ui.jas
 	handPics.src = "./pics/gestures/"+id+"-oncanvas.svg";
-	
+		
 	//gamecontroller ui
 	hansSelect(currenthandgesture);
 }
@@ -598,6 +600,10 @@ function getData(fromPeerID, receiveText, dataConnection){
 	}
 	var myPeerID = document.getElementById("myuserid");
 	if(receiveText.startsWith("numvideo")){
+		if(sharingScreenStream != null){
+			//こっちはsharescreenしているフラグ
+			sendData(fromPeerID, "sharingscreen=true");
+		}
 		if(localMixedStream == null){
 			makeLocalStream();
 		}
@@ -608,6 +614,14 @@ function getData(fromPeerID, receiveText, dataConnection){
 		} else {
 			//dataConnection.send("numvideo="+localMixedStream.getVideoTracks().length);
 			sendData(fromPeerID, "numvideo="+localMixedStream.getVideoTracks().length);
+		}
+	} else if(receiveText.startsWith("sharingscreen=")){
+		console.log(receiveText);
+		var cmds = receiveText.slice(14);
+		if(cmds.toLowerCase() == "true"){
+			remotePeerIDSharingscreenFlagMap.set(fromPeerID, true);
+		} else {
+			remotePeerIDSharingscreenFlagMap.set(fromPeerID, false);
 		}
 	} else if(receiveText.startsWith("drawoncanvas=")){
 		//draw on canvas

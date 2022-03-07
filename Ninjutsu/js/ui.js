@@ -166,8 +166,12 @@ function addRemoteVideo(peerid, trackid, videotrack){
 	//https://qiita.com/sashim1343/items/e3728bea913cadab677d
 	console.log("teleOpeMode:"+teleOpeMode);
 	if(teleOpeMode){
-		canvasObj.addEventListener("click", canvasClicked);
-		canvasObj.addEventListener( "dblclick", canvasDblClicked);
+		canvasObj.addEventListener( "mousedown", canvasMouseDown);
+		canvasObj.addEventListener( "mouseup", canvasMouseUp);
+		canvasObj.addEventListener( "mousemove", canvasMouseMove);
+		canvasObj.addEventListener( "mouseout", canvasMouseOut);
+		//canvasObj.addEventListener("click", canvasClicked);
+		//canvasObj.addEventListener( "dblclick", canvasDblClicked);
 	} else {
 		console.log("canvas off");
 		canvasObj.style.display ="none";
@@ -717,63 +721,326 @@ function canvasSizeChanged(canvasObj){
 }
 
 //canvasごとに管理
-var singleClickTimerMap = new Map();
+var singleClickTimerMap = new Map();//ダブルクリックがなかったらシングルクリックイベントを遅延発火
+var dragTimerMap = new Map();//ダブルクリックがなかったらドラッグイベントを遅延発火
 var drawClerTimerMap = new Map();
 //var clicked = false;    // クリック状態を保持するフラグ
-var clickMap = new Map();
+var clickMap = new Map();//canvas.id -> [absolute x on the canvas, absolute y on the canvas, x ratio on the canvas, y ratio on the canvas, mouse radian direction from the center of the canvas]
+var dblclickMap = new Map();//canvas.id -> [absolute x on the canvas, absolute y on the canvas, x ratio on the canvas, y ratio on the canvas, mouse radian direction from the center of the canvas]
+var dragMap = new Map();//canvas.id -> true/false
 var gazePics;
 gazePics = new Image();
 gazePics.src = "./pics/attention.svg";
 var handPics;
 handPics = new Image();
 handPics.src = "./pics/gestures/palmup-oncanvas.svg";
-
+var dblClickDuration = 300;//msec
+var dragDuration = 200;//msec
+var drawMarkDuration = 1000;//msec
+//ダブルクリックイベントとシングルクリックイベントを両方登録するとclick->click->dblclickと3つイベントが発火してしまうので排他処理したい場合はclickイベント内で判別する
 function canvasDblClicked(event){
-	console.log(this.id+"dblcliecked "+event);
+	console.log(this.id+" dblcliecked "+event);
+}
+
+//clickイベントとcanvas dragを検出するためのmouseイベントが併用できないのでmouseイベントのみで
+function canvasMouseDown(event){
+	//console.log(this.id+" canvasMouseDown "+event);
+	var canvasObj = this;
+	canvasSizeChanged(canvasObj);
+	//console.log(clickX +", "+clickY+"/"+canvasObj.width+","+canvasObj.height);
+	var myPeerID = document.getElementById("myuserid");
+	var points = getMousePointOnCanvas(canvasObj, event); 
+	var x = points[0];
+	var y = points[1];
+	var xRatio = points[2];
+	var yRatio = points[3];
+	var directionRad = points[4];
+	
+	if(!clickMap.has(canvasObj.id)){
+		clickMap.set(canvasObj.id, [-1,-1,-1,-1,-1]);
+	}
+	if(!dblclickMap.has(canvasObj.id)){
+		dblclickMap.set(canvasObj.id, [-1,-1,-1,-1,-1]);
+	}
+	if(!dragMap.has(canvasObj.id)){
+		dragMap.set(canvasObj.id, false);
+	}
+	//var imgWidth = handPics.naturalWidth;
+	//var imgHeight = handPics.naturalHeight;
+	var imgWidth = 100;
+	var imgHeight = 100;
+	//console.log("distance from previous point = "+getDistanceFromPrevPoint(dblclickMap.get(canvasObj.id), points)+ " "+dblclickMap.get(canvasObj.id));
+	if(dblclickMap.get(canvasObj.id)[0]>= 0 && getDistanceFromPrevPoint(dblclickMap.get(canvasObj.id), points) <= (imgHeight+imgWidth)/2){
+		if(dragTimerMap.has(canvasObj.id)){
+			clearTimeout(dragTimerMap.get(canvasObj.id));
+			dragTimerMap.delete(canvasObj.id);
+			//console.log("drag timer reset of "+canvasObj.id);
+		}
+		var dragTimer = setTimeout(function () {
+			//console.log("drag dblclick point");
+			dragMap.set(canvasObj.id, true);
+			if(drawClerTimerMap.has(canvasObj.id)){
+				clearTimeout(drawClerTimerMap.get(canvasObj.id));
+				drawClerTimerMap.delete(canvasObj.id)
+			}
+			sendDragMotion(myPeerID, canvasObj, x, y, xRatio, yRatio, directionRad, currenthandgesture)
+		}, dragDuration);
+		dragTimerMap.set(canvasObj.id, dragTimer);
+	} else if (clickMap.get(canvasObj.id)[0] >= 0 && getDistanceFromPrevPoint(clickMap.get(canvasObj.id), points) <= (imgHeight+imgWidth)/2){
+		if(singleClickTimerMap.has(canvasObj.id)){
+			clearTimeout(singleClickTimerMap.get(canvasObj.id));
+			singleClickTimerMap.delete(canvasObj.id)
+		}
+		if(dragTimerMap.has(canvasObj.id)){
+			clearTimeout(dragTimerMap.get(canvasObj.id));
+			dragTimerMap.delete(canvasObj.id);
+			//console.log("drag timer reset of "+canvasObj.id);
+		}
+		var dragTimer = setTimeout(function () {
+			//console.log("drag dblclick point");
+			dragMap.set(canvasObj.id, true);
+			if(drawClerTimerMap.has(canvasObj.id)){
+				clearTimeout(drawClerTimerMap.get(canvasObj.id));
+				drawClerTimerMap.delete(canvasObj.id)
+			}
+			sendDragMotion(myPeerID, canvasObj, x, y, xRatio, yRatio, directionRad, currenthandgesture)
+		}, dragDuration);
+		dragTimerMap.set(canvasObj.id, dragTimer);
+	}
+}
+function canvasMouseUp(event){
+	//console.log(this.id+" canvasMouseUp "+event);
+	var canvasObj = this;
+	//時間内に話したらdblclickでそうじゃなかったらDrag終わり判定
+	var canvasObj = this;
+	//console.log(clickX +", "+clickY+"/"+canvasObj.width+","+canvasObj.height);
+	var myPeerID = document.getElementById("myuserid");
+	var points = getMousePointOnCanvas(canvasObj, event); 
+	var x = points[0];
+	var y = points[1];
+	var xRatio = points[2];
+	var yRatio = points[3];
+	var directionRad = points[4];
+	
+	if(!clickMap.has(canvasObj.id)){
+		clickMap.set(canvasObj.id, [-1,-1,-1,-1,-1]);
+	}
+	if(!dragMap.has(canvasObj.id)){
+		dragMap.set(canvasObj.id, false);
+	}
+	//var imgWidth = handPics.naturalWidth;
+	//var imgHeight = handPics.naturalHeight;
+	var imgWidth = 100;
+	var imgHeight = 100;
+	if(dragMap.get(canvasObj.id)) {
+		//console.log("end of drag");
+		var eventName = "dragendevent";		
+		var sendText = "{\"peerid\": \""+myPeerID.value+"\", \""+eventName+"\": {\"remotepeerid\":\""+canvasObj.getAttribute('peerid')+"\", \"trackid\":"+canvasObj.getAttribute('trackid')+",\"x\":"+x+", \"y\": "+y+",\"xratio\":"+xRatio+", \"yratio\": "+yRatio+", \"hand\": \""+currenthandgesture+"\"}}";
+		console.log("drag end event "+sendText);
+		publishData(sendText);
+	} else if (clickMap.get(canvasObj.id)[0] >= 0 && getDistanceFromPrevPoint(clickMap.get(canvasObj.id), points) <= (imgHeight+imgWidth)/2) {
+		//clickMap.delete(canvasObj.id);
+		//clickMap.set(canvasObj.id, false);
+		
+		if(singleClickTimerMap.has(canvasObj.id)){
+			clearTimeout(singleClickTimerMap.get(canvasObj.id));
+			singleClickTimerMap.delete(canvasObj.id)
+		}
+		if(dragTimerMap.has(canvasObj.id)){
+			clearTimeout(dragTimerMap.get(canvasObj.id));
+			dragTimerMap.delete(canvasObj.id);
+		}
+		var eventName = "dblclickevent";		
+		var sendText = "{\"peerid\": \""+myPeerID.value+"\", \""+eventName+"\": {\"remotepeerid\":\""+canvasObj.getAttribute('peerid')+"\", \"trackid\":"+canvasObj.getAttribute('trackid')+",\"x\":"+x+", \"y\": "+y+",\"xratio\":"+xRatio+", \"yratio\": "+yRatio+", \"hand\": \""+currenthandgesture+"\"}}";
+		console.log("dblclicked event "+sendText);
+		publishData(sendText);
+		//canvasに描画
+		var context = canvasObj.getContext( "2d" ) ;
+		context.clearRect(0, 0, canvasObj.offsetWidth, canvasObj.offsetHeight);
+		
+		context.save();
+		context.translate(x, y);
+		context.rotate(directionRad+Math.PI);
+		if(xRatio >= 0.5){
+			//上下反転
+			context.scale(1, -1);
+			if(yRatio >= 0.5){
+				//right down			
+			} else {
+				//right up
+			}
+		} else {
+			if(yRatio >= 0.5){
+				//left down
+			} else {
+				//left up
+			}
+		}
+		context.drawImage(handPics, 0, -imgHeight/2, imgWidth, imgHeight);
+		context.restore();
+		dblclickMap.set(canvasObj.id, points);
+		//return;
+	} else {
+		clickMap.delete(canvasObj.id);
+		clickMap.set(canvasObj.id, points);
+		if(singleClickTimerMap.has(canvasObj.id)){
+			clearTimeout(singleClickTimerMap.get(canvasObj.id));
+			singleClickTimerMap.delete(canvasObj.id);
+			//console.log("single click timer reset of "+canvasObj.id);
+		}
+		
+		if(dragTimerMap.has(canvasObj.id)){
+			clearTimeout(dragTimerMap.get(canvasObj.id));
+			dragTimerMap.delete(canvasObj.id);
+		}
+		var singleClickTimer = setTimeout(function () {
+			// ダブルクリックによりclickedフラグがリセットされていない
+			//     -> シングルクリックだった
+			if (clickMap.get(canvasObj.id)[0]>=0) {
+				//canvasに描画
+				var context = canvasObj.getContext( "2d" ) ;
+				context.clearRect(0, 0, canvasObj.offsetWidth, canvasObj.offsetHeight);
+				//var imgWidth = gazePics.naturalWidth;
+				//var imgHeight = gazePics.naturalHeight;
+				var imgWidth = 80;
+				var imgHeight = 80;
+				context.drawImage(gazePics, x-imgWidth/2, y-imgHeight/2, imgWidth, imgHeight);
+				//console.log("natural size : "+imgWidth+"/"+imgHeight);
+				var eventName = "clickevent";			
+				var sendText = "{\"peerid\": \""+myPeerID.value+"\", \""+eventName+"\": {\"remotepeerid\":\""+canvasObj.getAttribute('peerid')+"\", \"trackid\":"+canvasObj.getAttribute('trackid')+", \"x\":"+x+", \"y\": "+y+",\"xratio\":"+xRatio+", \"yratio\": "+yRatio+"}}";
+				console.log("clicked event "+sendText);
+				publishData(sendText);
+			} else {
+				console.log("already clicked ? why ? "+canvasObj.id);
+			}
+			
+			clickMap.delete(canvasObj.id);
+			clickMap.set(canvasObj.id, [-1, -1, -1, -1, -1]);
+		}, dblClickDuration);
+		singleClickTimerMap.set(canvasObj.id, singleClickTimer);
+	}
+	
+	if(drawClerTimerMap.has(canvasObj.id)){
+		clearTimeout(drawClerTimerMap.get(canvasObj.id));
+		drawClerTimerMap.delete(canvasObj.id)
+	}
+	var drawClerTimer = setTimeout(function () {
+		//canvasに描画 Clear
+		var context = canvasObj.getContext( "2d" ) ;
+		context.clearRect(0, 0, canvasObj.width, canvasObj.height);
+		clicked = false;
+		if (clickMap.get(canvasObj.id)) {
+			clickMap.delete(canvasObj.id);
+			clickMap.set(canvasObj.id, false);
+		}
+		dblclickMap.set(canvasObj.id, [-1, -1, -1, -1, -1]);
+		console.log("clear canvas "+canvasObj.id);
+	}, drawMarkDuration);
+	drawClerTimerMap.set(canvasObj.id, drawClerTimer);
+	
+	dragMap.set(canvasObj.id, false);
+}
+function canvasMouseOut(event){
+	//console.log(this.id+" canvasMouseOut "+event);
+	event.preventDefault();//not-allowed, https://stackoverflow.com/questions/25149912/cursor-unpleasantly-changes-during-drag-operation-in-nested-elements
+	var canvasObj = this;
+	var myPeerID = document.getElementById("myuserid");
+	if(dragMap.has(canvasObj.id) && dragMap.get(canvasObj.id) && !drawClerTimerMap.has(canvasObj.id)){
+		var drawClerTimer = setTimeout(function () {
+			var eventName = "dragendevent";		
+			var sendText = "{\"peerid\": \""+myPeerID.value+"\", \""+eventName+"\": {\"remotepeerid\":\""+canvasObj.getAttribute('peerid')+"\", \"trackid\":"+canvasObj.getAttribute('trackid')+",\"x\":0, \"y\": 0,\"xratio\":0, \"yratio\": 0, \"hand\": \"none\"}}";
+			console.log("drag end event "+sendText);
+			publishData(sendText);
+			
+			//canvasに描画 Clear
+			var context = canvasObj.getContext( "2d" ) ;
+			context.clearRect(0, 0, canvasObj.width, canvasObj.height);
+			clicked = false;
+			if (clickMap.get(canvasObj.id)) {
+				clickMap.delete(canvasObj.id);
+				clickMap.set(canvasObj.id, false);
+			}
+			dblclickMap.set(canvasObj.id, [-1, -1, -1, -1, -1]);
+			console.log("clear canvas "+canvasObj.id);
+		}, drawMarkDuration);
+		drawClerTimerMap.set(canvasObj.id, drawClerTimer);
+	}
+	dragMap.set(canvasObj.id, false);
+	
+}
+function canvasMouseMove(event){
+	event.preventDefault();//not-allowed, https://stackoverflow.com/questions/25149912/cursor-unpleasantly-changes-during-drag-operation-in-nested-elements
+	var canvasObj = this;
+	var myPeerID = document.getElementById("myuserid");
+	var points = getMousePointOnCanvas(canvasObj, event); 
+	var x = points[0];
+	var y = points[1];
+	var xRatio = points[2];
+	var yRatio = points[3];
+	var directionRad = points[4];
+	if(dragMap.get(canvasObj.id)){
+		//console.log(this.id+" dragging "+event);
+		sendDragMotion(myPeerID, canvasObj, x, y, xRatio, yRatio, directionRad, currenthandgesture);
+	}
+}
+
+function sendDragMotion(myPeerID, canvasObj, x, y, xRatio, yRatio, directionRad, currenthandgesture){
+	//var imgWidth = handPics.naturalWidth;
+	//var imgHeight = handPics.naturalHeight;
+	var imgWidth = 100;
+	var imgHeight = 100;
+	var eventName = "dragevent";		
+	var sendText = "{\"peerid\": \""+myPeerID.value+"\", \""+eventName+"\": {\"remotepeerid\":\""+canvasObj.getAttribute('peerid')+"\", \"trackid\":"+canvasObj.getAttribute('trackid')+",\"x\":"+x+", \"y\": "+y+",\"xratio\":"+xRatio+", \"yratio\": "+yRatio+", \"hand\": \""+currenthandgesture+"\"}}";
+	console.log("dragevent event "+sendText);
+	publishData(sendText);
+	//canvasに描画
+	var context = canvasObj.getContext( "2d" ) ;
+	context.clearRect(0, 0, canvasObj.offsetWidth, canvasObj.offsetHeight);
+	
+	context.save();
+	context.translate(x, y);
+	context.rotate(directionRad+Math.PI);
+	if(xRatio >= 0.5){
+		//上下反転
+		context.scale(1, -1);
+		if(yRatio >= 0.5){
+			//right down			
+		} else {
+			//right up
+		}
+	} else {
+		if(yRatio >= 0.5){
+			//left down
+		} else {
+			//left up
+		}
+	}
+	context.drawImage(handPics, 0, -imgHeight/2, imgWidth, imgHeight);
+	context.restore();
 }
 
 function canvasClicked(event){
-	//console.log(this+"cliecked "+event);
+	console.log(this.id +" cliecked "+event);
 	var canvasObj = this;
 	canvasSizeChanged(canvasObj);
-	
-	var clickX = event.pageX ;
-	var clickY = event.pageY ;
 	//console.log(clickX +", "+clickY+"/"+canvasObj.width+","+canvasObj.height);
+	
 	var myPeerID = document.getElementById("myuserid");
-
-	// 要素の位置を取得
-	var clientRect = this.getBoundingClientRect() ;
-	var positionX = clientRect.left + window.pageXOffset ;
-	var positionY = clientRect.top + window.pageYOffset ;
-
-	// 要素内におけるクリック位置を計算
-	var x = clickX - positionX ;
-	var y = clickY - positionY ;
-	// キャンバス中心座標
-	var xC = (x-canvasObj.offsetWidth/2);
-	var yC = (y-canvasObj.offsetHeight/2);
-	var directionRad = 0;
-	if(xC == 0){
-		if(yC >= 0) directionRad = Math.PI/2;
-		else directionRad = -Math.PI/2;
-	} else {
-		directionRad = Math.atan2(yC, xC);
-	}
+	var points = getMousePointOnCanvas(canvasObj, event); 
+	var x = points[0];
+	var y = points[1];
+	var xRatio = points[2];
+	var yRatio = points[3];
+	var directionRad = points[4];
 	
-	var xRatio = x/canvasObj.offsetWidth;
-	var yRatio = y/canvasObj.offsetHeight;
-	console.log("click on canvas "+canvasObj.id+":"+x +"/"+y+", click on page:"+clickX +"/"+clickY+", canvas size:"+canvasObj.width+"/"+canvasObj.height+", canvas offset size:"+canvasObj.offsetWidth+"/"+canvasObj.offsetHeight+", ratio:"+xRatio+"/"+yRatio);
-	
-	var dblClickDuration = 300;//msec
-	var drawMarkDuration = 1000;//msec
 	if(!clickMap.has(canvasObj.id)){
 		clickMap.set(canvasObj.id, false)
 	}
 	
 	if (clickMap.get(canvasObj.id)) {
-		clickMap.delete(canvasObj.id);
-		clickMap.set(canvasObj.id, false);
+		//clickMap.delete(canvasObj.id);
+		//clickMap.set(canvasObj.id, false);
+		
 		if(singleClickTimerMap.has(canvasObj.id)){
 			clearTimeout(singleClickTimerMap.get(canvasObj.id));
 			singleClickTimerMap.delete(canvasObj.id)
@@ -855,9 +1122,49 @@ function canvasClicked(event){
 		var context = canvasObj.getContext( "2d" ) ;
 		context.clearRect(0, 0, canvasObj.width, canvasObj.height);
 		clicked = false;
+		if (clickMap.get(canvasObj.id)) {
+			clickMap.delete(canvasObj.id);
+			clickMap.set(canvasObj.id, false);
+		}
 		console.log("clear canvas "+canvasObj.id);
 	}, drawMarkDuration);
 	drawClerTimerMap.set(canvasObj.id, drawClerTimer);
+}
+
+// return [absolute x on the canvas, absolute y on the canvas, x ratio on the canvas, y ratio on the canvas, mouse radian direction from the center of the canvas];
+function getMousePointOnCanvas(canvasObj, event){
+	var clickX = event.pageX ;
+	var clickY = event.pageY ;
+	//console.log(clickX +", "+clickY+"/"+canvasObj.width+","+canvasObj.height);
+	var myPeerID = document.getElementById("myuserid");
+
+	// 要素の位置を取得
+	var clientRect = canvasObj.getBoundingClientRect() ;
+	var positionX = clientRect.left + window.pageXOffset ;
+	var positionY = clientRect.top + window.pageYOffset ;
+
+	// 要素内におけるクリック位置を計算
+	var x = clickX - positionX ;
+	var y = clickY - positionY ;
+	// キャンバス中心座標
+	var xC = (x-canvasObj.offsetWidth/2);
+	var yC = (y-canvasObj.offsetHeight/2);
+	var directionRad = 0;
+	if(xC == 0){
+		if(yC >= 0) directionRad = Math.PI/2;
+		else directionRad = -Math.PI/2;
+	} else {
+		directionRad = Math.atan2(yC, xC);
+	}
+	
+	var xRatio = x/canvasObj.offsetWidth;
+	var yRatio = y/canvasObj.offsetHeight;
+	//console.log("click on canvas "+canvasObj.id+":"+x +"/"+y+", click on page:"+clickX +"/"+clickY+", canvas size:"+canvasObj.width+"/"+canvasObj.height+", canvas offset size:"+canvasObj.offsetWidth+"/"+canvasObj.offsetHeight+", ratio:"+xRatio+"/"+yRatio);
+	return [x, y, xRatio, yRatio, directionRad];
+}
+
+function getDistanceFromPrevPoint(prevPoints, currentPoint){
+	return Math.sqrt(Math.pow(prevPoints[0]-currentPoint[0],2)+Math.pow(prevPoints[1]-currentPoint[1],2));
 }
 
 function setMainVideo(event){
@@ -960,13 +1267,26 @@ function teleOpeModeChanged() {
 			if(elements[i].getAttribute("name") == null){
 			} else if(elements[i].getAttribute("name") == "clickcanvas"){
 				console.log('addEventListener click to '+elements[i].getAttribute("id")+ ', style.display = '+elements[i].style.display + ' to \"\"');
-				elements[i].addEventListener( "click", canvasClicked);
-				elements[i].addEventListener( "dblclick", canvasDblClicked);
+				elements[i].addEventListener( "mousedown", canvasMouseDown);
+				elements[i].addEventListener( "mousemove", canvasMouseMove);
+				elements[i].addEventListener( "mouseup", canvasMouseUp);
+				elements[i].addEventListener( "mouseout", canvasMouseOut);
+				//elements[i].addEventListener( "click", canvasClicked);
+				//elements[i].addEventListener( "dblclick", canvasDblClicked);
 			} else if(elements[i].getAttribute("name") == "backgroundcanvas"){
 			} else {
 			} 
 			elements[i].style.display ="";
 		}
+		
+		sharingScreenCanvasObj.addEventListener( "mousedown", canvasMouseDown);
+		sharingScreenCanvasObj.addEventListener( "mousemove", canvasMouseMove);
+		sharingScreenCanvasObj.addEventListener( "mouseup", canvasMouseUp);
+		sharingScreenCanvasObj.addEventListener( "mouseout", canvasMouseOut);
+		sharingScreenCanvasObj.style.display ="";
+		sharingScreenBgCanvasObj.style.display ="";
+		
+		
 	} else {
 		teleOpeMode = false;
 		var elements = document.getElementsByClassName("videocanvas");
@@ -974,13 +1294,24 @@ function teleOpeModeChanged() {
 			if(elements[i].getAttribute("name") == null){
 			} else if(elements[i].getAttribute("name") == "clickcanvas"){
 				console.log('removeEventListener click to '+elements[i].getAttribute("id")+ ', style.display = '+elements[i].style.display + ' to none');
-				elements[i].removeEventListener( "click", canvasClicked);
-				elements[i].removeEventListener( "dblclick", canvasDblClicked);
+				elements[i].removeEventListener( "mousedown", canvasMouseDown);
+				elements[i].removeEventListener( "mousemove", canvasMouseMove);
+				elements[i].removeEventListener( "mouseup", canvasMouseUp);
+				elements[i].removeEventListener( "mouseout", canvasMouseOut);
+				//elements[i].removeEventListener( "click", canvasClicked);
+				//elements[i].removeEventListener( "dblclick", canvasDblClicked);
 			} else if(elements[i].getAttribute("name") == "backgroundcanvas"){
 			} else {
 			} 
 			elements[i].style.display ="none";
 		}
+		
+		sharingScreenCanvasObj.removeEventListener( "mousedown", canvasMouseDown);
+		sharingScreenCanvasObj.removeEventListener( "mousemove", canvasMouseMove);
+		sharingScreenCanvasObj.removeEventListener( "mouseup", canvasMouseUp);
+		sharingScreenCanvasObj.removeEventListener( "mouseout", canvasMouseOut);
+		sharingScreenCanvasObj.style.display ="none";
+		sharingScreenBgCanvasObj.style.display ="none";
 	}
 }
 
@@ -1074,28 +1405,83 @@ function drawActionPointOnEachCanvas(canvasElement){
 				//context.strokeStyle = "blue" ;
 				context.strokeStyle = "rgba(0,0,255,0.5)";
 			}
-			context.beginPath () ;
-			context.arc(drawJsonObjOnCanvas.points[j].xRatio*canvasElement.width, drawJsonObjOnCanvas.points[j].yRatio*canvasElement.height, drawJsonObjOnCanvas.points[j].radiusRatio*canvasElement.width/2, 0 * Math.PI / 180, 360 * Math.PI / 180, false ) ;
-			context.lineWidth = 1.5 ;
-			context.stroke() ;
+			var textPosOffsetX = 0;
+			var textPosOffsetY = 0;
+			if(drawJsonObjOnCanvas.points[j].type == "squareobject"){
+				context.beginPath () ;
+				context.lineWidth = 1.5 ;
+				context.strokeRect((drawJsonObjOnCanvas.points[j].xRatio-drawJsonObjOnCanvas.points[j].widthRatio/2)*canvasElement.width, (drawJsonObjOnCanvas.points[j].yRatio-drawJsonObjOnCanvas.points[j].heightRatio/2)*canvasElement.height, drawJsonObjOnCanvas.points[j].widthRatio*canvasElement.width, drawJsonObjOnCanvas.points[j].heightRatio*canvasElement.height) ;
+				//context.stroke() ;
+				textPosOffsetX = drawJsonObjOnCanvas.points[j].widthRatio/2;
+				textPosOffsetY = drawJsonObjOnCanvas.points[j].heightRatio/2;
+			} else {
+				context.beginPath () ;
+				context.lineWidth = 1.5 ;
+				context.arc(drawJsonObjOnCanvas.points[j].xRatio*canvasElement.width, drawJsonObjOnCanvas.points[j].yRatio*canvasElement.height, drawJsonObjOnCanvas.points[j].radiusRatio*canvasElement.width/2, 0 * Math.PI / 180, 360 * Math.PI / 180, false ) ;
+				context.stroke() ;
+				textPosOffsetX = drawJsonObjOnCanvas.points[j].radiusRatio/2;
+				textPosOffsetY = drawJsonObjOnCanvas.points[j].radiusRatio/2;
+			}
 			if(drawJsonObjOnCanvas.points[j].label != null){
+				context.lineWidth = 0.1 ;
+				context.font = "12px keifont";
+				var textPosX = drawJsonObjOnCanvas.points[j].xRatio*canvasElement.width;
+				var textPosY = drawJsonObjOnCanvas.points[j].yRatio*canvasElement.height;
+				//var dirctionFromCenter = Math.atan2()
+				// キャンバス中心座標
+				var xC = (drawJsonObjOnCanvas.points[j].xRatio-0.5);
+				var yC = (drawJsonObjOnCanvas.points[j].yRatio-0.5);
+				var directionRad = 0;
+				if(xC == 0){
+					if(yC >= 0) directionRad = Math.PI/2;
+					else directionRad = -Math.PI/2;
+				} else {
+					directionRad = Math.atan2(yC, xC);
+				}
+				var offsetRatio = 0.8;
+				var metrics = context.measureText(drawJsonObjOnCanvas.points[j].label);
+				textPosX = (drawJsonObjOnCanvas.points[j].xRatio - Math.cos(directionRad)*textPosOffsetX*offsetRatio)*canvasElement.width-metrics.width/2;
+				textPosY = (drawJsonObjOnCanvas.points[j].yRatio - Math.sin(directionRad)*textPosOffsetY*offsetRatio)*canvasElement.height;
+				//console.log(directionRad*180/Math.PI +" "+textPosX +" "+textPosY+" "+xC +" "+yC);
+				/*
+				if(drawJsonObjOnCanvas.points[j].xRatio > 0.5){
+					//右にあるので左寄せ
+					textPosX = (drawJsonObjOnCanvas.points[j].xRatio - textPosOffsetX*0.8)*canvasElement.width;
+				} else {
+					//左にあるので右寄せ
+					textPosX = (drawJsonObjOnCanvas.points[j].xRatio + textPosOffsetX*0.8)*canvasElement.width;
+				}
+				if(drawJsonObjOnCanvas.points[j].yRatio > 0.5){
+					//下にあるので上寄せ
+					textPosY = (drawJsonObjOnCanvas.points[j].yRatio - textPosOffsetY*0.8)*canvasElement.height;
+				} else {
+					//上にあるので下寄せ
+					textPosY = (drawJsonObjOnCanvas.points[j].yRatio + textPosOffsetY*0.8)*canvasElement.height;
+				}
+				*/
+				//console.log(metrics.width+" "+ (metrics.actualBoundingBoxAscent +metrics.actualBoundingBoxDescent));
+				// 取得した横幅で Rectangle と Text を描画
+				var textMargin = 5;
 				if(targetSelected && drawJsonObjOnCanvas.points[j].id == selectedTargetID){
 					//選択中
-					context.strokeStyle = "rgba(255,0,0,0.8)";
+					//context.strokeStyle = "rgba(255,0,0,0.8)";
+					context.fillStyle = "rgba(255,200,200,0.5)";
+					context.fillRect(textPosX-textMargin/2, textPosY-(metrics.actualBoundingBoxAscent +metrics.actualBoundingBoxDescent), metrics.width+textMargin, (metrics.actualBoundingBoxAscent +metrics.actualBoundingBoxDescent+textMargin));
 					context.fillStyle = "rgba(255,0,0,0.8)";
 				} else if(drawJsonObjOnCanvas.points[j].type == "human"){
 					//context.strokeStyle = "green" ;
-					context.strokeStyle = "rgba(0,255,0,0.8)";
+					context.fillStyle = "rgba(200,255,200,0.5)";
+					context.fillRect(textPosX-textMargin/2, textPosY-(metrics.actualBoundingBoxAscent +metrics.actualBoundingBoxDescent), metrics.width+textMargin, (metrics.actualBoundingBoxAscent +metrics.actualBoundingBoxDescent+textMargin));
 					context.fillStyle = "rgba(0,255,0,0.8)";
 				} else {
 					//context.strokeStyle = "blue" ;
-					context.strokeStyle = "rgba(0,0,255,0.8)";
+					context.fillStyle = "rgba(200,200,255,0.5)";
+					context.fillRect(textPosX-textMargin/2, textPosY-(metrics.actualBoundingBoxAscent +metrics.actualBoundingBoxDescent), metrics.width+textMargin, (metrics.actualBoundingBoxAscent +metrics.actualBoundingBoxDescent+textMargin));
 					context.fillStyle = "rgba(0,0,255,0.8)";
 				}
-				context.lineWidth = 0.1 ;
-				context.font = "12px keifont";
-				//context.strokeText(drawJsonObjOnCanvas.points[j].label, drawJsonObjOnCanvas.points[j].xRatio*canvasElement.width, drawJsonObjOnCanvas.points[j].yRatio*canvasElement.height);
-				context.fillText(drawJsonObjOnCanvas.points[j].label, drawJsonObjOnCanvas.points[j].xRatio*canvasElement.width, drawJsonObjOnCanvas.points[j].yRatio*canvasElement.height);
+				context.fillText(drawJsonObjOnCanvas.points[j].label, textPosX, textPosY);
+				//context.strokeText(drawJsonObjOnCanvas.points[j].label, textPosX, textPosY);
+				
 			}
 		}
 	}

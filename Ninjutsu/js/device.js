@@ -314,6 +314,23 @@ function localCameraSelectEvent(event){
 	}
 }
 
+function sharingScreenSelectEvent(selected){
+	//selected = true/false
+	console.log("sharingScreen changed "+selected);
+	if(isReady){
+		makeLocalStream(); 
+		//replaceじゃなくてreconnectしないとトラック数変動できない
+		callAgainWithScreen();
+		/*
+		for(var[key, value] of remotePeerIDMediaConMap){
+			console.log("replace media stream of "+key);
+			value.replaceStream(localMixedStream);
+		}
+		*/
+		
+	}	
+}
+
 function finishTestMode(){
 	if(micTestMediaRecorder != null){
 		micTestMediaRecorder.stop();

@@ -4,6 +4,7 @@
 logout()
 gotoStandby()
 callRemoteOne(remoteuserid)
+callAgainWithScreen()//途中から画面共有する場合に全員にMediaCallし直す
 closeRemote(peerID)
 publishData(sendText)
 sendData(toPeerID, sendText)
@@ -118,8 +119,9 @@ function gotoStandby() {
 			//切れた
 			mediaConnection.once('close', () => {
 				console.log("close = "+mediaConnection.remoteId +" "+mediaConnection.id);
-				updateConnectUI(mediaConnection.remoteId, true);
-				closeRemote(mediaConnection.remoteId);
+				removeRemoteVideo(mediaConnection.remoteId);
+				//updateConnectUI(mediaConnection.remoteId, true);
+				//closeRemote(mediaConnection.remoteId);
 			});
 		});//end of call media connection
 		
@@ -128,21 +130,24 @@ function gotoStandby() {
 			dataConnection.once('open', async () => {
 				remotePeerIDDataConMap.set(dataConnection.remoteId, dataConnection);
 				console.log(dataConnection.remoteId +" opened" );
+				updateConnectUI(dataConnection.remoteId, false);
 				//dataConnection.send("how are yor?");
 				dataConnection.on('data', data => {
 					getData(dataConnection.remoteId, data, dataConnection);
 					//console.log(dataConnection.remoteId +" >> "+data );
 				});
 				dataConnection.once('close', () => {
-					remotePeerIDDataConMap.delete(dataConnection.remoteId);
+					//remotePeerIDDataConMap.delete(dataConnection.remoteId);
 					console.log(dataConnection.remoteId +" data connection closed" );
+					updateConnectUI(dataConnection.remoteId, false);
+					closeRemote(dataConnection.remoteId);
 				});
 			});//end of open dataconnection
 		});//end of call dataconnection
 	});//end of thisPeer.once('open', id => {
 }
 
-//相手に電話
+//相手に電話, 先にデータチャンネルで互いのVideoTrack数を教え合い多い方からCallする
 function callRemoteOne(remotePeerID) {
 	// Note that you need to ensure the peer has connected to signaling server
 	// before using methods of peer instance.
@@ -181,6 +186,10 @@ function callRemoteOne(remotePeerID) {
 		if(videoMuteMode){
 			
 		} else {
+			if(sharingScreenStream != null){
+				//こっちはsharescreenしているフラグ
+				dataConnection.send("sharingscreen=true");
+			}
 			dataConnection.send("numvideo="+localMixedStream.getVideoTracks().length);
 		}
 	});
@@ -191,10 +200,11 @@ function callRemoteOne(remotePeerID) {
 	});
 	
 	dataConnection.once('close', () => {
-		remotePeerIDDataConMap.delete(dataConnection.remoteId);
+		//remotePeerIDDataConMap.delete(dataConnection.remoteId);
 		console.log(dataConnection.remoteId +" data connection closed" );
+		updateConnectUI(dataConnection.remoteId, true);
+		closeRemote(dataConnection.remoteId);
 	});
-	
 	return true;
 }
 
@@ -219,10 +229,46 @@ function mediaCall(remotePeerID){
 	});
 	//切れた
 	mediaConnection.once('close', () => {
-		console.log("close = "+mediaConnection.remoteId +" "+mediaConnection.id);
-		updateConnectUI(mediaConnection.remoteId, true);
-		closeRemote(mediaConnection.remoteId);
+		console.log("close media = "+mediaConnection.remoteId +" "+mediaConnection.id);
+		removeRemoteVideo(mediaConnection.remoteId);
+		//updateConnectUI(mediaConnection.remoteId, true);
+		//closeRemote(mediaConnection.remoteId);
 	});
+}
+
+
+function callAgainWithScreen(){
+	if (!thisPeer.open) {
+		return false;
+	}
+	if(localMixedStream == null){
+		makeLocalStream();
+	}
+	
+	for(var[key, value] of remotePeerIDMediaConMap){
+		//全員メディアを切る
+		value.close(true);
+		removeRemoteVideo(key);
+	}
+	
+	//mapからの削除はcloseイベントが発生してから
+	for(var[key, value] of remotePeerIDDataConMap){
+		if(videoMuteMode){
+			console.log("call again to "+ key+" with video mute mode");
+			//dataConnection.send("numvideo=-1");
+			if(localMixedStream == null){
+				makeLocalStream();
+			}
+			mediaCall(key);
+		} else {
+			if(sharingScreenStream != null){
+				//こっちはsharescreenしているフラグ
+				value.send("sharingscreen=true");
+			}
+			value.send("numvideo="+localMixedStream.getVideoTracks().length);
+		}
+	}
+	return true;
 }
 
 //自分で切ったイベント

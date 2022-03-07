@@ -66,6 +66,7 @@ function readyToChat(){
 	initializeCommunication();
 	initializeInformation();
 	initializeOption();
+	initializeShareScreen();
 	initializeSetting();
 	isReady = true;
 }

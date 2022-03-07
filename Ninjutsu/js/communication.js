@@ -93,14 +93,6 @@ function makeLocalStream(){
 	}
 	var elements = document.getElementsByName('local_camera_video');
 	if(elements.length == 0){
-		/*
-		if(isRecording){
-			//record sound only
-			if(localMicStream != null && localMicStream.getAudioTracks().length > 0){
-				addAudioRecorder(localMicStream, myPeerID);
-			}
-		}
-		*/		
 	} else {
 		for (var i = 0; i < elements.length; i++) {
 			//elements[i].srcObject.getTracks().forEach(track => track.stop());
@@ -124,27 +116,27 @@ function makeLocalStream(){
 			if(localMicStream != null){
 				elements[i].srcObject.addTrack(localMicStream.getAudioTracks()[0]);
 			}
-			/*
-			if(isRecording){
-				if(elements[i].srcObject != null){
-					addAudioRecorder(elements[i].srcObject, myPeerID);
-				} else {
-					console.log('local_camera_video'+' srcObjec is null');
-				}
-			}
-			*/
-			/*
-			if(elements[i].srcObject.getAudioTracks().length == 0){
-				console.log('add audio track to local mic stream');
-				if(localMicStream != null){
-					elements[i].srcObject.addTrack(localMicStream.getAudioTracks()[0]);
-				}
-			} else {
-				//console.log('local mic stream is null');
-			}
-			*/
 		}
 	}
+	
+	//shared screen track
+	if(sharingScreenStream != null){
+		console.log("sharingScreenStream track = "+sharingScreenStream.getVideoTracks().length+" "+sharingScreenStream.getAudioTracks().length);
+		if(sharingScreenStream.getVideoTracks().length > 0){
+			localMixedStream.addTrack(sharingScreenStream.getVideoTracks()[0]);
+		} else {
+			//localMixedStream.addTrack(lockscreenStream.getVideoTracks()[0]);
+		}
+		if(sharingScreenStream.getAudioTracks().length > 0){
+			localMixedStream.addTrack(sharingScreenStream.getAudioTracks()[0]);	
+		} else {
+			//localMixedStream.addTrack(lockscreenStream.getAudioTracks()[0]);
+		}
+	} else {
+		console.log("sharingScreenStream is null");
+	}
+	
+	
 }
 
 function forceLogout(){
