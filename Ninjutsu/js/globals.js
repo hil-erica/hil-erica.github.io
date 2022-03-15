@@ -44,6 +44,9 @@ window.addEventListener('beforeunload', (event) => {
 		console.log("close websocket for streaming : ", key);
 	}
 	
+	if(sharedWindow != null){
+		sharedWindow.close();
+	}
 	logout();
 });
 

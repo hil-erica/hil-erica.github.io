@@ -1,9 +1,14 @@
 /*https://github.com/riversun/JSFrame.js*/
 
-
+var blankVideo  ="./videos/teleoperation.mp4";
 var shareScreenFrame;
 var sharingScreenBgCanvasObj;
 var sharingScreenCanvasObj;
+var sharedWindow;
+var sharedVideo;
+
+
+var remotePeerIDSharingScreenMediaStreamMap = new Map();//peerid, MediaStream
 
 var isShareScreenShow = false;
 
@@ -159,6 +164,18 @@ function openShareScreen(){
 				shareScreenFrame.on('#getDisplayMediaBotton', 'click', (_frame, evt) => {
 					gdm();
 				});
+				
+				shareScreenFrame.on('#openScreenBotton', 'click', (_frame, evt) => {
+					if(remotePeerIDSharingScreenMediaStreamMap.size > 0){
+						//動画を別のに切り替える
+						for(var[key, value] of remotePeerIDSharingScreenMediaStreamMap){
+							addSharedScreen(key, value);
+							break;
+						}
+					} else {
+						addSharedScreen("", null);
+					}
+				});
 			}
 			
 		});
@@ -279,4 +296,148 @@ function gdm() {
 function trace(arg) {
 	var now = (window.performance.now() / 1000).toFixed(3);
 	console.log(now + ': ', arg);
+}
+
+function addSharedScreen(remoteID, videostream){
+	if(remoteID != null && videostream != null){
+		remotePeerIDSharingScreenMediaStreamMap.set(remoteID, videostream);
+	}
+	if(sharedWindow != null){
+		console.log("sharedscreen is opened");
+		sharedVideo.pause();
+		sharedVideo.src = null;
+		sharedVideo.srcObject = videostream;
+		sharedVideo.play();
+		sharedVideo.onplaying = (event) => {
+		 	console.log('shared video start playing');
+		 	//スピーカー選び直し, after shareVideo start
+			var speakerSelector = sharedWindow.document.getElementById("sharedscreen_speaker_selector");
+			var speakerId = speakerSelector.options[speakerSelector.selectedIndex].value;
+			//一旦デフォルトにしないとあかん
+			var defaultSpeakerId = speakerSelector.options[0].value;
+			(async () => {
+				await sharedVideo.setSinkId(defaultSpeakerId)
+					.then(function() {
+					console.log('setSinkID Success, audio is being played on '+defaultSpeakerId +' at '+sharedVideo.id);
+					(async () => {
+						await sharedVideo.setSinkId(speakerId)
+							.then(function() {
+							console.log('setSinkID Success, audio is being played on '+speakerId +' at '+sharedVideo.id);
+						})
+						.catch(function(err) {
+							console.error('setSinkId Err:', err);
+						});
+					})();
+				})
+				.catch(function(err) {
+					console.error('setSinkId Err:', err);
+				});
+			})();
+			/*
+			(async () => {
+				await sharedVideo.setSinkId(speakerId)
+					.then(function() {
+					console.log('setSinkID Success, audio is being played on '+speakerId +' at '+sharedVideo.id);
+				})
+				.catch(function(err) {
+					console.error('setSinkId Err:', err);
+				});
+			})();
+			*/
+		};
+		sharedWindow.document.title = "影分身 共有画面 : "+remoteID;
+		
+		return;
+	}
+	console.log("create sharedscreen");
+	sharedWindow = window.open("sharedscreen.html",null, "width=300,height=200,scrollbars=no");
+	sharedWindow.onload = ()=> {
+		console.log("shared window loaded");
+		sharedVideo = sharedWindow.document.getElementById("sharedscreen_video");
+		if(videostream == null){
+			sharedWindow.document.title = "影分身 共有画面";
+			sharedVideo.src = blankVideo;
+		} else {
+			sharedWindow.document.title = "影分身 共有画面 : "+remoteID;
+			sharedVideo.srcObject = videostream;
+		}
+		
+		var speakerSelector = sharedWindow.document.getElementById("sharedscreen_speaker_selector");
+		var speakerList = document.getElementById("speaker_list");
+		for(var i = 0; i <speakerList.length; i++){
+			var option = document.createElement("option");
+			option.setAttribute("value", speakerList[i].value);
+			option.innerHTML = speakerList[i].innerHTML;
+			speakerSelector.appendChild(option);
+		}
+		//メインのスピーカーに設定
+		speakerSelector.selectedIndex = speakerList.selectedIndex;
+		var speakerId = speakerSelector.options[speakerList.selectedIndex].value;
+		if(sharedVideo.srcObject != null && sharedVideo.srcObject.getAudioTracks().length > 0){
+			sharedVideo.setSinkId(speakerId)
+				.then(function() {
+				console.log("setSinkID Success, audio is being played on "+speakerId +" at "+sharedVideo.id);
+			})
+			.catch(function(err) {
+				console.error("setSinkId Err:", err);
+			});
+			speakerSelector.addEventListener("change", shardSpeakerSelectEvent);
+		} else if(sharedVideo.src != null){
+			sharedVideo.setSinkId(speakerId)
+				.then(function() {
+				console.log("setSinkID Success, audio is being played on "+speakerId +" at "+sharedVideo.id);
+			})
+			.catch(function(err) {
+				console.error("setSinkId Err:", err);
+			});
+			speakerSelector.addEventListener("change", shardSpeakerSelectEvent);	
+		}
+		
+		sharedWindow.onbeforeunload  = ()=> {
+			console.log("shared window beforeunload");
+			sharedWindow = null;
+			sharedVideo = null;
+		}
+		sharedWindow.onclose = ()=> {
+			console.log("shared window closed");
+			sharedWindow = null;
+			sharedVideo = null;
+		}
+	}
+	
+	//window.open("SubWindows.html", "サブ検索画面", "width=300,height=200,scrollbars=yes");
+}
+
+function shardSpeakerSelectEvent(event){
+	//個別のスピーカー設定
+	var speakerSelector = this;
+	var speakerId = speakerSelector.options[speakerSelector.selectedIndex].value;
+	(async () => {
+		await sharedVideo.setSinkId(speakerId)
+			.then(function() {
+			console.log('setSinkID Success, audio is being played on '+speakerId +' at '+sharedVideo.id);
+		})
+		.catch(function(err) {
+			console.error('setSinkId Err:', err);
+		});
+	})();
+}
+
+function removeSharedScreen(remoteID){
+	if(remotePeerIDSharingScreenMediaStreamMap.has(remoteID)){
+		remotePeerIDSharingScreenMediaStreamMap.delete(remoteID);
+	}
+	if(sharedVideo != null){
+		if(remotePeerIDSharingScreenMediaStreamMap.size > 0){
+			//動画を別のに切り替える
+			for(var[key, value] of remotePeerIDSharingScreenMediaStreamMap){
+				sharedVideo.srcObject = value;
+				break;
+			}
+		} else {
+			//背景
+			sharedVideo.srcObject = null;
+			sharedVideo.src = blankVideo;
+		}
+	}
 }

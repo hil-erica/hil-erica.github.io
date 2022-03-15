@@ -13,21 +13,6 @@ function openStream(stream, remotePeerID, mediaConnection){
 	//もし画面共有を最初のVideoTrackに確保するとここ修正
 	if(stream.getVideoTracks().length == 0){
 		if(stream.getAudioTracks().length > 0){
-			/*
-			const audioContext = new AudioContext();
-			var source = audioContext.createMediaStreamSource(stream);
-			var destination = audioContext.createMediaStreamDestination();
-			source.connect(destination);
-			var audioStream = destination.stream;
-			
-			//var _remoteVideo = new webkitMediaStream();
-			var _remoteVideo = new MediaStream();
-			for(var i = 0; i<stream.getAudioTracks().length; i++){
-				//_remoteVideo.addTrack(audioStream.getAudioTracks()[i]);//これだとうまくsetSinkIdが働かないけどもとのStream直結だとうまくいくのはなぜ？でもAudioContextを通さないとだめなのもなぜ？
-				_remoteVideo.addTrack(stream.getAudioTracks()[i]);
-			}
-			addRemoteSound(remotePeerID,0, _remoteVideo, "false");
-			*/
 			for(var i = 0; i<stream.getAudioTracks().length; i++){
 				//_remoteVideo.addTrack(audioStream.getAudioTracks()[i]);//これだとうまくsetSinkIdが働かないけどもとのStream直結だとうまくいくのはなぜ？でもAudioContextを通さないとだめなのもなぜ？
 				var _remoteVideo = new MediaStream();
@@ -41,46 +26,34 @@ function openStream(stream, remotePeerID, mediaConnection){
 			var _remoteVideo = new MediaStream();
 			_remoteVideo.addTrack(stream.getVideoTracks()[i]);
 			//いつの間にか直った
-			if(stream.getAudioTracks().length > i){
-				_remoteVideo.addTrack(stream.getAudioTracks()[i]);
-			} else if(stream.getAudioTracks().length > 0){			
-				_remoteVideo.addTrack(stream.getAudioTracks()[stream.getAudioTracks().length - 1]);
+			if(remotePeerIDSharingscreenFlagMap.get(remotePeerID)){
+				//相手が画面共有中
+				if(i==stream.getVideoTracks().length-1){
+					//共有画面,最後のAudioトラックを画面共有に
+					if(stream.getAudioTracks().length > 0){			
+						_remoteVideo.addTrack(stream.getAudioTracks()[stream.getAudioTracks().length - 1]);
+					}
+					addSharedScreen(remotePeerID, _remoteVideo);
+				} else {
+					//遠隔画像,最初ののAudioトラック
+					if(stream.getAudioTracks().length > 0){			
+						_remoteVideo.addTrack(stream.getAudioTracks()[0]);
+					}
+					addRemoteVideo(remotePeerID, i, _remoteVideo);
+				}
+			} else {
+				if(stream.getAudioTracks().length > i){
+					_remoteVideo.addTrack(stream.getAudioTracks()[i]);
+				} else if(stream.getAudioTracks().length > 0){			
+					_remoteVideo.addTrack(stream.getAudioTracks()[stream.getAudioTracks().length - 1]);
+				}
+				addRemoteVideo(remotePeerID, i, _remoteVideo);
 			}
-			/*
-			if(stream.getAudioTracks().length > i){
-				const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-				var source = audioContext.createMediaStreamSource(stream);
-				var gainNode = audioContext.createGain();
-				gainNode.gain.value = 1;
-				var destination = audioContext.createMediaStreamDestination();
-				source.connect(gainNode);
-				gainNode.connect(destination);
-				var audioStream = destination.stream;
-				console.log("hoge1 " +audioStream.getAudioTracks().length);
-				_remoteVideo.addTrack(audioStream.getAudioTracks()[i]);//これだとうまくsetSinkIdが働かないけどもとのStream直結だとうまくいくのはなぜ？でもAudioContextを通さないとだめなのもなぜ？
-				//_remoteVideo.addTrack(stream.getAudioTracks()[i]);
-				
-				//無駄にStreamをそのまま流すAudioを作ってしまう，これはMute
-				var _remoteAudio = new MediaStream();
-				_remoteAudio.addTrack(stream.getAudioTracks()[i]);
-				addRemoteSound(remotePeerID,0, _remoteVideo, "false");
-			} else if(stream.getAudioTracks().length > 0){			
-				console.log("hoge2");
-				const audioContext = new AudioContext();
-				var source = audioContext.createMediaStreamSource(stream);
-				var destination = audioContext.createMediaStreamDestination();
-				source.connect(destination);
-				var audioStream = destination.stream;
-				_remoteVideo.addTrack(audioStream.getAudioTracks()[audioStream.getAudioTracks().length - 1]);//これだとうまくsetSinkIdが働かないけどもとのStream直結だとうまくいくのはなぜ？でもAudioContextを通さないとだめなのもなぜ？
-				//_remoteVideo.addTrack(stream.getAudioTracks()[stream.getAudioTracks().length - 1]);
-			}
-			*/
-			addRemoteVideo(remotePeerID, i, _remoteVideo);
 		}
 	}
 }
 
-
+//AudioTrackは画面共有も含めて2トラックで統一
 function makeLocalStream(){
 	var myPeerID = document.getElementById("myuserid");
 	//localMixedStream = null;
@@ -130,13 +103,18 @@ function makeLocalStream(){
 		if(sharingScreenStream.getAudioTracks().length > 0){
 			localMixedStream.addTrack(sharingScreenStream.getAudioTracks()[0]);	
 		} else {
-			//localMixedStream.addTrack(lockscreenStream.getAudioTracks()[0]);
+			//無音トラックを追加
+			const audioContext = new AudioContext();
+			var destination = audioContext.createMediaStreamDestination();
+			localMixedStream.addTrack(destination.stream.getAudioTracks()[0]);
 		}
 	} else {
-		console.log("sharingScreenStream is null");
+		//console.log("sharingScreenStream is null");
+		const audioContext = new AudioContext();
+		var destination = audioContext.createMediaStreamDestination();
+		localMixedStream.addTrack(destination.stream.getAudioTracks()[0]);
 	}
-	
-	
+	console.log("local media stream : videos "+localMixedStream.getVideoTracks().length +", audios "+localMixedStream.getAudioTracks().length);
 }
 
 function forceLogout(){

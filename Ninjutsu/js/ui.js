@@ -362,6 +362,9 @@ function removeRemoteVideo(peerid){
 	
 	//減るのでリサイズ
 	calsSubContainersSize();
+	
+	//画面共有から削除
+	removeSharedScreen(peerid);
 }
 
 function addRemoteSound(peerid, trackid, audiotrack, muteMode){

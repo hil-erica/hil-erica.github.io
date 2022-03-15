@@ -603,6 +603,8 @@ function getData(fromPeerID, receiveText, dataConnection){
 		if(sharingScreenStream != null){
 			//こっちはsharescreenしているフラグ
 			sendData(fromPeerID, "sharingscreen=true");
+		} else {
+			sendData(fromPeerID, "sharingscreen=false");
 		}
 		if(localMixedStream == null){
 			makeLocalStream();
@@ -616,13 +618,14 @@ function getData(fromPeerID, receiveText, dataConnection){
 			sendData(fromPeerID, "numvideo="+localMixedStream.getVideoTracks().length);
 		}
 	} else if(receiveText.startsWith("sharingscreen=")){
-		console.log(receiveText);
+		//console.log(receiveText);
 		var cmds = receiveText.slice(14);
 		if(cmds.toLowerCase() == "true"){
 			remotePeerIDSharingscreenFlagMap.set(fromPeerID, true);
 		} else {
 			remotePeerIDSharingscreenFlagMap.set(fromPeerID, false);
 		}
+		//console.log(cmds.toLowerCase()+" "+remotePeerIDSharingscreenFlagMap.get(fromPeerID));
 	} else if(receiveText.startsWith("drawoncanvas=")){
 		//draw on canvas
 		var cmds = receiveText.slice(13);

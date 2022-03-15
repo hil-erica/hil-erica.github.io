@@ -189,6 +189,8 @@ function callRemoteOne(remotePeerID) {
 			if(sharingScreenStream != null){
 				//こっちはsharescreenしているフラグ
 				dataConnection.send("sharingscreen=true");
+			} else {
+				dataConnection.send("sharingscreen=false");
 			}
 			dataConnection.send("numvideo="+localMixedStream.getVideoTracks().length);
 		}
@@ -264,6 +266,8 @@ function callAgainWithScreen(){
 			if(sharingScreenStream != null){
 				//こっちはsharescreenしているフラグ
 				value.send("sharingscreen=true");
+			} else {
+				value.send("sharingscreen=false");
 			}
 			value.send("numvideo="+localMixedStream.getVideoTracks().length);
 		}
