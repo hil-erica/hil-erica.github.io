@@ -48,7 +48,14 @@ function gotoStandby() {
 	thisPeer.on('error', error => {
 		console.log("skyway error detected ! = "+error.type+" : "+error.message);
 		if(error.type=="list-error" || error.type=="server-error"){
-		} else {
+			addInformation(error.type+" : "+error.message);
+			clearInterval(checkMemberTimerId);
+			updateSignalingState(false);
+		} else if(error.type=="unavailable-id"){
+			alert(error.type+" : "+error.message);
+		}
+		else if(error.type=="peer-unavailable"){
+		}else {
 			//alert(error.type+" : "+error.message);
 			addInformation(error.type+" : "+error.message);
 			clearInterval(checkMemberTimerId);

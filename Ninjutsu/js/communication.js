@@ -13,23 +13,38 @@ function openStream(stream, remotePeerID, mediaConnection){
 	//もし画面共有を最初のVideoTrackに確保するとここ修正
 	if(stream.getVideoTracks().length == 0){
 		if(stream.getAudioTracks().length > 0){
+			/*
 			for(var i = 0; i<stream.getAudioTracks().length; i++){
 				//_remoteVideo.addTrack(audioStream.getAudioTracks()[i]);//これだとうまくsetSinkIdが働かないけどもとのStream直結だとうまくいくのはなぜ？でもAudioContextを通さないとだめなのもなぜ？
 				var _remoteVideo = new MediaStream();
 				_remoteVideo.addTrack(stream.getAudioTracks()[i]);
 				addRemoteSound(remotePeerID,i, _remoteVideo, "false");
 			}
+			*/
+			//2つ目以降は画面共有の音声だから
+			var _remoteVideo = new MediaStream();
+			_remoteVideo.addTrack(stream.getAudioTracks()[0]);
+			addRemoteSound(remotePeerID,0, _remoteVideo, "false");
 		}
 	} else {
 		for(var i = 0; i<stream.getVideoTracks().length; i++){
 			//var _remoteVideo = new webkitMediaStream();
 			var _remoteVideo = new MediaStream();
 			_remoteVideo.addTrack(stream.getVideoTracks()[i]);
-			//いつの間にか直った
 			if(remotePeerIDSharingscreenFlagMap.get(remotePeerID)){
 				//相手が画面共有中
 				if(i==stream.getVideoTracks().length-1){
 					//共有画面,最後のAudioトラックを画面共有に
+					if(i==0){
+						//相手はAudioのみで画面共有
+						if(stream.getAudioTracks().length > 0){
+							var _remoteAudio = new MediaStream();
+							_remoteAudio.addTrack(stream.getAudioTracks()[0]);
+							addRemoteSound(remotePeerID,0, _remoteAudio, "false");
+						}
+					} else {
+						//相手はVideoと画面共有						
+					}
 					if(stream.getAudioTracks().length > 0){			
 						_remoteVideo.addTrack(stream.getAudioTracks()[stream.getAudioTracks().length - 1]);
 					}
