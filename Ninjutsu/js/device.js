@@ -117,7 +117,7 @@ function getDeviceList() {
 				});
 			}).catch(function (err) {
 				alert('you need mic device:'+err);
-				console.err(err);
+				console.error(err);
 			});
 		});
 		
