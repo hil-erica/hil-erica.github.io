@@ -13,24 +13,31 @@ function openStream(stream, remotePeerID, mediaConnection){
 	//もし画面共有を最初のVideoTrackに確保するとここ修正
 	if(stream.getVideoTracks().length == 0){
 		if(stream.getAudioTracks().length > 0){
-			/*
 			for(var i = 0; i<stream.getAudioTracks().length; i++){
 				//_remoteVideo.addTrack(audioStream.getAudioTracks()[i]);//これだとうまくsetSinkIdが働かないけどもとのStream直結だとうまくいくのはなぜ？でもAudioContextを通さないとだめなのもなぜ？
 				var _remoteVideo = new MediaStream();
 				_remoteVideo.addTrack(stream.getAudioTracks()[i]);
 				addRemoteSound(remotePeerID,i, _remoteVideo, "false");
 			}
-			*/
 			//2つ目以降は画面共有の音声だから
+			/*
 			var _remoteVideo = new MediaStream();
 			_remoteVideo.addTrack(stream.getAudioTracks()[0]);
 			addRemoteSound(remotePeerID,0, _remoteVideo, "false");
+			*/
 		}
 	} else {
 		for(var i = 0; i<stream.getVideoTracks().length; i++){
 			//var _remoteVideo = new webkitMediaStream();
 			var _remoteVideo = new MediaStream();
 			_remoteVideo.addTrack(stream.getVideoTracks()[i]);
+			if(stream.getAudioTracks().length > i){
+				_remoteVideo.addTrack(stream.getAudioTracks()[i]);
+			} else if(stream.getAudioTracks().length > 0){			
+				_remoteVideo.addTrack(stream.getAudioTracks()[stream.getAudioTracks().length - 1]);
+			}
+			addRemoteVideo(remotePeerID, i, _remoteVideo);
+			/*
 			if(remotePeerIDSharingscreenFlagMap.get(remotePeerID)){
 				//相手が画面共有中
 				if(i==stream.getVideoTracks().length-1){
@@ -64,6 +71,26 @@ function openStream(stream, remotePeerID, mediaConnection){
 				}
 				addRemoteVideo(remotePeerID, i, _remoteVideo);
 			}
+			*/
+		}
+	}
+}
+
+function openSharedScreenStream(stream, remotePeerID, mediaConnection){
+	console.log(remotePeerID+ '('+mediaConnection.remoteId+') => remote shared stream videotrack = '+stream.getVideoTracks().length+', audiotrack = '+stream.getAudioTracks().length);
+	if(stream.getVideoTracks().length == 0){
+		console.log(remotePeerID+ ' does not send shared video');
+	} else {
+		for(var i = 0; i<stream.getVideoTracks().length; i++){
+			//var _remoteVideo = new webkitMediaStream();
+			var _remoteVideo = new MediaStream();
+			_remoteVideo.addTrack(stream.getVideoTracks()[i]);
+			if(stream.getAudioTracks().length > i){
+				_remoteVideo.addTrack(stream.getAudioTracks()[i]);
+			} else if(stream.getAudioTracks().length > 0){			
+				_remoteVideo.addTrack(stream.getAudioTracks()[stream.getAudioTracks().length - 1]);
+			}
+			addSharedScreen(remotePeerID, _remoteVideo);
 		}
 	}
 }
@@ -106,8 +133,9 @@ function makeLocalStream(){
 			}
 		}
 	}
-	
+	/*
 	//shared screen track
+	//localMixedStream = new webkitMediaStream();
 	if(sharingScreenStream != null){
 		console.log("sharingScreenStream track = "+sharingScreenStream.getVideoTracks().length+" "+sharingScreenStream.getAudioTracks().length);
 		if(sharingScreenStream.getVideoTracks().length > 0){
@@ -129,7 +157,35 @@ function makeLocalStream(){
 		var destination = audioContext.createMediaStreamDestination();
 		localMixedStream.addTrack(destination.stream.getAudioTracks()[0]);
 	}
+	*/
 	console.log("local media stream : videos "+localMixedStream.getVideoTracks().length +", audios "+localMixedStream.getAudioTracks().length);
+}
+
+function getSharingScreenTrack(){
+	var mixedStream = new webkitMediaStream();
+	if(sharingScreenStream != null){
+		console.log("sharingScreenStream track = "+sharingScreenStream.getVideoTracks().length+" "+sharingScreenStream.getAudioTracks().length);
+		if(sharingScreenStream.getVideoTracks().length > 0){
+			mixedStream.addTrack(sharingScreenStream.getVideoTracks()[0]);
+		} else {
+			//mixedStream.addTrack(lockscreenStream.getVideoTracks()[0]);
+		}
+		if(sharingScreenStream.getAudioTracks().length > 0){
+			mixedStream.addTrack(sharingScreenStream.getAudioTracks()[0]);	
+		} else {
+			//無音トラックを追加
+			const audioContext = new AudioContext();
+			var destination = audioContext.createMediaStreamDestination();
+			mixedStream.addTrack(destination.stream.getAudioTracks()[0]);
+		}
+	} else {
+		//console.log("sharingScreenStream is null");
+		const audioContext = new AudioContext();
+		var destination = audioContext.createMediaStreamDestination();
+		mixedStream.addTrack(destination.stream.getAudioTracks()[0]);
+		return null;
+	}
+	return mixedStream;
 }
 
 function forceLogout(){

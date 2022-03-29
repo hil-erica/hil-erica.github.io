@@ -317,15 +317,29 @@ function localCameraSelectEvent(event){
 function sharingScreenSelectEvent(selected){
 	//selected = true/false
 	console.log("sharingScreen changed "+selected);
-	if(isReady){
+	if(isReady && thisPeer4ShareScreen != null){
+		//thisPeer4ShareScreenで今つながっている人にかけまくるremotePeerIDMediaConMap->remotePeerIDMediaCon4ShareScreenMap
+		if(selected){
+			//call
+			var stream = getSharingScreenTrack();
+			for(var[key, value] of remotePeerIDMediaConMap){
+				console.log("start send shared screen track to "+key);
+				mediaCall4ShareScreen(key, stream);
+				//value.replaceStream(localMixedStream);
+			}
+		} else {
+			//close
+			for(var[key, value] of remotePeerIDMediaCon4ShareScreenMap){
+				console.log("stop shared screen track to "+key);
+				closeRemote4ShareScreen(key);
+				//value.replaceStream(localMixedStream);
+			}
+		}
+		
+		/*
 		makeLocalStream(); 
 		//replaceじゃなくてreconnectしないとトラック数変動できない
 		callAgainWithScreen();
-		/*
-		for(var[key, value] of remotePeerIDMediaConMap){
-			console.log("replace media stream of "+key);
-			value.replaceStream(localMixedStream);
-		}
 		*/
 		
 	}	

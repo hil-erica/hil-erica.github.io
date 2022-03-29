@@ -242,6 +242,7 @@ function handleSuccess(stream) {
 	console.log('Using video device: ' + videoTracks[0].label);
 	sharingScreenMap.set(videoTracks[0].label, stream);
 	if(sharingScreenStream != null){
+		//media stream closeして一旦接続を切るべし
 		for(var i=0;i<sharingScreenStream.getTracks().length; i++){
 			sharingScreenStream.getTracks()[i].stop();
 		}
@@ -250,13 +251,13 @@ function handleSuccess(stream) {
 	sharingScreenStream = null;
 	sharingScreenStream = stream;
 	sharingScreenVideo.srcObject = stream;
-	sharingScreenSelectEvent(true);//communication.js
+	sharingScreenSelectEvent(true);//device.js
 	
 	stream.oninactive = function() {
 		sharingScreenMap.delete(stream.getVideoTracks()[0].label, stream);
 		if(sharingScreenMap.size == 0){
 			sharingScreenStream = null;
-			sharingScreenSelectEvent(false);//communication.js
+			sharingScreenSelectEvent(false);//device.js
 		}
 		console.log('screen  stream inactive '+stream.getVideoTracks()[0].label);
 	};
@@ -300,6 +301,7 @@ function trace(arg) {
 
 function addSharedScreen(remoteID, videostream){
 	if(remoteID != null && videostream != null){
+		console.log("show sharedscreen of "+remoteID);
 		remotePeerIDSharingScreenMediaStreamMap.set(remoteID, videostream);
 	}
 	if(sharedWindow != null){
@@ -424,6 +426,7 @@ function shardSpeakerSelectEvent(event){
 }
 
 function removeSharedScreen(remoteID){
+	console.log("finish share screen of "+remoteID);
 	if(remotePeerIDSharingScreenMediaStreamMap.has(remoteID)){
 		remotePeerIDSharingScreenMediaStreamMap.delete(remoteID);
 	}
@@ -431,11 +434,13 @@ function removeSharedScreen(remoteID){
 		if(remotePeerIDSharingScreenMediaStreamMap.size > 0){
 			//動画を別のに切り替える
 			for(var[key, value] of remotePeerIDSharingScreenMediaStreamMap){
+				console.log("switch shared video to "+key);
 				sharedVideo.srcObject = value;
 				break;
 			}
 		} else {
 			//背景
+			console.log("switch shared video to back ground");
 			sharedVideo.srcObject = null;
 			sharedVideo.src = blankVideo;
 		}

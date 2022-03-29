@@ -4,7 +4,7 @@ var cancelRequestSound = new Audio("./sounds/キャンセル4.mp3");
 var stackRequestSound = new Audio("./sounds/警告音2.mp3");
 
 //sharedscreenを使っているかどうか
-var remotePeerIDSharingscreenFlagMap = new Map();//peerid, true/false
+//var remotePeerIDSharingscreenFlagMap = new Map();//peerid, true/false
 
 function clickSay(){
 	var textEmenent = document.getElementById("saytext");
@@ -600,24 +600,27 @@ function getData(fromPeerID, receiveText, dataConnection){
 	}
 	var myPeerID = document.getElementById("myuserid");
 	if(receiveText.startsWith("numvideo")){
+		/*
 		if(sharingScreenStream != null){
 			//こっちはsharescreenしているフラグ
 			sendData(fromPeerID, "sharingscreen=true");
 		} else {
 			sendData(fromPeerID, "sharingscreen=false");
 		}
+		*/
 		if(localMixedStream == null){
 			makeLocalStream();
 		}
 		var cmds = receiveText.split('=');
-		var removenumvideo = parseInt(cmds[1]);
-		if(localMixedStream.getVideoTracks().length >= removenumvideo){
+		var remotenumvideo = parseInt(cmds[1]);
+		if(localMixedStream.getVideoTracks().length >= remotenumvideo){
 			mediaCall(fromPeerID);
 		} else {
 			//dataConnection.send("numvideo="+localMixedStream.getVideoTracks().length);
 			sendData(fromPeerID, "numvideo="+localMixedStream.getVideoTracks().length);
 		}
-	} else if(receiveText.startsWith("sharingscreen=")){
+	}
+	/* else if(receiveText.startsWith("sharingscreen=")){
 		//console.log(receiveText);
 		var cmds = receiveText.slice(14);
 		if(cmds.toLowerCase() == "true"){
@@ -626,7 +629,8 @@ function getData(fromPeerID, receiveText, dataConnection){
 			remotePeerIDSharingscreenFlagMap.set(fromPeerID, false);
 		}
 		//console.log(cmds.toLowerCase()+" "+remotePeerIDSharingscreenFlagMap.get(fromPeerID));
-	} else if(receiveText.startsWith("drawoncanvas=")){
+	} */
+	else if(receiveText.startsWith("drawoncanvas=")){
 		//draw on canvas
 		var cmds = receiveText.slice(13);
 		updateActionPointOnCanvas(cmds);
