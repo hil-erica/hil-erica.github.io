@@ -143,7 +143,7 @@ function openShareScreen(){
 					.catch(function(err) {
 						console.error("setSinkId Err:", err);
 					});
-					speakerSelector.addEventListener("change", speakerSelectEvent);
+					//speakerSelector.addEventListener("change", speakerSelectEvent);
 				} else if(videoObj.src != null){
 					videoObj.setSinkId(speakerId)
 						.then(function() {
@@ -152,7 +152,7 @@ function openShareScreen(){
 					.catch(function(err) {
 						console.error("setSinkId Err:", err);
 					});
-					speakerSelector.addEventListener("change", speakerSelectEvent);	
+					//speakerSelector.addEventListener("change", speakerSelectEvent);	
 				}
 				//sharingの方はきかなくてOK 
 				//container.appendChild(controller);
@@ -320,11 +320,11 @@ function addSharedScreen(remoteID, videostream){
 			(async () => {
 				await sharedVideo.setSinkId(defaultSpeakerId)
 					.then(function() {
-					console.log('setSinkID Success, audio is being played on '+defaultSpeakerId +' at '+sharedVideo.id);
+					console.log('setSinkID Success, shared screen audio is being played on '+defaultSpeakerId +' at '+sharedVideo.id);
 					(async () => {
 						await sharedVideo.setSinkId(speakerId)
 							.then(function() {
-							console.log('setSinkID Success, audio is being played on '+speakerId +' at '+sharedVideo.id);
+							console.log('setSinkID Success, shared screen audio is being played on '+speakerId +' at '+sharedVideo.id);
 						})
 						.catch(function(err) {
 							console.error('setSinkId Err:', err);

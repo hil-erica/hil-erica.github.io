@@ -13,6 +13,25 @@ function openStream(stream, remotePeerID, mediaConnection){
 	//もし画面共有を最初のVideoTrackに確保するとここ修正
 	if(stream.getVideoTracks().length == 0){
 		if(stream.getAudioTracks().length > 0){
+			/*
+			const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+			var source = audioContext.createMediaStreamSource(stream);
+			var destination = audioContext.createMediaStreamDestination();
+			source.connect(destination);
+			var audioStream = destination.stream;
+			//var _remoteVideo = new webkitMediaStream();
+			for(var i = 0; i<audioStream.getAudioTracks().length; i++){
+				var _remoteVideo = new MediaStream();// AudioContext
+				var _remoteAudio = new MediaStream();// AudioContext
+				_remoteVideo.addTrack(audioStream.getAudioTracks()[i]);
+				_remoteAudio.addTrack(audioStream.getAudioTracks()[i]);
+				var audioObj = new Audio();
+				audioObj.srcObject = _remoteAudio;
+				audioObj.muted = true;
+				audioObj.play();
+				addRemoteSound(remotePeerID,i, _remoteVideo, "false");
+			}
+			*/
 			for(var i = 0; i<stream.getAudioTracks().length; i++){
 				//_remoteVideo.addTrack(audioStream.getAudioTracks()[i]);//これだとうまくsetSinkIdが働かないけどもとのStream直結だとうまくいくのはなぜ？でもAudioContextを通さないとだめなのもなぜ？
 				var _remoteVideo = new MediaStream();
@@ -29,6 +48,33 @@ function openStream(stream, remotePeerID, mediaConnection){
 	} else {
 		for(var i = 0; i<stream.getVideoTracks().length; i++){
 			//var _remoteVideo = new webkitMediaStream();
+			var _remoteVideo = new MediaStream();// AudioContext
+			//audioの抽出
+			const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+			var source = audioContext.createMediaStreamSource(stream);
+			const destination = audioContext.createMediaStreamDestination();
+			source.connect(destination);
+			var audioStream = destination.stream;
+			if(audioStream.getAudioTracks().length > i){
+				_remoteVideo.addTrack(audioStream.getAudioTracks()[i]);
+				//_remoteVideo.addTrack(stream.getAudioTracks()[i]);
+				//無駄にStreamをそのまま流すAudioを作ってしまう，これはMute
+				var _remoteAudio = new MediaStream()
+				_remoteAudio.addTrack(stream.getAudioTracks()[i]);
+				var audioObj = new Audio();
+				audioObj.srcObject = _remoteAudio;
+				audioObj.muted = true;
+				audioObj.play();
+			} else if(audioStream.getAudioTracks().length > 0){			
+				_remoteVideo.addTrack(audioStream.getAudioTracks()[audioStream.getAudioTracks().length - 1]);
+				//_remoteVideo.addTrack(stream.getAudioTracks()[stream.getAudioTracks().length - 1]);
+			} else {
+				console.log("no audio track");
+			}
+			_remoteVideo.addTrack(stream.getVideoTracks()[i]);
+			addRemoteVideo(remotePeerID, i, _remoteVideo);
+			//var _remoteVideo = new webkitMediaStream();
+			/*
 			var _remoteVideo = new MediaStream();
 			_remoteVideo.addTrack(stream.getVideoTracks()[i]);
 			if(stream.getAudioTracks().length > i){
@@ -37,6 +83,7 @@ function openStream(stream, remotePeerID, mediaConnection){
 				_remoteVideo.addTrack(stream.getAudioTracks()[stream.getAudioTracks().length - 1]);
 			}
 			addRemoteVideo(remotePeerID, i, _remoteVideo);
+			*/
 			/*
 			if(remotePeerIDSharingscreenFlagMap.get(remotePeerID)){
 				//相手が画面共有中
@@ -83,6 +130,33 @@ function openSharedScreenStream(stream, remotePeerID, mediaConnection){
 	} else {
 		for(var i = 0; i<stream.getVideoTracks().length; i++){
 			//var _remoteVideo = new webkitMediaStream();
+			var _remoteVideo = new MediaStream();// AudioContext
+			//audioの抽出
+			const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+			var source = audioContext.createMediaStreamSource(stream);
+			const destination = audioContext.createMediaStreamDestination();
+			source.connect(destination);
+			var audioStream = destination.stream;
+			if(audioStream.getAudioTracks().length > i){
+				_remoteVideo.addTrack(audioStream.getAudioTracks()[i]);
+				//_remoteVideo.addTrack(stream.getAudioTracks()[i]);
+				//無駄にStreamをそのまま流すAudioを作ってしまう，これはMute
+				var _remoteAudio = new MediaStream()
+				_remoteAudio.addTrack(stream.getAudioTracks()[i]);
+				var audioObj = new Audio();
+				audioObj.srcObject = _remoteAudio;
+				audioObj.muted = true;
+				audioObj.play();
+			} else if(audioStream.getAudioTracks().length > 0){			
+				_remoteVideo.addTrack(audioStream.getAudioTracks()[audioStream.getAudioTracks().length - 1]);
+				//_remoteVideo.addTrack(stream.getAudioTracks()[stream.getAudioTracks().length - 1]);
+			} else {
+				console.log("no audio track");
+			}
+			_remoteVideo.addTrack(stream.getVideoTracks()[i]);
+			addSharedScreen(remotePeerID, _remoteVideo);
+			/*
+			//var _remoteVideo = new webkitMediaStream();
 			var _remoteVideo = new MediaStream();
 			_remoteVideo.addTrack(stream.getVideoTracks()[i]);
 			if(stream.getAudioTracks().length > i){
@@ -91,6 +165,7 @@ function openSharedScreenStream(stream, remotePeerID, mediaConnection){
 				_remoteVideo.addTrack(stream.getAudioTracks()[stream.getAudioTracks().length - 1]);
 			}
 			addSharedScreen(remotePeerID, _remoteVideo);
+			*/
 		}
 	}
 }
