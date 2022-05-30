@@ -97,10 +97,16 @@ function initializeSetting() {
 	});
 	
 	var mediastreamsockBtn = document.getElementById('mediastreamwebsocketbutton');
-	mediastreamsockBtn.addEventListener('click', function(){
-		console.log("mediastream connect button");
-		mediaStreamingStartStop();
-	});
+	var sendRosInput = document.getElementById("streaming2local");
+	if(sendRosInput.checked){
+		mediastreamsockBtn.disabled = false;
+		mediastreamsockBtn.addEventListener('click', function(){
+			console.log("mediastream connect button");
+			mediaStreamingStartStop();
+		});
+	} else {
+		mediastreamsockBtn.disabled = true;
+	}
 	
 	//external web site
 	var externalweb_url_Input = document.getElementById('externalweb_url');

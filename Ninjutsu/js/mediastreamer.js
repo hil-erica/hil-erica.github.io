@@ -190,7 +190,7 @@ function createCallbackOnstopMediaRecorder(videoid) {
 	}
 }
 
-////for websocket media streamiing
+////for websocket media streaming
 function mediaStreamingStartStop(){
 	console.log("streaming socket num = "+mapURL2Websocket.size);
 	

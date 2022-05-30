@@ -61,6 +61,7 @@ function readyToChat(){
 	var myuserid = document.getElementById("myuserid");
 	myuserid.disabled = true;
 	
+	
 	finishTestMode();
 	remotePeerIDMediaConMap.clear();
 	closeSetupModal();

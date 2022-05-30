@@ -314,11 +314,16 @@
 						</div>
 						
 					</div>
+					
 					<div class="box-text-mic" id="micsetting">
 						<div class="row mb-3">
 							<div class="col-sm-4">
+								<label for="micvolumeslider" class="form-label">mic volume</label><br>
+								<input type="range" class="form-range" min="0" max="3.4" id="micvolumeslider" value="1" step="0.01">
+		          				</div>
+	          					<div class="col-sm-4">
 								<label for="mic_list" class="form-label">device id</label>
-								<select id="mic_list" class="form-select form-select-sm" aria-label=".form-select-sm example">
+								<select id="mic_list" class="form-select form-select-sm" aria-label="device id">
 		          						<option>(audio)</option>
 		          					</select>
 		          				</div>
@@ -327,12 +332,22 @@
 								<input type="number" id="micdelayinput" value="0" min="0" max="1" step="0.01"> 
 		          				</div>
 		          				<div class="col-sm-4">
-								<label for="micvolumeslider" class="form-label">mic volume</label><br>
-								<input type="range" class="form-range" min="0" max="3.4" id="micvolumeslider" value="1" step="0.01">
-		          				</div>
-	          					<div class="col-sm-4">
 								<label for="echocancelselector" class="form-label">echo cancel</label>
-								<select id="echocancelselector" class="form-select form-select-sm" aria-label=".form-select-sm example"></select>
+								<select id="echocancelselector" class="form-select form-select-sm" aria-label="echo cancel"></select>
+							</div>
+							<div class="col-sm-4">
+		          					<!--<div class="form-check form-switch">-->
+		          					<div class="form-check form-switch">
+									<input class="form-check-input" type="checkbox" id="noisesuppressionchkbox">
+									<label class="form-check-label" for="noisesuppressionchkbox">noise suppression</label>
+								</div>
+							</div>
+							<div class="col-sm-4">
+		          					<!--<div class="form-check form-switch">-->
+		          					<div class="form-check form-switch">
+									<input class="form-check-input" type="checkbox" id="autogainchkbox">
+									<label class="form-check-label" for="autogainchkbox" title="only when no noise suppression, noise suppression automatically auto gain control on.">auto gain</label>
+								</div>
 							</div>
 						</div>
 						<div class="row mb-3">
@@ -346,7 +361,7 @@
 						<div class="row mb-3">
 							<div class="col-sm-4">
 								<label for="speaker_list" class="form-label">device id</label>
-								<select id="speaker_list" class="form-select form-select-sm" aria-label=".form-select-sm example">
+								<select id="speaker_list" class="form-select form-select-sm" aria-label="device id">
 									<option>(speaker)</option>
 								</select>
 		          				</div>
@@ -366,7 +381,7 @@
 						
 						<div id="local_cameras" class="horizontal-list"></div>
 					</div>
-				</div>
+				</div><!--model body-->
 			<div class="modal-footer">
 				<button id="step_button" type="button" class="btn btn-primary" onclick="gotoStandby()" disabled="true">Ready</button>
 				<!--<button id="step_button" type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="standbyDevice()" disabled="true">Ready</button>-->

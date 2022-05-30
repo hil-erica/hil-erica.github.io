@@ -146,6 +146,19 @@ function getDeviceList() {
 				var echoSelector = document.getElementById("echocancelselector");
 				echoSelector.disabled = true;
 			}
+			if(supportedConstraints.noiseSuppression == true){
+				//var noiseSuppressInput = document.getElementById("noisesuppressionchkbox");
+			} else {
+				var noiseSuppressInput = document.getElementById("noisesuppressionchkbox");
+				autoGainInput.checked = false;
+				autoGainInput.disabled = true;
+			}
+			if(supportedConstraints.autoGainControl == true){
+			} else {
+				var autoGainInput = document.getElementById("autogainchkbox");
+				noiseSuppressInput.checked = false;
+				noiseSuppressInput.disabled = true;
+			}
 			(async () => {   
 				for(var i = 0; i<devices.length; i++){
 					console.log("call add device :"+devices[i].kind + ": " + devices[i].label + " id = " + devices[i].deviceId);
@@ -165,6 +178,11 @@ function getDeviceList() {
 				speakerList.addEventListener('change', mainSpeakerSelectEvent);
 				var echoCancelInput = document.getElementById("echocancelselector");
 				echoCancelInput.addEventListener('change', micSelectEvent);
+				var noiseSuppressInput = document.getElementById("noisesuppressionchkbox");
+				noiseSuppressInput.addEventListener('change', micSelectEvent);
+				var autoGainInput = document.getElementById("autogainchkbox");
+				autoGainInput.addEventListener('change', micSelectEvent);
+				
 				var micTestButton = document.getElementById("mic_test");
 				micTestButton.disabled = false;
 				var speakerTestButton = document.getElementById("speaker_test");
@@ -553,19 +571,23 @@ async function getSelectedMicStream(){
 		//localMicStream = null;
 		return;
 	}
+	
 	var echocancel = false;
+	var noiseSuppressionOnoff = document.getElementById("noisesuppressionchkbox").checked;
+	var autogainOnoff = document.getElementById("autogainchkbox").checked;
 	var echocancelType = "browser";
 	var constraints = null;
 	var echocanelValue = document.getElementById("echocancelselector").value;
-	console.log("echo cancel selector value = "+echocanelValue);
+	console.log("echo cancel selector value = "+echocanelValue+", noise suppression = "+noiseSuppressionOnoff+ ", auto gain = "+autogainOnoff);
 	if(echocanelValue == "none"){
 		constraints = {
 			audio: {
 				deviceId: audioId,
 				sampleRate: {ideal: 48000},
 				sampleSize: 16,
+				autoGainControl: autogainOnoff,
 				echoCancellation: echocancel,
-				noiseSuppression: false,
+				noiseSuppression: noiseSuppressionOnoff,
 				channelCount: {ideal: 2, min: 1}
 			}
 		};
@@ -577,9 +599,10 @@ async function getSelectedMicStream(){
 				deviceId: audioId,
 				sampleRate: {ideal: 48000},
 				sampleSize: 16,
+				autoGainControl: autogainOnoff,
 				echoCancellation: echocancel,
 				echoCancellationType: echocancelType,
-				noiseSuppression: false,
+				noiseSuppression: noiseSuppressionOnoff,
 				channelCount: {ideal: 2, min: 1}
 			}
 		};
@@ -591,9 +614,10 @@ async function getSelectedMicStream(){
 				deviceId: audioId,
 				sampleRate: {ideal: 48000},
 				sampleSize: 16,
+				autoGainControl: autogainOnoff,
 				echoCancellation: echocancel,
 				echoCancellationType: echocancelType,
-				noiseSuppression: false,
+				noiseSuppression: noiseSuppressionOnoff,
 				channelCount: {ideal: 2, min: 1}
 			}
 		};
