@@ -81,12 +81,56 @@ handgesture, pointing, handshake，handraise
 jsonファイルにはJson配列buttonsを定義し，buttonsの要素は必ずidとlabelを持つこと．
 
 このボタンがクリックされると"otpionalcommand=buttons要素のjson"がpublishされる．
-
+  "buttonelementsample": {
+    "id": "buttonsample",
+    "label": "表示されるテキスト",
+    "type": "workingmemory",
+    "scope": "interaction/robot/human",
+    "name": "変数名",
+    "string": "値はstring/int/double/booleanどれか",
+    "int": 1,
+    "double": -1.5,
+    "boolean": true
+  }
+  
 （例：Jsonファイル）
 {"buttons":[{"id":"dooropen","label":"解錠"},{"id":"sayhello","label":"こんにちは""}]}
 
+
 （例：送信コマンド）
 otpionalcommand={"id":"dooropen","label":"解錠"}
+
+現在サポート中
+type
+- type:"tts"
+  - text:"セリフ"
+  - 例：
+- type:"workingmemory" 
+  - scope:スコープで以下の3種類 INTERACTION, HUMAN, ROBOT
+  - name:変数名
+  - int:整数の場合
+  - double:浮動小数の場合
+  - boolean:TRUE/FALSEの場合
+  - string:文字の場合
+  - 例
+    - {"id":"teleoperation_start","label":"遠隔操作開始","type":"workingmemory","scope":"interaction","name":"teleoperation_start","string":"start"}
+    - {"id":"gesture_byebye_back","label":"ばいばいして戻す","type":"workingmemory","scope":"robot","name":"miracle_gesture_option","string":"{\"id\":\"right_hand_byebye\", \"delay\":0};{\"id\":\"righthandbaseposition\", \"delay\":3000};"}
+- type:"internalstate"
+  - internalstatetype: emotion, mood, attractiveness
+    - emotion: 自動でEmotionを変えるかどうか
+      - autoemotion: true/false，autoemotionが含まれない場合は以下の数値を読みにいく
+      - isrelative: true/false
+      - arousal: double(-1~+1)
+      - valence: double(-1~+1)
+      - dominance: double(-1~+1)
+      - duration: int(0~[msec])
+    - mood: 非対応
+    - attractiveness: 対象への興味度合い
+      - isrelative: true/false
+      - attractiveness: double(-1~+1)
+      - duration: int(0~[msec]) 
+  - 例： {"id":"attractiveness_increase","label":"興味度合い増加","type":"internalstate","internalstatetype":"attractiveness","isrelative":true,"attractiveness":0.2,"changeduration":500}
+
 
 #### ~~websocketデータのトンネリングプロトコル~~
 ~~"socket="をヘッダーに利用~~
