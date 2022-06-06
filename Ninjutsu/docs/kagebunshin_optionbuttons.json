@@ -17,6 +17,22 @@
       "string": "end"
     },
     {
+      "id": "gesture_byebye",
+      "label": "ばいばい",
+      "type": "workingmemory",
+      "scope": "robot",
+      "name": "miracle_gesture",
+      "string": "right_hand_byebye"
+    },
+    {
+      "id": "gesture_byebye_back",
+      "label": "ばいばいして戻す",
+      "type": "workingmemory",
+      "scope": "robot",
+      "name": "miracle_gesture_option",
+      "string": "{\"id\":\"right_hand_byebye\", \"delay\":0};{\"id\":\"righthandbaseposition\", \"delay\":3000};"
+    },
+    {
       "id": "attractiveness_increase",
       "label": "興味度合い増加",
       "type": "internalstate",

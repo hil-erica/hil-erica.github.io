@@ -34,13 +34,13 @@ function openOption(){
 					openController();
 				});
 				
+				//optionFrame.on('#optionalcommandfile', 'change', (_frame, evt) => {
 				optionFrame.on('#optionalcommandfile', 'change', (_frame, evt) => {
 					//console.log("optionalcommandfile loaded : ");
 					optionalCommandLoad();
 				});
 				addGestureButtons();
 			}
-			
 		});
 		
 		console.log("frame id:"+optionFrame.id);//windowManager_***
@@ -115,13 +115,12 @@ function optionalCommandLoad(){
 	var fileChooser =  optionFrame.$('#optionalcommandfile');
 	var files = fileChooser.files; // FileList object
 	var buttonsDiv = optionFrame.$('#optionalbuttons');
-	
 	while (buttonsDiv.lastChild) {
 		buttonsDiv.removeChild(buttonsDiv.lastChild);
 	}
 	
 	for (var i = 0, f; f = files[i]; i++) {
-		//console.log(f);
+		console.log(f);
 		var reader = new FileReader();
 		reader.readAsText( f );
 		reader.addEventListener( 'load', function() {
@@ -147,6 +146,8 @@ function optionalCommandLoad(){
 			}
 		});
 	}
+	//リセットすることで同じファイルを再度選択してもChangeリスナーが発火する
+	fileChooser.value = "";
 }
 
 function optionalButtonClicked(){
