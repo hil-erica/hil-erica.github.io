@@ -39,6 +39,12 @@ function openOption(){
 					//console.log("optionalcommandfile loaded : ");
 					optionalCommandLoad();
 				});
+				optionFrame.on('#optionalcommandfile', 'click', (_frame, evt) => {
+					//console.log("clicked");
+					//リセットすることで同じファイルを再度選択してもChangeリスナーが発火する
+					var fileChooser =  optionFrame.$('#optionalcommandfile');
+					fileChooser.value = "";
+				});
 				addGestureButtons();
 			}
 		});
@@ -146,8 +152,6 @@ function optionalCommandLoad(){
 			}
 		});
 	}
-	//リセットすることで同じファイルを再度選択してもChangeリスナーが発火する
-	fileChooser.value = "";
 }
 
 function optionalButtonClicked(){
