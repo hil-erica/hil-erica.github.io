@@ -1,0 +1,49 @@
+{
+  "buttons": [
+    {
+      "id": "gesture_byebye",
+      "label": "ばいばい",
+      "type": "workingmemory",
+      "scope": "robot",
+      "name": "miracle_gesture",
+      "string": "right_hand_byebye"
+    },
+    {
+      "id": "gesture_byebye_back",
+      "label": "ばいばいして戻す",
+      "type": "workingmemory",
+      "scope": "robot",
+      "name": "miracle_gesture_option",
+      "string": "{\"id\":\"right_hand_byebye\", \"delay\":0};{\"id\":\"righthandbaseposition\", \"delay\":3000};"
+    },
+    {
+      "id": "attractiveness_increase",
+      "label": "興味度合い増加",
+      "type": "internalstate",
+      "internalstatetype": "attractiveness",
+      "isrelative": true,
+      "attractiveness": 0.2,
+      "changeduration": 500
+    },
+    {
+      "id": "attractiveness_decrease",
+      "label": "興味度合い減少",
+      "type": "internalstate",
+      "internalstatetype": "attractiveness",
+      "isrelative": true,
+      "attractiveness": -0.2,
+      "changeduration": 1000
+    }
+  ],
+  "buttonelementsample": {
+    "id": "buttonsample",
+    "label": "表示されるテキスト",
+    "type": "workingmemory",
+    "scope": "interaction/robot/human",
+    "name": "変数名",
+    "string": "値はstring/int/double/booleanどれか",
+    "int": 1,
+    "double": -1.5,
+    "boolean": true
+  }
+}

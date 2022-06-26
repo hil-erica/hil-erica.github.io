@@ -22,8 +22,7 @@ function initialize(){
 		elements[i].style.display ="";
 	}
 	*/
-	changeSubLayout(1);
-	calsSubContainersSize();
+	//changeSubLayout(1);
 	initializeJSFrame();
 	console.log("initialize finish, isNode = "+isNode);
 }

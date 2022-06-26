@@ -56,7 +56,8 @@
 <script src="./js/mediastreamer.js"></script>
 <script src="./js/ros.js"></script>
 
-
+<!-- split.js -->
+<script src="https://unpkg.com/split.js/dist/split.min.js"></script>
 
 </head>
 <body>
@@ -206,53 +207,16 @@
 					</a>
 				</li>
 			</ul>
+			
+			<!--
 			<div class="d-flex" style="margin-right: 30px">
-				<div class="dropdown">
-					<button class="btn dropdown-toggle" type="button" id="subLayoutSelectButton" data-bs-toggle="dropdown" aria-expanded="false">
-						<img id="subLayoutSelectImg" alt="" width="16" height="16">
-						<!--
-						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-grid-3x2-gap" viewBox="0 0 16 16">
-							<path d="M4 4v2H2V4h2zm1 7V9a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1zm0-5V4a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1zm5 5V9a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1zm0-5V4a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1zM9 4v2H7V4h2zm5 0h-2v2h2V4zM4 9v2H2V9h2zm5 0v2H7V9h2zm5 0v2h-2V9h2zm-3-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1V4zm1 4a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1h-2z"/>
-						</svg>
-						-->
-					</button>
-					<ul class="dropdown-menu" aria-labelledby="subLayoutSelectButton">
-						<!--grid n-->
-						<li>
-							<a class="dropdown-item" href="#" onclick="changeSubLayout(1)">
-								<img src="./pics/grid-nx1-gap.svg" alt="" width="16" height="16">
-								<!--
-								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-grid" viewBox="0 0 16 16">
-									<path d="M1 2.5A1.5 1.5 0 0 1 2.5 1h3A1.5 1.5 0 0 1 7 2.5v3A1.5 1.5 0 0 1 5.5 7h-3A1.5 1.5 0 0 1 1 5.5v-3zM2.5 2a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zm6.5.5A1.5 1.5 0 0 1 10.5 1h3A1.5 1.5 0 0 1 15 2.5v3A1.5 1.5 0 0 1 13.5 7h-3A1.5 1.5 0 0 1 9 5.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zM1 10.5A1.5 1.5 0 0 1 2.5 9h3A1.5 1.5 0 0 1 7 10.5v3A1.5 1.5 0 0 1 5.5 15h-3A1.5 1.5 0 0 1 1 13.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zm6.5.5A1.5 1.5 0 0 1 10.5 9h3a1.5 1.5 0 0 1 1.5 1.5v3a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 13.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3z"/>
-								</svg>
-								-->
-							</a>
-						</li>
-						<!--grid2-->
-						<li>
-							<a class="dropdown-item" href="#" onclick="changeSubLayout(2)">
-								<img src="./pics/grid-2x2.svg" alt="" width="16" height="16">
-								<!--
-								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-grid" viewBox="0 0 16 16">
-									<path d="M1 2.5A1.5 1.5 0 0 1 2.5 1h3A1.5 1.5 0 0 1 7 2.5v3A1.5 1.5 0 0 1 5.5 7h-3A1.5 1.5 0 0 1 1 5.5v-3zM2.5 2a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zm6.5.5A1.5 1.5 0 0 1 10.5 1h3A1.5 1.5 0 0 1 15 2.5v3A1.5 1.5 0 0 1 13.5 7h-3A1.5 1.5 0 0 1 9 5.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zM1 10.5A1.5 1.5 0 0 1 2.5 9h3A1.5 1.5 0 0 1 7 10.5v3A1.5 1.5 0 0 1 5.5 15h-3A1.5 1.5 0 0 1 1 13.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zm6.5.5A1.5 1.5 0 0 1 10.5 9h3a1.5 1.5 0 0 1 1.5 1.5v3a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 13.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3z"/>
-								</svg>
-								-->
-							</a>
-						</li>
-						<!--grid3-->
-						<li>
-							<a class="dropdown-item" href="#"  onclick="changeSubLayout(3)">
-								<img id="handImg" src="./pics/grid-3x2-gap.svg" alt="" width="16" height="16">
-								<!--
-								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-grid-3x2-gap" viewBox="0 0 16 16">
-									<path d="M4 4v2H2V4h2zm1 7V9a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1zm0-5V4a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1zm5 5V9a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1zm0-5V4a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1zM9 4v2H7V4h2zm5 0h-2v2h2V4zM4 9v2H2V9h2zm5 0v2H7V9h2zm5 0v2h-2V9h2zm-3-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1V4zm1 4a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1h-2z"/>
-								</svg>
-								-->
-							</a>
-						</li>
-					</ul>
+				<div class="form-check form-switch">
+					<input class="form-check-input" type="checkbox" id="debugcheckbox" onchange="showControlPane()">
+					<label class="form-check-label" for="debugcheckbox">debug</label>
 				</div>
 			</div>
+			-->
+			
 			<div class="d-flex" style="margin-right: 30px">
 				<div class="form-check form-switch">
 					<input class="form-check-input" type="checkbox" id="teleopemodecheckbox" onchange="teleOpeModeChanged()">
@@ -282,9 +246,14 @@
 </nav>
 
 <!--<div class="masonry" style="height: 340px;">-->
-<div>
-	<div id="backgroundimg" class="backgroundimgcontainer">
+<div id="backgroundimg" class="backgroundimgcontainer">
+</div>
+<div id="workspace">
+	
+	<div id="controlpane" class="controlpane">
+
 	</div>
+
 	<div id="main" class="maincontainers">
 
 	</div>
@@ -292,8 +261,16 @@
 	<div id="sub" class="subcontainers">
 	</div>
 </div>
+<!--
+<div id="workspace">
+	<div id="main" class="maincontainers">
 
-
+	</div>
+	
+	<div id="sub" class="subcontainers">
+	</div>
+</div>
+-->
 <!-- Modal for set up-->
 <div class="modal fade" id="setupModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="setupModalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
@@ -579,7 +556,6 @@
     <p><video id="lockscreenvideo" src="./videos/teleoperation.mp4" muted autoplay playinline loop onclick="lockScreenOnOff()" width="480"></p>
 </div>
 
-
 <script>
 
 $(window).on('load',function(){
@@ -630,6 +606,16 @@ function getRandomInt(max) {
 	return Math.floor(Math.random() * max);
 }
 
+/*
+var split = Split(['#main', '#sub'], {
+	direction: 'vertical',
+	gutterSize: 10,
+	snapOffset: 0,
+	sizes: [200, 100],
+	minSize: [300, 200]
+})
+*/
+var split;
 function fadeInBodyImg(speed){
 	//console.log("fade in");
 	//speed[msec] フェードイン・フェードアウトの処理時間（1000で1秒）
@@ -641,6 +627,10 @@ function fadeInBodyImg(speed){
 			imgNumber = 0;
 		} 
 		$(this).css({"background-image":"url("+backImgs[imgNumber]+")"}).fadeIn(speed);
+		if(split != null){
+			split.destroy();
+			split = null;
+		}
 	});
 }
 
@@ -648,7 +638,16 @@ function fadeOutBodyImg(speed){
 	//speed[msec] フェードイン・フェードアウトの処理時間（1000で1秒）
 	//console.log("fade out");
 	$('#backgroundimg').fadeOut(speed,function(){
-		calsSubContainersSize();//フェードアウト後に大きさチェック
+		//フェードアウト後に大きさチェック
+		split = Split(['#main', '#sub'], {
+			direction: 'vertical',
+			gutterSize: 10,
+			snapOffset: 0,
+			sizes: [200, 100],
+			minSize: [300, 200]
+		});
+		calcMainContainersSize();
+		calcSubContainersSize();
 	});
 }
 document.getElementById("saytext").onkeypress = (e) => {
@@ -658,6 +657,27 @@ document.getElementById("saytext").onkeypress = (e) => {
 		clickSay();
 	}
 }
+
+
+const resizeObserver = new ResizeObserver(entries => {
+	for (const entry of entries) {
+		// 変更を検知した要素
+		// 検知した変更の矩形
+		const rect = entry.contentRect;
+		//console.log(rect.top, rect.left);
+		//console.log(rect.width, rect.height);
+		var element = document.getElementById(entry.target.id);
+		//console.log(entry.target.id + " "+rect.width+"/"+rect.height+" "+element.style.width+"/"+element.style.height +" "+window.getComputedStyle(element).width+"/"+window.getComputedStyle(element).height);
+		if(entry.target.id == "main"){
+			calcMainContainersSize();
+		} else if(entry.target.id == "sub"){
+			calcSubContainersSize();
+		}
+	}
+});
+resizeObserver.observe(document.getElementById("main"));
+resizeObserver.observe(document.getElementById("sub"));
+
 </script>
 
 </body>

@@ -1,4 +1,5 @@
-window.addEventListener('resize', windowResizeListener);
+//kagebunshin.htmlでmain subのresizeリスナーで実装
+//window.addEventListener('resize', windowResizeListener);
 
 var remotePeerIDVideoContainerMap = new Map();//peerid, Array of div video container, to sort sub container
 //var drawJsonObjOnCanvas = null;
@@ -31,7 +32,7 @@ function addRemoteVideo(peerid, trackid, videotrack){
 	prevButton.setAttribute("peerid", peerid);
 	prevButton.setAttribute("trackid", trackid);
 	prevButton.setAttribute("id", peerid+"_" + trackid+"_prevbutton");
-	prevButton.addEventListener("click", setSubVideoOrder);
+	prevButton.addEventListener("click", setVideoOrder);
 	controller.appendChild(prevButton);
 	
 	var mainButton = document.createElement("button");
@@ -47,6 +48,19 @@ function addRemoteVideo(peerid, trackid, videotrack){
 	mainButton.addEventListener("click", setMainVideo);
 	controller.appendChild(mainButton);
 	
+	var subButton = document.createElement("button");
+	//subButton.innerHTML = "to sub";
+	//subButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-in-up" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M3.5 10a.5.5 0 0 1-.5-.5v-8a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 0 0 1h2A1.5 1.5 0 0 0 14 9.5v-8A1.5 1.5 0 0 0 12.5 0h-9A1.5 1.5 0 0 0 2 1.5v8A1.5 1.5 0 0 0 3.5 11h2a.5.5 0 0 0 0-1h-2z"/><path fill-rule="evenodd" d="M7.646 4.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V14.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3z"/></svg>';
+	subButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="'+svgFillColor+'" class="bi bi-arrow-down-square" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15 2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2zM0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm8.5 2.5a.5.5 0 0 0-1 0v5.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V4.5z"/></svg>';
+	//subButton.setAttribute("class", "btn btn-default btn-sm col-sm-1");
+	subButton.setAttribute("class", "btn btn-default btn-sm");
+	subButton.setAttribute("type", "button");
+	subButton.setAttribute("peerid", peerid);
+	subButton.setAttribute("trackid", trackid);
+	subButton.setAttribute("id", peerid+"_" + trackid+"_subbutton");
+	subButton.addEventListener("click", setSubVideo);
+	controller.appendChild(subButton);
+	
 	var nextButton = document.createElement("button");
 	nextButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="'+svgFillColor+'" class="bi bi-arrow-right-square" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15 2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2zM0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm4.5 5.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H4.5z"/></svg>';
 	nextButton.setAttribute("class", "btn btn-default btn-sm");
@@ -54,7 +68,7 @@ function addRemoteVideo(peerid, trackid, videotrack){
 	nextButton.setAttribute("peerid", peerid);
 	nextButton.setAttribute("trackid", trackid);
 	nextButton.setAttribute("id", peerid+"_" + trackid+"_nextbutton");
-	nextButton.addEventListener("click", setSubVideoOrder);
+	nextButton.addEventListener("click", setVideoOrder);
 	controller.appendChild(nextButton);
 		
 	var speakerDiv = document.createElement("div");
@@ -216,6 +230,9 @@ function addRemoteVideo(peerid, trackid, videotrack){
 		//add to main
 		container.setAttribute("class", "maincontainer");
 		//container.setAttribute("name", "mainvideo");
+		mainButton.hidden = true;
+		subButton.hidden = false;
+
 		main.appendChild(container);
 		
 		fadeOutBodyImg();
@@ -223,6 +240,9 @@ function addRemoteVideo(peerid, trackid, videotrack){
 		//add to sub
 		container.setAttribute("class", "subcontainer");
 		//container.setAttribute("name", "subvideo");
+		mainButton.hidden = false;
+		subButton.hidden = true;
+
 		sub.appendChild(container);
 	}
 	if(remotePeerIDVideoContainerMap.has(peerid)){
@@ -233,7 +253,8 @@ function addRemoteVideo(peerid, trackid, videotrack){
 	remotePeerIDVideoContainerMap.get(peerid).push(container);
 	
 	//新しい映像が加わったのでリサイズ
-	calsSubContainersSize();
+	calcMainContainersSize();
+	calcSubContainersSize();
 	
 	//ros
 	onNewUserVideoConnected(videoObj);
@@ -361,7 +382,8 @@ function removeRemoteVideo(peerid){
 	remotePeerIDVideoContainerMap.delete(peerid);
 	
 	//減るのでリサイズ
-	calsSubContainersSize();
+	calcMainContainersSize();
+	calcSubContainersSize();
 	
 	//画面共有から削除
 	removeSharedScreen(peerid);
@@ -393,7 +415,7 @@ function addRemoteSound(peerid, trackid, audiotrack, muteMode){
 	prevButton.setAttribute("peerid", peerid);
 	prevButton.setAttribute("trackid", trackid);
 	prevButton.setAttribute("id", peerid+"_" + trackid+"_prevbutton");
-	prevButton.addEventListener("click", setSubVideoOrder);
+	prevButton.addEventListener("click", setVideoOrder);
 	controller.appendChild(prevButton);
 	
 	var mainButton = document.createElement("button");
@@ -416,7 +438,7 @@ function addRemoteSound(peerid, trackid, audiotrack, muteMode){
 	nextButton.setAttribute("peerid", peerid);
 	nextButton.setAttribute("trackid", trackid);
 	nextButton.setAttribute("id", peerid+"_" + trackid+"_nextbutton");
-	nextButton.addEventListener("click", setSubVideoOrder);
+	nextButton.addEventListener("click", setVideoOrder);
 	controller.appendChild(nextButton);
 	
 	
@@ -524,7 +546,8 @@ function addRemoteSound(peerid, trackid, audiotrack, muteMode){
 	remotePeerIDVideoContainerMap.get(peerid).push(container);
 	
 	//新しい映像が加わったのでリサイズ
-	calsSubContainersSize();
+	calcMainContainersSize();
+	calcSubContainersSize();
 	return container;
 }
 
@@ -564,147 +587,111 @@ function windowResizeListener(event){
 	calsSubContainersSize();
 }
 
-function calsSubContainersSize(){
-	var navbar = document.getElementById("navbar");
-	var backgroundimg = document.getElementById("backgroundimg");
-	var mainContainers = document.getElementById("main");
-	var subContainers = document.getElementById("sub");
-	var subLayoutSelectButton = document.getElementById("subLayoutSelectButton");
-	var subLayoutSize = subLayoutSelectButton.getAttribute("layout");
-	var workspaceHeight = window.innerHeight - navbar.getBoundingClientRect().bottom;
-	//console.log(navbar.getBoundingClientRect().bottom +" "+backgroundimg.getBoundingClientRect().top+" "+mainContainers.getBoundingClientRect().top);
-	/*
-	var workspaceHeight = window.innerHeight - backgroundimg.getBoundingClientRect().top;
-	if(backgroundimg.getBoundingClientRect().top == 0){
-		workspaceHeight = window.innerHeight - mainContainers.getBoundingClientRect().top;
-	}
-	*/
-	var workspaceWidth = window.innerWidth;
-	
-	var idealWorkspaceHeight = 0;
-	var idealWorkspaceWidth = 0;
-	var maxHeightBasedWidth = 0;
-	var maxWidthBasedHeight = 0;
-	//var controllerMergin = 40;
+
+function calcMainContainersSize(){
+	var element = document.getElementById("main");
 	var controllerMergin = 31;
-	if(subLayoutSize == 1){
-		//1 1行にSubをすべて並べる
-		var sub = document.getElementById("sub");
-		var numSubs = sub.children.length;
-		if(numSubs == 0){
-			maxHeightBasedWidth = 9*workspaceWidth/16+controllerMergin;
-			maxWidthBasedHeight = 16*(workspaceHeight-controllerMergin)/9;
-		} else {
-			maxHeightBasedWidth = 9*workspaceWidth*(1+1/numSubs)/16+controllerMergin*2;
-			maxWidthBasedHeight = 16*(workspaceHeight-controllerMergin*2)/9/(1+1/numSubs);
-			subLayoutSize = numSubs;
-		}
-		subContainers.style.overflowY = "hidden";
-	} else if(subLayoutSize == 2){
-		//2
-		maxHeightBasedWidth = 27*workspaceWidth/32+controllerMergin*2;
-		maxWidthBasedHeight = 32*(workspaceHeight-controllerMergin*2)/27;
-	} else {
-		//3
-		maxHeightBasedWidth = 9*workspaceWidth/12+controllerMergin*2;
-		maxWidthBasedHeight = 12*(workspaceHeight-controllerMergin*2)/9;
+	var workspaceHeight = parseInt(window.getComputedStyle(element).height);
+	var workspaceWidth = parseInt(window.getComputedStyle(element).width);
+	var widthMargin = 10;
+	var heightMargin = 20;
+	var verticalMoceMargin = 30;
+	var bestRowCol = getBestRowCol(workspaceHeight-verticalMoceMargin, workspaceWidth, element.children.length, controllerMergin, widthMargin, heightMargin);
+	var bestRow = bestRowCol[0];
+	var bestCol = bestRowCol[1];
+	var bestWidth = bestRowCol[2];
+	var bestHeight = bestRowCol[3];
+	//console.log("main "+bestRow +"/"+bestCol);
+	var maincontainerElements = document.getElementsByClassName("maincontainer");
+	const scrollBar = element.offsetWidth - element.clientWidth;
+	for(var i = 0; i<maincontainerElements.length; i++){
+		maincontainerElements[i].style.width = bestWidth+"px";
+		maincontainerElements[i].style.height = bestHeight+"px";
 	}
-	
-	if(maxHeightBasedWidth > workspaceHeight){
-		//console.log("横基準だと縦が出るので縦基準に");
-		idealWorkspaceHeight = workspaceHeight;
-		idealWorkspaceWidth = maxWidthBasedHeight;
-	} else if(maxWidthBasedHeight > workspaceWidth){
-		//console.log("縦基準だと横が出るので横基準に");
-		idealWorkspaceWidth = workspaceWidth;
-		idealWorkspaceHeight = maxHeightBasedWidth;
-	} else {
-		console.log("!!!!!ideal video workspace calc error!!!!!");
-	}
-	mainContainers.style.width = idealWorkspaceWidth+"px";
-	subContainers.style.width = (idealWorkspaceWidth-40)+"px";//-40pxはvideo.cssと合わせる
-	//console.log("ideal width = "+ idealWorkspaceWidth+"px");
-	
-	//subcontainer width
-	var subcontainerElements = document.getElementsByClassName("subcontainer");
-	const scrollBar = subContainers.offsetWidth - subContainers.clientWidth;
-	if(subLayoutSize != 1 && subcontainerElements.length > 0 && (subcontainerElements.length/subLayoutSize>1)){
-		//2段組み以上
-		subContainers.style.overflowY = "auto";
-	} else {
-		subContainers.style.overflowY = "hidden";
-	}
-	for(var i = 0; i<subcontainerElements.length; i++){
-		//console.log("subcontainerElement = "+subcontainerElements[i].id+ ", calc((100% / "+subLayoutSize+" -5px)");
-		//subcontainerElements[i].style.width = "calc(100% / "+subLayoutSize+" -5px)";
-		//subcontainerElements[i].style.width = "calc( calc(95% / "+subLayoutSize+") - 5px)";
-		if(subcontainerElements.length == 1){
-			subcontainerElements[i].style.width = "calc( calc(100%  - "+scrollBar+"px)/ "+subLayoutSize+")";
-		} else {
-			subcontainerElements[i].style.width = "calc( calc(99%  - "+scrollBar+"px)/ "+subLayoutSize+")";
-		}
-		//console.log("calc( calc(100%  - "+scrollBar+"px)/ "+subLayoutSize+")");
-		//subcontainerElements[i].setAttribute("style.width", "calc(100% / "+subLayoutSize+")");
-	}
-	var subcontainerElementHeight = 0;
-	if(subcontainerElements.length > 0){
-		//console.log("sub container "+subcontainerElements[0].offsetHeight+" " +subcontainerElements[0].offsetWidth+" "+(subcontainerElements[0].offsetWidth*9/16));
-		subcontainerElementHeight = subcontainerElements[0].offsetWidth*9/16;
-	}
-	
-	//subcontainersの高さ計算
-	var startY = subContainers.getBoundingClientRect().top;
-	var leftHeight = window.innerHeight - startY - 0;
-	var minHeight = 300;
-	//var mergin = controllerMergin*2;
-	var mergin = 10;
-	//var elements = document.getElementsByName("subvideo");
-	var sub = document.getElementById("sub");
-	var elements = sub.children;
-	var subVideoTotalHeight = 0;
-	
-	if(elements.length>0){
-		var childTotalHeight = 0;
-		for (const el of elements[0].children) {
-			//縦並びしていることを仮定
-			childTotalHeight += el.offsetHeight;
-		}
-		childTotalHeight += 75;//mergin
-		subcontainerElementHeight += controllerMergin;
-		if(Math.floor(elements.length / 3) == 0){
-			subcontainerElementHeight += 15;//top margin 5px
-			mergin = 5;
-		} else {
-			subcontainerElementHeight += 10;//top margin 5px
-		}
-		//console.log(childTotalHeight +" "+subcontainerElementHeight);
-		subVideoTotalHeight = subcontainerElementHeight * (Math.floor(elements.length / 3) +1);
-		//minHeight = minHeight;//1段分
-		minHeight = subcontainerElementHeight;
-		//console.log("subcontainerElementHeight "+subcontainerElementHeight);
-	}
-	
-	if(elements.length == 0){
-		subContainers.style.height = "0px";
-	} else {
-		if(leftHeight < minHeight){
-			//console.log("minHeight");
-			subContainers.style.height = (minHeight-mergin)+"px";
-		} else if(leftHeight <= subVideoTotalHeight){
-			//console.log("leftHeight");
-			subContainers.style.height = (leftHeight-mergin)+"px";
-		} else {
-			//console.log("sub total height");
-			subContainers.style.height = (subVideoTotalHeight-mergin)+"px";
-		}
-	}
-	//console.log(subContainers.style.height+ " <= "+leftHeight+" "+subVideoTotalHeight+" "+minHeight);
 	
 	var elements = document.getElementsByName("clickcanvas");
 	for (var i = 0; i < elements.length; i++) {
 		canvasSizeChanged(elements[i]);
 		//console.log('resize canvas : '+elements[i].getAttribute("id"));
 	}
+}
+
+function calcSubContainersSize(){
+	var element = document.getElementById("sub");
+	var controllerMergin = 31;
+	var workspaceHeight = parseInt(window.getComputedStyle(element).height);
+	var workspaceWidth = parseInt(window.getComputedStyle(element).width);
+	var  minWidth = 320;
+	var minHeigiht = minWidth*9/16+controllerMergin;
+	var subContainers = document.getElementById("sub");
+	var subcontainerElements = document.getElementsByClassName("subcontainer");
+	const scrollBar = subContainers.offsetWidth - subContainers.clientWidth;
+	var widthMargin = 10;
+	var heightMargin = 20;
+	var bestRowCol = getBestRowCol(workspaceHeight-heightMargin, workspaceWidth, element.children.length, controllerMergin, widthMargin,heightMargin);
+	var bestRow = bestRowCol[0];
+	var bestCol = bestRowCol[1];
+	var bestWidth = bestRowCol[2];
+	var bestHeight = bestRowCol[3];
+	//console.log("sub " +bestRow +"/"+bestCol);
+	if(bestWidth < minWidth){
+		subContainers.style.overflowY = "auto";
+		//console.log("sub 小さすぎるのでスクロール");
+	} else {
+		subContainers.style.overflowY = "hidden";
+	}
+	if(workspaceWidth < minWidth){
+		subContainers.style.overflowX = "auto";
+		console.log("workspaceが狭すぎるのでサイズ増やしてあげないといけないが放置");
+		//subContainers.style.width = minWidth+"px";//これすると横固定でSubがリサイズされなくなるので積む
+	} else {
+		subContainers.style.overflowX = "hidden";
+		//subContainers.style.width = "100%";
+	}
+	for(var i = 0; i<subcontainerElements.length; i++){
+		if(bestWidth < minWidth){
+			subcontainerElements[i].style.width = minWidth+"px";
+			subcontainerElements[i].style.height = minHeigiht+"px";
+		} else {
+			subcontainerElements[i].style.width = bestWidth+"px";
+			subcontainerElements[i].style.height = bestHeight+"px";
+		}
+	}
+	
+	var elements = document.getElementsByName("clickcanvas");
+	for (var i = 0; i < elements.length; i++) {
+		canvasSizeChanged(elements[i]);
+		//console.log('resize canvas : '+elements[i].getAttribute("id"));
+	}
+}
+
+/*余白が最小になる計算*/
+function getBestRowCol(workspaceHeight, workspaceWidth, numVideo, controllerHeight, widthMargin, heightMargin){
+	var minMargin = -1;
+	var bestRow = 1;
+	var bestCol = numVideo;
+	var bestHeight = workspaceHeight;
+	var bestWidth = workspaceWidth;
+	for(var row=1; row<=numVideo; row++){
+		var col = Math.ceil(numVideo / row);//切り上げ
+		var eachWidth = workspaceWidth/col - widthMargin;
+		var eachHeight = eachWidth * 9/16+controllerHeight;
+		var totalHeight = (eachHeight+heightMargin) * row;
+		if(totalHeight > workspaceHeight){
+			//高さ基準で
+			eachHeight = workspaceHeight/row-heightMargin;
+			eachWidth = (eachHeight-controllerHeight)*16/9;
+		} 
+		var totalVideoArea = eachWidth * eachHeight * numVideo;
+		if(minMargin < 0 || (minMargin >=0 && minMargin > (workspaceHeight*workspaceWidth-totalVideoArea))){
+			bestRow = row;
+			bestCol = col;
+			bestHeight = eachHeight;
+			bestWidth = eachWidth;
+			minMargin = workspaceHeight*workspaceWidth-totalVideoArea;
+		}
+	}
+	return [bestRow,bestCol, bestWidth, bestHeight];
 }
 
 //windowsがリサイズしたり，main subを入れ替えたりしたら呼び出す
@@ -1177,6 +1164,12 @@ function setMainVideo(event){
 	console.log("set main : "+peerid+"_"+trackid+"_container");
 	var videoContainerElement = document.getElementById(peerid+"_"+trackid+"_container");
 	var videoElement = document.getElementById(peerid+"_"+trackid+"_video");
+	// peerid+"_" + trackid+"_mainbutton
+	var mainButton = document.getElementById(peerid+"_"+trackid+"_mainbutton");
+	var subButton = document.getElementById(peerid+"_"+trackid+"_subbutton");
+	mainButton.hidden = true;
+	subButton.hidden = false;
+	
 	//videoElement.play();
 	var main = document.getElementById("main");
 	var sub = document.getElementById("sub");
@@ -1184,6 +1177,7 @@ function setMainVideo(event){
 		//mainのmainボタンを間違って押した場合
 		return;
 	}
+	/*
 	while (main.lastChild) {
 		if(main.lastChild.id != null){
 			console.log(main.lastChild.id);
@@ -1199,6 +1193,7 @@ function setMainVideo(event){
 		//sort あり
 		//main.removeChild(main.lastChild);
 	}
+	*/
 	/*
 	//sort あり
 	var sub = document.getElementById("sub");
@@ -1226,40 +1221,90 @@ function setMainVideo(event){
 		}
 	}
 	*/
-	
-	calsSubContainersSize();
+	calcMainContainersSize();
+	calcSubContainersSize();
 }
 
-
-function setSubVideoOrder(event){
-	//console.log("change "+this.id);
+function setSubVideo(event){
 	var peerid = this.getAttribute("peerid");
 	var trackid = this.getAttribute("trackid");
-	var subVideoContainer = document.getElementById(peerid+"_"+trackid+"_container");
+	
+	console.log("set main : "+peerid+"_"+trackid+"_container");
+	var videoContainerElement = document.getElementById(peerid+"_"+trackid+"_container");
+	var videoElement = document.getElementById(peerid+"_"+trackid+"_video");
+	// peerid+"_" + trackid+"_mainbutton
+	var mainButton = document.getElementById(peerid+"_"+trackid+"_mainbutton");
+	var subButton = document.getElementById(peerid+"_"+trackid+"_subbutton");
+	mainButton.hidden = false;
+	subButton.hidden = true;
+
+	//videoElement.play();
+	var main = document.getElementById("main");
 	var sub = document.getElementById("sub");
 	
-	if(subVideoContainer.getAttribute("class").startsWith("sub")){
-		if(this.id.endsWith("_nextbutton")){
-			var subElements = document.getElementsByClassName("subcontainer");
-			for(var i = 0; i < subElements.length-1; i++){
-				if(subElements[i]==subVideoContainer){
-					//console.log("insert(next) : "+subElements[i+1].id +" " +subVideoContainer.id);
-					sub.insertBefore(subElements[i+1], subVideoContainer);
-					break;
-				}
-			}
-		} else if(this.id.endsWith("_prevbutton")){
-			var subElements = document.getElementsByClassName("subcontainer");
-			for(var i = 1; i < subElements.length; i++){
-				if(subElements[i]==subVideoContainer){
-					//console.log("insert(prev) : "+subVideoContainer.id +" " +subElements[i-1].id);
-					sub.insertBefore(subVideoContainer, subElements[i-1]);
-					break;
-				}
+	main.removeChild(videoContainerElement);
+	videoContainerElement.setAttribute("class", "subcontainer");
+	sub.appendChild(videoContainerElement);
+	
+	/*
+	//sort あり
+	var sub = document.getElementById("sub");
+	while (sub.lastChild) {
+		sub.removeChild(sub.lastChild);
+	}
+	*/
+	/*
+	//sort あり
+	for(var[key, value] of remotePeerIDVideoContainerMap){
+		//console.log(key+" has "+value.length+" videos");
+		for (let i = 0; i < value.length; i++) {
+			if(value[i] == videoContainerElement){
+			} else {
+				value[i].setAttribute("class", "subcontainer");
+				//value[i].setAttribute("name", "subvideo");
+				sub.appendChild(value[i]);
 			}
 		}
 	}
+	*/
 	
+	
+	calcMainContainersSize();
+	calcSubContainersSize();
+}
+
+function setVideoOrder(event){
+	//console.log("change "+this.id);
+	var peerid = this.getAttribute("peerid");
+	var trackid = this.getAttribute("trackid");
+	var videoContainer = document.getElementById(peerid+"_"+trackid+"_container");
+	var elementName = "subcontainer";
+	var containers = document.getElementById("sub");
+	if(videoContainer.getAttribute("class").startsWith("sub")){
+		
+	} else if(videoContainer.getAttribute("class").startsWith("main")){
+		elementName = "maincontainer";
+		containers = document.getElementById("main");
+	}
+	if(this.id.endsWith("_nextbutton")){
+		var elements = document.getElementsByClassName(elementName);
+		for(var i = 0; i < elements.length-1; i++){
+			if(elements[i]==videoContainer){
+				//console.log("insert(next) : "+subElements[i+1].id +" " +subVideoContainer.id);
+				containers.insertBefore(elements[i+1], videoContainer);
+				break;
+			}
+		}
+	} else if(this.id.endsWith("_prevbutton")){
+		var elements = document.getElementsByClassName(elementName);
+		for(var i = 1; i < elements.length; i++){
+			if(elements[i]==videoContainer){
+				//console.log("insert(prev) : "+subVideoContainer.id +" " +subElements[i-1].id);
+				containers.insertBefore(videoContainer, elements[i-1]);
+				break;
+			}
+		}
+	}
 }
 
 function teleOpeModeChanged() {
@@ -1317,32 +1362,6 @@ function teleOpeModeChanged() {
 		sharingScreenBgCanvasObj.style.display ="none";
 	}
 }
-
-function changeSubLayout(size){
-	var subLayoutSelectButton = document.getElementById("subLayoutSelectButton");
-	var subLayoutSelectImg = document.getElementById("subLayoutSelectImg");
-	console.log("change sublayout to "+size);
-	/*
-	while(subLayoutSelectButton.lastChild){
-		subLayoutSelectButton.removeChild(subLayoutSelectButton.lastChild);
-	}
-	*/
-	if(size == 1){
-		subLayoutSelectButton.setAttribute("layout", 1);
-		//subLayoutSelectButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-grid" viewBox="0 0 16 16"><path d="M1 2.5A1.5 1.5 0 0 1 2.5 1h3A1.5 1.5 0 0 1 7 2.5v3A1.5 1.5 0 0 1 5.5 7h-3A1.5 1.5 0 0 1 1 5.5v-3zM2.5 2a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zm6.5.5A1.5 1.5 0 0 1 10.5 1h3A1.5 1.5 0 0 1 15 2.5v3A1.5 1.5 0 0 1 13.5 7h-3A1.5 1.5 0 0 1 9 5.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zM1 10.5A1.5 1.5 0 0 1 2.5 9h3A1.5 1.5 0 0 1 7 10.5v3A1.5 1.5 0 0 1 5.5 15h-3A1.5 1.5 0 0 1 1 13.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zm6.5.5A1.5 1.5 0 0 1 10.5 9h3a1.5 1.5 0 0 1 1.5 1.5v3a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 13.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3z"/></svg>';
-		subLayoutSelectImg.setAttribute("src", "./pics/grid-nx1-gap.svg");
-	} else if(size == 2){
-		subLayoutSelectButton.setAttribute("layout", 2);
-		//subLayoutSelectButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-grid" viewBox="0 0 16 16"><path d="M1 2.5A1.5 1.5 0 0 1 2.5 1h3A1.5 1.5 0 0 1 7 2.5v3A1.5 1.5 0 0 1 5.5 7h-3A1.5 1.5 0 0 1 1 5.5v-3zM2.5 2a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zm6.5.5A1.5 1.5 0 0 1 10.5 1h3A1.5 1.5 0 0 1 15 2.5v3A1.5 1.5 0 0 1 13.5 7h-3A1.5 1.5 0 0 1 9 5.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zM1 10.5A1.5 1.5 0 0 1 2.5 9h3A1.5 1.5 0 0 1 7 10.5v3A1.5 1.5 0 0 1 5.5 15h-3A1.5 1.5 0 0 1 1 13.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zm6.5.5A1.5 1.5 0 0 1 10.5 9h3a1.5 1.5 0 0 1 1.5 1.5v3a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 13.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3z"/></svg>';
-		subLayoutSelectImg.setAttribute("src", "./pics/grid-2x2.svg");
-	} else {
-		subLayoutSelectButton.setAttribute("layout", 3);
-		//subLayoutSelectButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-grid-3x2-gap" viewBox="0 0 16 16"><path d="M4 4v2H2V4h2zm1 7V9a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1zm0-5V4a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1zm5 5V9a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1zm0-5V4a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1zM9 4v2H7V4h2zm5 0h-2v2h2V4zM4 9v2H2V9h2zm5 0v2H7V9h2zm5 0v2h-2V9h2zm-3-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1V4zm1 4a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1h-2z"/></svg>';
-		subLayoutSelectImg.setAttribute("src", "./pics/grid-3x2-gap.svg");
-	}
-	calsSubContainersSize();
-}
-
 
 function closeSetupModal(){
 	var setupModal = document.getElementById("setupModal");
@@ -1513,3 +1532,15 @@ function sourceLoaded(videoElement){
 }
 
 
+function showControlPane(){
+	//showFlag = document.getElementById("debugcheckbox").checked;
+	//slideToggleで表示中かどうかは自分で補完しないといかんかも
+	var showFlag = true;
+	if(showFlag){
+		//document.getElementById("controlpane").style.display = "";
+		$(".controlpane").slideToggle();
+	} else {
+		//document.getElementById("controlpane").style.display = "none"
+		$(".controlpane").slideToggle();
+	}
+}
