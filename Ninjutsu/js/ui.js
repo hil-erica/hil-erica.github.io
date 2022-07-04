@@ -253,9 +253,10 @@ function addRemoteVideo(peerid, trackid, videotrack){
 	remotePeerIDVideoContainerMap.get(peerid).push(container);
 	
 	//新しい映像が加わったのでリサイズ
-	calcMainContainersSize();
-	calcSubContainersSize();
-	
+	//calcMainContainersSize();
+	//calcSubContainersSize();
+	setSplitMinSize();
+
 	//ros
 	onNewUserVideoConnected(videoObj);
 	
@@ -382,9 +383,10 @@ function removeRemoteVideo(peerid){
 	remotePeerIDVideoContainerMap.delete(peerid);
 	
 	//減るのでリサイズ
-	calcMainContainersSize();
-	calcSubContainersSize();
-	
+	//calcMainContainersSize();
+	//calcSubContainersSize();
+	setSplitMinSize();
+
 	//画面共有から削除
 	removeSharedScreen(peerid);
 }
@@ -546,8 +548,9 @@ function addRemoteSound(peerid, trackid, audiotrack, muteMode){
 	remotePeerIDVideoContainerMap.get(peerid).push(container);
 	
 	//新しい映像が加わったのでリサイズ
-	calcMainContainersSize();
-	calcSubContainersSize();
+	//calcMainContainersSize();
+	//calcSubContainersSize();
+	setSplitMinSize();
 	return container;
 }
 
@@ -1221,8 +1224,9 @@ function setMainVideo(event){
 		}
 	}
 	*/
-	calcMainContainersSize();
-	calcSubContainersSize();
+	//calcMainContainersSize();
+	//calcSubContainersSize();
+	setSplitMinSize();
 }
 
 function setSubVideo(event){
@@ -1269,8 +1273,9 @@ function setSubVideo(event){
 	*/
 	
 	
-	calcMainContainersSize();
-	calcSubContainersSize();
+	//calcMainContainersSize();
+	//calcSubContainersSize();
+	setSplitMinSize();
 }
 
 function setVideoOrder(event){
@@ -1534,6 +1539,7 @@ function sourceLoaded(videoElement){
 
 function showControlPane(){
 	//showFlag = document.getElementById("debugcheckbox").checked;
+	/*
 	//slideToggleで表示中かどうかは自分で補完しないといかんかも
 	var showFlag = true;
 	if(showFlag){
@@ -1543,4 +1549,8 @@ function showControlPane(){
 		//document.getElementById("controlpane").style.display = "none"
 		$(".controlpane").slideToggle();
 	}
+	*/
+	//こちらはクラスを使ってるやつ全部
+	//$(".controlpane").slideToggle();
+	$("#controlpane").slideToggle();
 }

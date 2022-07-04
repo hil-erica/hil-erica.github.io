@@ -3,9 +3,29 @@ var optionFrame;
 var isOptionShow = false;
 
 function initializeOption() {
+	//for floating
 	openOption();
 	optionFrame.hide();
 	isOptionShow = false;
+
+	//for top layout
+	$("#optionapp").hide();
+	$('#controller').click(function() {
+		//console.log("controller button click");
+		openController();
+	});
+	
+	$('#optionalcommandfile').change(function(){
+		//console.log("optionalcommandfile loaded : ");
+		optionalCommandLoadOnTop();
+	});
+
+	$('#optionalcommandfile').click(function() {
+		//console.log("clicked");
+		//リセットすることで同じファイルを再度選択してもChangeリスナーが発火する
+		var fileChooser =  $('#optionalcommandfile');
+		fileChooser.value = "";
+	});
 }
 function openOption(){
 	if(optionFrame == null){
@@ -37,7 +57,7 @@ function openOption(){
 				//optionFrame.on('#optionalcommandfile', 'change', (_frame, evt) => {
 				optionFrame.on('#optionalcommandfile', 'change', (_frame, evt) => {
 					//console.log("optionalcommandfile loaded : ");
-					optionalCommandLoad();
+					optionalCommandLoadOnFloating();
 				});
 				optionFrame.on('#optionalcommandfile', 'click', (_frame, evt) => {
 					//console.log("clicked");
@@ -97,13 +117,30 @@ function addGestureButtons(){
 		gestureImg.setAttribute("id", gestures[i]+"_img");
 		gestureImg.setAttribute("alt", gestures[i]);
 		gestureLink.appendChild(gestureImg);
+		//for floating
 		optionFrame.$('#gesture').appendChild(gestureLink);
+		
+		gestureLink = document.createElement("a");
+		gestureLink.setAttribute("href", "#");
+		gestureLink.setAttribute("id", gestures[i]+"_a");
+		gestureLink.setAttribute("name", "gesture");
+		gestureLink.setAttribute("gesture", gestures[i]);
+		gestureLink.addEventListener( "click", gestureSelected);
+		
+		gestureImg = document.createElement("img");
+		gestureImg.setAttribute("src", "pics/gestures/"+gestures[i]+"-g.gif");
+		gestureImg.setAttribute("id", gestures[i]+"_img");
+		gestureImg.setAttribute("alt", gestures[i]);
+		gestureLink.appendChild(gestureImg);
+		//for top
+		document.getElementById("gesture").appendChild(gestureLink);
 	}
 }
 
 
 var gestureResetTimer = null;
 var selectedGestureButton = null;
+//1つのElementを2箇所に表示できないので複製せにゃならん
 function setGestureIconOnRunning(gestureid){
 	/*
 	if(gestureResetTimer != null){
@@ -115,14 +152,31 @@ function setGestureIconOnRunning(gestureid){
 	gestureResetTimer = setTimeout(function () {
 		optionFrame.$('#'+gestureid+'_img').setAttribute("src", "pics/gestures/"+gestureid+"-g.gif");
 	}, 1000);
+
+	document.getElementById(gestureid+'_img').setAttribute("src", "pics/gestures/"+gestureid+"-r.gif");
+	gestureResetTimer = setTimeout(function () {
+		document.getElementById(gestureid+'_img').setAttribute("src", "pics/gestures/"+gestureid+"-g.gif");
+	}, 1000);
 }
 
-function optionalCommandLoad(){
-	var fileChooser =  optionFrame.$('#optionalcommandfile');
+function optionalCommandLoadOnFloating(){
+	optionalCommandLoad(optionFrame.$('#optionalcommandfile'));
+}
+
+function optionalCommandLoadOnTop(){
+	optionalCommandLoad(document.getElementById("optionalcommandfile"));
+}
+
+function optionalCommandLoad(fileChooser){
+	//var fileChooser =  optionFrame.$('#optionalcommandfile');
 	var files = fileChooser.files; // FileList object
 	var buttonsDiv = optionFrame.$('#optionalbuttons');
 	while (buttonsDiv.lastChild) {
 		buttonsDiv.removeChild(buttonsDiv.lastChild);
+	}
+	var buttonsOnTopDiv = document.getElementById("optionalbuttons");
+	while (buttonsOnTopDiv.lastChild) {
+		buttonsOnTopDiv.removeChild(buttonsOnTopDiv.lastChild);
 	}
 	
 	for (var i = 0, f; f = files[i]; i++) {
@@ -148,6 +202,18 @@ function optionalCommandLoad(){
 					var txt = document.createTextNode("\u00a0");
 					//buttonsDiv.appendChild(txt);
 					buttonsDiv.appendChild(cmdBtn);
+					
+					cmdBtn = document.createElement('button');
+					cmdBtn.setAttribute('id', 'optionalbutton_'+optionalBtnJson.id);
+					cmdBtn.setAttribute('name', 'optionalbutton');
+					cmdBtn.setAttribute('jsondata', JSON.stringify(optionalBtnJson));
+					cmdBtn.addEventListener("click", optionalButtonClicked);
+					cmdBtn.innerHTML = optionalBtnJson.label;
+					cmdBtn.setAttribute('class', 'btn btn-outline-primary btn-sm');
+					cmdBtn.setAttribute('style', 'margin:2px;');
+					cmdBtn.setAttribute('type', 'button');
+					var txt = document.createTextNode("\u00a0");
+					buttonsOnTopDiv.appendChild(cmdBtn);
 				}
 			}
 		});
@@ -161,4 +227,8 @@ function optionalButtonClicked(){
 	//command
 	var sendText = "optionalcommand="+buttonObjId.getAttribute('jsondata');
 	publishData(sendText);
+}
+
+function showOptionAppPane(){
+	$("#optionapp").slideToggle();
 }

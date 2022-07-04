@@ -7,14 +7,15 @@
 <link rel="shortcut icon" href="./pics/ninja.ico" type="image/vnd.microsoft.icon">
 
 <!--Boostrap https://getbootstrap.jp/docs/5.0/getting-started/download/-->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+<!-- JavaScript Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 <!--Bootstrap icon https://icons.getbootstrap.com/ -->
 
 <!--Bootstrap password https://bootstrap-show-password.wenzhixin.net.cn/home/-->
 <script src="https://unpkg.com/bootstrap-show-password@1.2.1/dist/bootstrap-show-password.min.js"></script>
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<!--<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">-->
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
 
 
@@ -33,6 +34,7 @@
 <link rel="stylesheet" href="./css/device.css">
 <link rel="stylesheet" href="./css/ui.css">
 <link rel="stylesheet" href="./css/setting.css">
+<link rel="stylesheet" href="./css/optiononpage.css">
 
 
 <!--自身のカメラの順番を入れ替える-->
@@ -47,6 +49,7 @@
 <script src="./js/chat.js"></script>
 <script src="./js/gamecontroller.js"></script>
 <script src="./js/option.js"></script>
+<!--<script src="./js/optiononpage.js"></script>-->
 <script src="./js/sharescreen.js"></script>
 <script src="./js/information.js"></script>
 <script src="./js/externalwebsite.js"></script>
@@ -121,11 +124,11 @@
 						<!--<img class="svg_notselected navicon" id="handImg" src="./pics/gestures/palmup-right.svg" alt="" width="24" height="24">-->
 						<img id="handImg" src="./pics/gestures/palmup-right.svg" alt="" width="24" height="24">
 					</a>
-					<ul class="dropdown-menu dropdown-menu" aria-labelledby="handGestureDropdownMenuLink">
-						<li><a class="dropdown-item" href="#" name="handgesture" handpose="palmup" onclick='handSelected("palmup")'><img class="svg_notselected navicon" src="./pics/gestures/palmup-right.svg" alt="" width="24" height="24">palm up</a></li>
-						<li><a class="dropdown-item" href="#" name="handgesture" handpose="pointing" onclick='handSelected("pointing")'><img class="svg_notselected navicon" src="./pics/gestures/pointing-right.svg" alt="" width="24" height="24">pointing</a></li>
-						<li><a class="dropdown-item" href="#" name="handgesture" handpose="palmside" onclick='handSelected("palmside")'><img class="svg_notselected navicon" src="./pics/gestures/palmside-right.svg" alt="" width="24" height="24">palm side</a></li>
-						<li><a class="dropdown-item" href="#" name="handgesture" handpose="raisehand" onclick='handSelected("raisehand")'><img class="svg_notselected navicon" src="./pics/gestures/raisehand-right.svg" alt="" width="24" height="24">raise hand</a></li>
+					<ul class="dropdown-menu" aria-labelledby="handGestureDropdownMenuLink">
+						<li><a class="dropdown-item-custom" href="#" name="handgesture" handpose="palmup" onclick='handSelected("palmup")'><img class="svg_notselected navicon" src="./pics/gestures/palmup-right.svg" alt="" width="24" height="24">palm up</a></li>
+						<li><a class="dropdown-item-custom" href="#" name="handgesture" handpose="pointing" onclick='handSelected("pointing")'><img class="svg_notselected navicon" src="./pics/gestures/pointing-right.svg" alt="" width="24" height="24">pointing</a></li>
+						<li><a class="dropdown-item-custom" href="#" name="handgesture" handpose="palmside" onclick='handSelected("palmside")'><img class="svg_notselected navicon" src="./pics/gestures/palmside-right.svg" alt="" width="24" height="24">palm side</a></li>
+						<li><a class="dropdown-item-custom" href="#" name="handgesture" handpose="raisehand" onclick='handSelected("raisehand")'><img class="svg_notselected navicon" src="./pics/gestures/raisehand-right.svg" alt="" width="24" height="24">raise hand</a></li>
 					</ul>
 				</li>
 				
@@ -137,9 +140,9 @@
 							<path d="M4 10.5a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 0-1h-7a.5.5 0 0 0-.5.5zm3-4C7 5.672 6.552 5 6 5s-1 .672-1 1.5S5.448 8 6 8s1-.672 1-1.5zm4 0c0-.828-.448-1.5-1-1.5s-1 .672-1 1.5S9.448 8 10 8s1-.672 1-1.5z"/>
 						</svg>
 					</a>
-					<ul class="dropdown-menu dropdown-menu" aria-labelledby="handGestureDropdownMenuLink">
+					<ul class="dropdown-menu" aria-labelledby="faceDropdownMenuLink">
 						<li>
-							<a class="dropdown-item" href="#" name="facialexpression" face="auto" onclick='faceSelected("auto")'>
+							<a class="dropdown-item-custom" href="#" name="facialexpression" face="auto" onclick='faceSelected("auto")'>
 								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-emoji-neutral" viewBox="0 0 16 16">
 									<path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
 									<path d="M4 10.5a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 0-1h-7a.5.5 0 0 0-.5.5zm3-4C7 5.672 6.552 5 6 5s-1 .672-1 1.5S5.448 8 6 8s1-.672 1-1.5zm4 0c0-.828-.448-1.5-1-1.5s-1 .672-1 1.5S9.448 8 10 8s1-.672 1-1.5z"/>
@@ -148,7 +151,7 @@
 							</a>
 						</li>
 						<li>
-							<a class="dropdown-item" href="#" name="facialexpression" face="positive" onclick='faceSelected("positive")'>
+							<a class="dropdown-item-custom" href="#" name="facialexpression" face="positive" onclick='faceSelected("positive")'>
 								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-emoji-smile" viewBox="0 0 16 16">
 									<path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
 									<path d="M4.285 9.567a.5.5 0 0 1 .683.183A3.498 3.498 0 0 0 8 11.5a3.498 3.498 0 0 0 3.032-1.75.5.5 0 1 1 .866.5A4.498 4.498 0 0 1 8 12.5a4.498 4.498 0 0 1-3.898-2.25.5.5 0 0 1 .183-.683zM7 6.5C7 7.328 6.552 8 6 8s-1-.672-1-1.5S5.448 5 6 5s1 .672 1 1.5zm4 0c0 .828-.448 1.5-1 1.5s-1-.672-1-1.5S9.448 5 10 5s1 .672 1 1.5z"/>
@@ -157,7 +160,7 @@
 							</a>
 						</li>
 						<li>
-							<a class="dropdown-item" href="#" name="facialexpression" face="negative" onclick='faceSelected("negative")'>
+							<a class="dropdown-item-custom" href="#" name="facialexpression" face="negative" onclick='faceSelected("negative")'>
 								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-emoji-frown" viewBox="0 0 16 16">
 									<path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
 									<path d="M4.285 12.433a.5.5 0 0 0 .683-.183A3.498 3.498 0 0 1 8 10.5c1.295 0 2.426.703 3.032 1.75a.5.5 0 0 0 .866-.5A4.498 4.498 0 0 0 8 9.5a4.5 4.5 0 0 0-3.898 2.25.5.5 0 0 0 .183.683zM7 6.5C7 7.328 6.552 8 6 8s-1-.672-1-1.5S5.448 5 6 5s1 .672 1 1.5zm4 0c0 .828-.448 1.5-1 1.5s-1-.672-1-1.5S9.448 5 10 5s1 .672 1 1.5z"/>
@@ -169,15 +172,46 @@
 				</li>
 				
 				<!--optional application-->
+				<!--
 				<li class="nav-item">
 					<a class="nav-link active" aria-current="page" href="#"  onclick="openOption()">
+					<a class="nav-link active" aria-current="page" href="#"  onclick="showOptionAppPane()">
 						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-app-indicator" viewBox="0 0 16 16">
 							<path d="M5.5 2A3.5 3.5 0 0 0 2 5.5v5A3.5 3.5 0 0 0 5.5 14h5a3.5 3.5 0 0 0 3.5-3.5V8a.5.5 0 0 1 1 0v2.5a4.5 4.5 0 0 1-4.5 4.5h-5A4.5 4.5 0 0 1 1 10.5v-5A4.5 4.5 0 0 1 5.5 1H8a.5.5 0 0 1 0 1H5.5z"/>
 							<path d="M16 3a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
 						</svg>
 					</a>
 				</li>
-				
+				-->
+				<li class="nav-item dropdown">
+					<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-app-indicator" viewBox="0 0 16 16">
+							<path d="M5.5 2A3.5 3.5 0 0 0 2 5.5v5A3.5 3.5 0 0 0 5.5 14h5a3.5 3.5 0 0 0 3.5-3.5V8a.5.5 0 0 1 1 0v2.5a4.5 4.5 0 0 1-4.5 4.5h-5A4.5 4.5 0 0 1 1 10.5v-5A4.5 4.5 0 0 1 5.5 1H8a.5.5 0 0 1 0 1H5.5z"/>
+							<path d="M16 3a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+						</svg>
+					</a>
+					<ul class="dropdown-menu" aria-labelledby="optionalappDropdownMenuLink">
+						<li>
+							<a class="dropdown-item-custom" href="#" onclick='openOption()'>
+								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-up" viewBox="0 0 16 16">
+									<path fill-rule="evenodd" d="M3.5 6a.5.5 0 0 0-.5.5v8a.5.5 0 0 0 .5.5h9a.5.5 0 0 0 .5-.5v-8a.5.5 0 0 0-.5-.5h-2a.5.5 0 0 1 0-1h2A1.5 1.5 0 0 1 14 6.5v8a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 14.5v-8A1.5 1.5 0 0 1 3.5 5h2a.5.5 0 0 1 0 1h-2z"/>
+									<path fill-rule="evenodd" d="M7.646.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 1.707V10.5a.5.5 0 0 1-1 0V1.707L5.354 3.854a.5.5 0 1 1-.708-.708l3-3z"/>
+								</svg>
+							floating
+							</a>
+						</li>
+						<li>
+							<a class="dropdown-item-custom" href="#" name="facialexpression" face="positive" onclick='showOptionAppPane()'>
+								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-in-down" viewBox="0 0 16 16">
+									<path fill-rule="evenodd" d="M3.5 6a.5.5 0 0 0-.5.5v8a.5.5 0 0 0 .5.5h9a.5.5 0 0 0 .5-.5v-8a.5.5 0 0 0-.5-.5h-2a.5.5 0 0 1 0-1h2A1.5 1.5 0 0 1 14 6.5v8a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 14.5v-8A1.5 1.5 0 0 1 3.5 5h2a.5.5 0 0 1 0 1h-2z"/>
+									<path fill-rule="evenodd" d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+								</svg>
+							on top
+							</a>
+						</li>
+					</ul>
+				</li>
+
 				<!--shared screen-->
 				<li class="nav-item">
 					<a class="nav-link active" aria-current="page" href="#"  onclick="openShareScreen()">
@@ -249,17 +283,45 @@
 <div id="backgroundimg" class="backgroundimgcontainer">
 </div>
 <div id="workspace">
-	
-	<div id="controlpane" class="controlpane">
-
+	<div id="optionapp" class="optionpane">
+		<div id="controllers" class="box-text-controllers">
+			<ui>
+				<a href="#" id="controller">
+					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-controller" viewBox="0 0 16 16">
+						<path d="M11.5 6.027a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0zm-1.5 1.5a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1zm2.5-.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0zm-1.5 1.5a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1zm-6.5-3h1v1h1v1h-1v1h-1v-1h-1v-1h1v-1z"/>
+						<path d="M3.051 3.26a.5.5 0 0 1 .354-.613l1.932-.518a.5.5 0 0 1 .62.39c.655-.079 1.35-.117 2.043-.117.72 0 1.443.041 2.12.126a.5.5 0 0 1 .622-.399l1.932.518a.5.5 0 0 1 .306.729c.14.09.266.19.373.297.408.408.78 1.05 1.095 1.772.32.733.599 1.591.805 2.466.206.875.34 1.78.364 2.606.024.816-.059 1.602-.328 2.21a1.42 1.42 0 0 1-1.445.83c-.636-.067-1.115-.394-1.513-.773-.245-.232-.496-.526-.739-.808-.126-.148-.25-.292-.368-.423-.728-.804-1.597-1.527-3.224-1.527-1.627 0-2.496.723-3.224 1.527-.119.131-.242.275-.368.423-.243.282-.494.575-.739.808-.398.38-.877.706-1.513.773a1.42 1.42 0 0 1-1.445-.83c-.27-.608-.352-1.395-.329-2.21.024-.826.16-1.73.365-2.606.206-.875.486-1.733.805-2.466.315-.722.687-1.364 1.094-1.772a2.34 2.34 0 0 1 .433-.335.504.504 0 0 1-.028-.079zm2.036.412c-.877.185-1.469.443-1.733.708-.276.276-.587.783-.885 1.465a13.748 13.748 0 0 0-.748 2.295 12.351 12.351 0 0 0-.339 2.406c-.022.755.062 1.368.243 1.776a.42.42 0 0 0 .426.24c.327-.034.61-.199.929-.502.212-.202.4-.423.615-.674.133-.156.276-.323.44-.504C4.861 9.969 5.978 9.027 8 9.027s3.139.942 3.965 1.855c.164.181.307.348.44.504.214.251.403.472.615.674.318.303.601.468.929.503a.42.42 0 0 0 .426-.241c.18-.408.265-1.02.243-1.776a12.354 12.354 0 0 0-.339-2.406 13.753 13.753 0 0 0-.748-2.295c-.298-.682-.61-1.19-.885-1.465-.264-.265-.856-.523-1.733-.708-.85-.179-1.877-.27-2.913-.27-1.036 0-2.063.091-2.913.27z"/>
+					</svg>
+				</a>
+			</ul>
+		</div>
+		<div id="gesture" class="box-text-gestures">
+			<!--g,b,r3種類64*64サイズ用意すること，以下に追加するだけでスクリプトの修正は不要-->
+			<!--documentからアクセスしやすいようoption.jsから追加
+			<a href="#" name="gesture" gesture="nodding" id="nodding">
+				<img src="pics/gestures/nodding-g.gif"name="gesture" alt="nodding">
+			</a>
+			<a href="#" name="gesture" gesture="greeting" id="greeting">
+				<img src="pics/gestures/greeting-g.gif"name="gesture" alt="greeting">
+			</a>
+			-->
+		</div>
+		<div id="optionalcommands" class="box-text-optionalcommands">
+			<input type="file" id="optionalcommandfile" class="box-text-optionalinput" aria-describedby="optionalcommandfileAddon" aria-label="UploadOptionFile" multiple>
+			<br>
+			<div id="optionalbuttons" class="box-text-optionalcommandbuttons">
+			</div>
+		</div>
+		
 	</div>
-
 	<div id="main" class="maincontainers">
-
 	</div>
 	
 	<div id="sub" class="subcontainers">
 	</div>
+
+	<div id="controlpane" class="controlpane">
+	</div>
+	
 </div>
 <!--
 <div id="workspace">
@@ -639,17 +701,60 @@ function fadeOutBodyImg(speed){
 	//console.log("fade out");
 	$('#backgroundimg').fadeOut(speed,function(){
 		//フェードアウト後に大きさチェック
+		/*
 		split = Split(['#main', '#sub'], {
 			direction: 'vertical',
-			gutterSize: 10,
+			gutterSize: 12,
 			snapOffset: 0,
 			sizes: [200, 100],
-			minSize: [300, 200]
+			minSize: [300, 220]
 		});
 		calcMainContainersSize();
 		calcSubContainersSize();
+		*/
+		setSplitMinSize();
 	});
 }
+
+function setSplitMinSize(){
+	var numMain = document.getElementsByClassName("maincontainer").length;
+	var numSub = document.getElementsByClassName("subcontainer").length;
+	var mainHeight = 300;
+	var subHeight = 220;
+	
+	if(numMain > 0){
+		document.getElementById("main").style.display ="";
+	} else {
+		document.getElementById("main").style.display ="none";
+	}
+	if(numSub > 0){
+		document.getElementById("sub").style.display ="";
+	} else {
+		document.getElementById("sub").style.display ="none";
+	}
+	
+	if(numMain <= 0 || numSub <= 0){
+		if(split != null){
+			split.destroy();
+			split = null;
+		}
+	} else {
+		if(split == null){
+			split = Split(['#main', '#sub'], {
+				direction: 'vertical',
+				gutterSize: 12,
+				snapOffset: 0,
+				sizes: [200, 100],
+				minSize: [mainHeight, subHeight]
+			});
+		}
+		
+	}
+	//console.log("numMain = "+numMain+", numSub = "+numSub+", "+mainHeight+"/"+subHeight);
+	calcMainContainersSize();
+	calcSubContainersSize();
+}
+
 document.getElementById("saytext").onkeypress = (e) => {
 	const key = e.keyCode || e.charCode || 0;
 	// 13はEnterキーのキーコード

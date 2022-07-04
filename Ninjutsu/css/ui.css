@@ -33,39 +33,42 @@ body {
   left: 0;
   width: 100%;
   height: 200px;
+  border-radius: 5px;
   background-repeat: no-repeat;
   background-position:50% 50%;
   background-size:contain;
   flex: none;
- /*卯の花色うのはないろ*/
-  background-color: #f7fcfe;
+  /*白練 しろねり*/
+  background-color: #f3f3f2;
   display:none;
 }
 
-.gutter.gutter-horizontal {
-  cursor: ew-resize;
-  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==');
+.gutter {
+  /*白練 しろねり*/
+  background-color: #f3f3f2;
   background-repeat: no-repeat;
   background-position: 50%;
 }
 
 .gutter.gutter-vertical {
   background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII=');
-  background-repeat: no-repeat;
-  background-position: 50%;
   cursor: row-resize;
 }
 
 /*余っている高さすべて*/
 #workspace {
   display: flex;
-  position: absolute;
+  /*position: absolute;*/
+  position: relative;
   flex-direction: column;
   margin: 10px;
-  /*width: 95vw;*/
+  flex-grow: 1;
   /*width: 98.2vw;*/
-  width: 98vw;
-  height: 95.5vh;
+  /*width - left right margin */
+  width: calc( 100% - 20px );
+  /*height: 95.5vh;*/
+  /*height: calc( 100vh - 20px - 68px );*/
+  height: calc( 100% - 20px - 70px );
 }
 
 #workspace>p:last-of-type {
@@ -146,14 +149,17 @@ background-color: rgba(255,255,255,0.6) !important;
   height: 24px;
 }
 
-
-.gutter {
-    background-color: #eee;
-    background-repeat: no-repeat;
-    background-position: 50%;
-}
-
-.gutter.gutter-vertical {
-    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII=');
-    cursor: row-resize;
+/*bootstrapのdropdown-itemの横幅がはみ出るのでPadding分修正*/
+.dropdown-item-custom {
+  display: block;
+  width: calc( 100% - 2rem );
+  padding: 0.25rem 1rem;
+  clear: both;
+  font-weight: 400;
+  color: #212529;
+  text-align: inherit;
+  text-decoration: none;
+  white-space: nowrap;
+  background-color: transparent;
+  border: 0;
 }
