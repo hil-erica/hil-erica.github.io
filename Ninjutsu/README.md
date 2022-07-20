@@ -162,8 +162,10 @@ forcelogout=peerid
    - xRatio : videoの横向きの相対座標（原点は左上）
    - yRatio :videoの縦向きの相対座標（原点は左上）
    - radiusRation : 半径
+   - behaviorlist : []　UIに出す行動選択一覧のJsonArray，[{"id":"hoge.seq", "label":"say hellow"}, ...]
+     - 操作者がボタンをクリックするとselectbehavior=id を受信，例：selectbehavior=hoge.seq
    
-  drawoncanvas={"user":"erica", "points":[{"xRatio":0.84375,"yRatio":0.7453703703703703,"radiusRatio":0.4166666666666667, "trackID":0, "label":"","type":"human"}, {"xRatio":0.4817708333333333,"yRatio":0.2962962962962963,"radiusRatio":0.4166666666666667, "trackID":0, "label":"","type":"human"}, {"xRatio":0.18229166666666666,"yRatio":0.8287037037037037,"radiusRatio":0.4166666666666667, "trackID":0, "label":"","type":"human"}, {"xRatio":0.296875,"yRatio":0.6157407407407407,"radiusRatio":0.2604166666666667, "trackID":1, "label":"desk","type":"object"}]}
+  drawoncanvas={"user":"erica", "points":[{"xRatio":0.84375,"yRatio":0.7453703703703703,"radiusRatio":0.4166666666666667, "trackID":0, "label":"","type":"human"}, {"xRatio":0.4817708333333333,"yRatio":0.2962962962962963,"radiusRatio":0.4166666666666667, "trackID":0, "label":"","type":"human"}, {"xRatio":0.18229166666666666,"yRatio":0.8287037037037037,"radiusRatio":0.4166666666666667, "trackID":0, "label":"","type":"human"}, {"xRatio":0.296875,"yRatio":0.6157407407407407,"radiusRatio":0.2604166666666667, "trackID":1, "label":"desk","type":"object", "behaviorlist":[{"id":"hoge.seq", "label":"say hellow"}, {"id":"foo.seq", "label":"bye bye"}, {"id":"bar.seq", "label":"hey wait!"}]}]}
 
 
 ##### request システムから操作者に遠隔操作を要求する
