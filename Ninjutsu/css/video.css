@@ -121,6 +121,31 @@
   */
 }
 
+.bevhaiorselectbutton {
+  position: absolute;
+  top: 0;
+  left: 0;
+  /*紫水晶*/
+  background: #e7e7eb7b;
+  /*濃紅こいくれない*/
+  color: #a22041;
+}
+
+.bevhaiorbutton {
+  /*紫水晶*/
+  background: #e7e7eb00;
+  /*二藍*/
+  color: #915c8b;
+  
+  width: calc( 100% - 2rem );
+}
+
+.bevhaiordropdown {
+  /*薄葡萄うすぶどう*/
+  background: rgba(231, 231, 235, 0.514);  
+  /*width: calc( 100% - 2rem );*/
+}
+
 .soundonly {
   position: absolute;
   bottom: 0;

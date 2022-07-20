@@ -1411,15 +1411,19 @@ function drawActionPointOnCanvas(jsonObj){
 	*/
 }
 
+
 function drawActionPointOnEachCanvas(canvasElement){
 	canvasElement.width =canvasElement.offsetWidth;
 	canvasElement.height =canvasElement.offsetHeight;
-		
+	
 	var context = canvasElement.getContext( "2d" ) ;
 	context.save();
 	context.clearRect(0, 0, canvasElement.width, canvasElement.height);
-	var drawJsonObjOnCanvas = drawJsonObjOnCanvasUsers.get(canvasElement.getAttribute("peerid"))
+	//backgroundcanvas
+	var drawJsonObjOnCanvas = drawJsonObjOnCanvasUsers.get(canvasElement.getAttribute("peerid"));
 	if(drawJsonObjOnCanvas == null)return;
+	
+	var hasBehaviorButtons = false;
 	for(var j = 0; j<drawJsonObjOnCanvas.points.length; j++){
 		if(drawJsonObjOnCanvas.points[j].trackID == canvasElement.getAttribute("trackid")){
 			if(targetSelected && drawJsonObjOnCanvas.points[j].id == selectedTargetID){
@@ -1449,7 +1453,10 @@ function drawActionPointOnEachCanvas(canvasElement){
 				textPosOffsetX = drawJsonObjOnCanvas.points[j].radiusRatio/2;
 				textPosOffsetY = drawJsonObjOnCanvas.points[j].radiusRatio/2;
 			}
-			if(drawJsonObjOnCanvas.points[j].label != null){
+			
+			var labelHeightOffset = 0, labelWidthOffset = 0;
+			if(drawJsonObjOnCanvas.points[j].label != null && drawJsonObjOnCanvas.points[j].label != ""){
+				//console.log("label = "+drawJsonObjOnCanvas.points[j].label);
 				context.lineWidth = 0.1 ;
 				context.font = "12px keifont";
 				var textPosX = drawJsonObjOnCanvas.points[j].xRatio*canvasElement.width;
@@ -1467,6 +1474,8 @@ function drawActionPointOnEachCanvas(canvasElement){
 				}
 				var offsetRatio = 0.8;
 				var metrics = context.measureText(drawJsonObjOnCanvas.points[j].label);
+				labelHeightOffset = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
+				labelWidthOffset = metrics.width;
 				textPosX = (drawJsonObjOnCanvas.points[j].xRatio - Math.cos(directionRad)*textPosOffsetX*offsetRatio)*canvasElement.width-metrics.width/2;
 				textPosY = (drawJsonObjOnCanvas.points[j].yRatio - Math.sin(directionRad)*textPosOffsetY*offsetRatio)*canvasElement.height;
 				//console.log(directionRad*180/Math.PI +" "+textPosX +" "+textPosY+" "+xC +" "+yC);
@@ -1493,34 +1502,187 @@ function drawActionPointOnEachCanvas(canvasElement){
 					//選択中
 					//context.strokeStyle = "rgba(255,0,0,0.8)";
 					context.fillStyle = "rgba(255,200,200,0.5)";
-					context.fillRect(textPosX-textMargin/2, textPosY-(metrics.actualBoundingBoxAscent +metrics.actualBoundingBoxDescent), metrics.width+textMargin, (metrics.actualBoundingBoxAscent +metrics.actualBoundingBoxDescent+textMargin));
+					//context.fillRect(textPosX-textMargin/2, textPosY-(metrics.actualBoundingBoxAscent +metrics.actualBoundingBoxDescent), metrics.width+textMargin, (metrics.actualBoundingBoxAscent +metrics.actualBoundingBoxDescent+textMargin));
+					drawsq(textPosX-textMargin/2, textPosY-(metrics.actualBoundingBoxAscent +metrics.actualBoundingBoxDescent), metrics.width+textMargin, (metrics.actualBoundingBoxAscent +metrics.actualBoundingBoxDescent+textMargin), 4, context, "rgba(255,200,200,0.5)");
 					context.fillStyle = "rgba(255,0,0,0.8)";
 				} else if(drawJsonObjOnCanvas.points[j].type == "human"){
 					//context.strokeStyle = "green" ;
 					context.fillStyle = "rgba(200,255,200,0.5)";
-					context.fillRect(textPosX-textMargin/2, textPosY-(metrics.actualBoundingBoxAscent +metrics.actualBoundingBoxDescent), metrics.width+textMargin, (metrics.actualBoundingBoxAscent +metrics.actualBoundingBoxDescent+textMargin));
+					//context.fillRect(textPosX-textMargin/2, textPosY-(metrics.actualBoundingBoxAscent +metrics.actualBoundingBoxDescent), metrics.width+textMargin, (metrics.actualBoundingBoxAscent +metrics.actualBoundingBoxDescent+textMargin));
+					drawsq(textPosX-textMargin/2, textPosY-(metrics.actualBoundingBoxAscent +metrics.actualBoundingBoxDescent), metrics.width+textMargin, (metrics.actualBoundingBoxAscent +metrics.actualBoundingBoxDescent+textMargin), 4, context, "rgba(200,255,200,0.5)");
 					context.fillStyle = "rgba(0,255,0,0.8)";
 				} else {
 					//context.strokeStyle = "blue" ;
 					context.fillStyle = "rgba(200,200,255,0.5)";
-					context.fillRect(textPosX-textMargin/2, textPosY-(metrics.actualBoundingBoxAscent +metrics.actualBoundingBoxDescent), metrics.width+textMargin, (metrics.actualBoundingBoxAscent +metrics.actualBoundingBoxDescent+textMargin));
+					//context.fillRect(textPosX-textMargin/2, textPosY-(metrics.actualBoundingBoxAscent +metrics.actualBoundingBoxDescent), metrics.width+textMargin, (metrics.actualBoundingBoxAscent +metrics.actualBoundingBoxDescent+textMargin));
+					drawsq(textPosX-textMargin/2, textPosY-(metrics.actualBoundingBoxAscent +metrics.actualBoundingBoxDescent), metrics.width+textMargin, (metrics.actualBoundingBoxAscent +metrics.actualBoundingBoxDescent+textMargin), 4, context, "rgba(200,200,255,0.5)");
 					context.fillStyle = "rgba(0,0,255,0.8)";
 				}
 				context.fillText(drawJsonObjOnCanvas.points[j].label, textPosX, textPosY);
 				//context.strokeText(drawJsonObjOnCanvas.points[j].label, textPosX, textPosY);
 				
 			}
+
+			//試しにボタン追加 behaviorlist
+			//var behaviordataList = JSON.parse('[{"id":"hogehoge_id", "label":"hogehoge"},{"id":"foo_id", "label":"foo"},{"id":"baa_id", "label":"baa"}]');
+			//if(true){
+			if(drawJsonObjOnCanvas.points[j].behaviorlist != null && drawJsonObjOnCanvas.points[j].behaviorlist.length > 0){
+				hasBehaviorButtons = true;
+				var behaviordataList = drawJsonObjOnCanvas.points[j].behaviorlist;
+				//console.log(behaviordataList);
+				//backgroundcanvas上の子ノード全部削除
+				var videoContainerElement = canvasElement.parentNode;
+
+				var textPosX = drawJsonObjOnCanvas.points[j].xRatio*canvasElement.width;
+				var textPosY = drawJsonObjOnCanvas.points[j].yRatio*canvasElement.height;
+				//var dirctionFromCenter = Math.atan2()
+				// キャンバス中心座標
+				var xC = (drawJsonObjOnCanvas.points[j].xRatio-0.5);
+				var yC = (drawJsonObjOnCanvas.points[j].yRatio-0.5);
+				var directionRad = 0;
+				if(xC == 0){
+					if(yC >= 0) directionRad = Math.PI/2;
+					else directionRad = -Math.PI/2;
+				} else {
+					directionRad = Math.atan2(yC, xC);
+				}
+				var offsetRatio = 0.8;
+				textPosX = (drawJsonObjOnCanvas.points[j].xRatio - Math.cos(directionRad)*textPosOffsetX*offsetRatio)*canvasElement.width-labelWidthOffset/2;
+				textPosY = (drawJsonObjOnCanvas.points[j].yRatio - Math.sin(directionRad)*textPosOffsetY*offsetRatio)*canvasElement.height+labelHeightOffset;
+				
+				var dropdownDiv = document.getElementById("behavior_"+drawJsonObjOnCanvas.points[j].id);
+				if(dropdownDiv == null){
+					dropdownDiv = document.createElement("div");
+					dropdownDiv.setAttribute("id", "behavior_"+drawJsonObjOnCanvas.points[j].id);
+					dropdownDiv.setAttribute("class", "dropdown");
+					dropdownDiv.setAttribute("buttonid", "behaviorbutton_"+drawJsonObjOnCanvas.points[j].id);
+					//buttonを追加すると何故かBodyの横スクロールが出る，このボタン位置からこのボタンを追加するキャンバス分横幅が出るのだが意味不明，Bodyのoverflow-x : hidden;で対処
+					var dropdownButton = document.createElement("button");
+					dropdownButton.setAttribute("id", "behaviorbutton_"+drawJsonObjOnCanvas.points[j].id);
+					//dropdownButton.setAttribute("class", "btn btn-default rounded-circle p-0 bevhaiorselectbutton dropdown-toggle");
+					dropdownButton.setAttribute("class", "btn btn-default btn-sm rounded-pill bevhaiorselectbutton dropdown-toggle");
+					//dropdownButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-list-stars" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5z"/><path d="M2.242 2.194a.27.27 0 0 1 .516 0l.162.53c.035.115.14.194.258.194h.551c.259 0 .37.333.164.493l-.468.363a.277.277 0 0 0-.094.3l.173.569c.078.256-.213.462-.423.3l-.417-.324a.267.267 0 0 0-.328 0l-.417.323c-.21.163-.5-.043-.423-.299l.173-.57a.277.277 0 0 0-.094-.299l-.468-.363c-.206-.16-.095-.493.164-.493h.55a.271.271 0 0 0 .259-.194l.162-.53zm0 4a.27.27 0 0 1 .516 0l.162.53c.035.115.14.194.258.194h.551c.259 0 .37.333.164.493l-.468.363a.277.277 0 0 0-.094.3l.173.569c.078.255-.213.462-.423.3l-.417-.324a.267.267 0 0 0-.328 0l-.417.323c-.21.163-.5-.043-.423-.299l.173-.57a.277.277 0 0 0-.094-.299l-.468-.363c-.206-.16-.095-.493.164-.493h.55a.271.271 0 0 0 .259-.194l.162-.53zm0 4a.27.27 0 0 1 .516 0l.162.53c.035.115.14.194.258.194h.551c.259 0 .37.333.164.493l-.468.363a.277.277 0 0 0-.094.3l.173.569c.078.255-.213.462-.423.3l-.417-.324a.267.267 0 0 0-.328 0l-.417.323c-.21.163-.5-.043-.423-.299l.173-.57a.277.277 0 0 0-.094-.299l-.468-.363c-.206-.16-.095-.493.164-.493h.55a.271.271 0 0 0 .259-.194l.162-.53z"/></svg>';
+					dropdownButton.setAttribute("data-bs-toggle", "dropdown");
+					dropdownButton.setAttribute("style", "width:1.0rem;height:1.0rem;");
+					dropdownButton.addEventListener("shown.bs.dropdown", showBevhaiorDropDownList);
+					dropdownButton.addEventListener("hidden.bs.dropdown", hideBevhaiorDropDownList);
+					dropdownButton.setAttribute("isListShown", false);
+					var dropdownUl = document.createElement("ul");
+					dropdownUl.setAttribute("class", "dropdown-menu bevhaiordropdown");
+					dropdownUl.setAttribute("aria-labelledby", "behaviorbutton_"+drawJsonObjOnCanvas.points[j].id);
+					for (i = 0; i < behaviordataList.length; i++) {
+						if (behaviordataList[i] != null) {
+							//console.log(behaviordataList[i].id +" "+behaviordataList[i].label);
+							var liEle = document.createElement("li");
+							var aEle = document.createElement("a");
+							aEle.setAttribute("class", "dropdown-item bevhaiorbutton");
+							aEle.setAttribute("href", "#");
+							aEle.addEventListener("click", clickBevhaiorDropDownButton);
+							aEle.setAttribute("behaviordata", behaviordataList[i].id);
+							aEle.setAttribute("peerid", canvasElement.getAttribute("peerid"));
+							aEle.innerHTML = behaviordataList[i].label;
+							liEle.appendChild(aEle);
+							dropdownUl.appendChild(liEle);
+						}
+					}
+					dropdownDiv.appendChild(dropdownButton);
+					dropdownDiv.appendChild(dropdownUl);
+					dropdownDiv.style.left = (textPosX)+"px";
+					dropdownDiv.style.top = (textPosY)+"px";
+					videoContainerElement.appendChild(dropdownDiv);
+					console.log("add behavior button on "+canvasElement.id);
+				} else {
+					var dropdownButton = document.getElementById(dropdownDiv.getAttribute("buttonid"));
+					//console.log("update position "+ "behavior_"+drawJsonObjOnCanvas.points[j].id+" "+dropdownButton.getAttribute("isListShown"));
+					if(dropdownButton.getAttribute("isListShown")=="false"){
+						dropdownDiv.style.left = (textPosX)+"px";
+						dropdownDiv.style.top = (textPosY)+"px";
+					}
+				}				
+			} else {
+				
+			}
 		}
+	}
+	if(!hasBehaviorButtons){
+		//backgroundcanvas上の子ノード全部削除, Point事にあるなしを管理すべきだが面倒なので放置
+		var videoContainerElement = canvasElement.parentNode;
+		//要素削除は後ろから
+		var currentbevhaiorbuttons = videoContainerElement.getElementsByClassName("dropdown");
+		for(var i=currentbevhaiorbuttons.length-1; i>=0;i--){
+			videoContainerElement.removeChild(currentbevhaiorbuttons[i]);
+		}
+		console.log("remove behavior buttons from "+canvasElement.id);
 	}
 	context.restore();
 }
+function clickBevhaiorDropDownButton(){
+	//console.log(this.getAttribute("behaviordata"));
+	//send command
+	selectBehavior(this.getAttribute("peerid"), this.getAttribute("behaviordata"));
+}
+function showBevhaiorDropDownList(){
+	//console.log("shown "+this.id);
+	this.setAttribute("isListShown", true);
+}
+function hideBevhaiorDropDownList(){
+	//console.log("hidden "+this.id);
+	this.setAttribute("isListShown", false);
+}
+//create a floating behavior list button, そんなにバリエーションだ好きはないので今は使わない
+/*
+//フローティングウィンドウで選択肢を出す場合
+var behaviorCallButton = document.createElement("button");
+behaviorCallButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-list-stars" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5z"/><path d="M2.242 2.194a.27.27 0 0 1 .516 0l.162.53c.035.115.14.194.258.194h.551c.259 0 .37.333.164.493l-.468.363a.277.277 0 0 0-.094.3l.173.569c.078.256-.213.462-.423.3l-.417-.324a.267.267 0 0 0-.328 0l-.417.323c-.21.163-.5-.043-.423-.299l.173-.57a.277.277 0 0 0-.094-.299l-.468-.363c-.206-.16-.095-.493.164-.493h.55a.271.271 0 0 0 .259-.194l.162-.53zm0 4a.27.27 0 0 1 .516 0l.162.53c.035.115.14.194.258.194h.551c.259 0 .37.333.164.493l-.468.363a.277.277 0 0 0-.094.3l.173.569c.078.255-.213.462-.423.3l-.417-.324a.267.267 0 0 0-.328 0l-.417.323c-.21.163-.5-.043-.423-.299l.173-.57a.277.277 0 0 0-.094-.299l-.468-.363c-.206-.16-.095-.493.164-.493h.55a.271.271 0 0 0 .259-.194l.162-.53zm0 4a.27.27 0 0 1 .516 0l.162.53c.035.115.14.194.258.194h.551c.259 0 .37.333.164.493l-.468.363a.277.277 0 0 0-.094.3l.173.569c.078.255-.213.462-.423.3l-.417-.324a.267.267 0 0 0-.328 0l-.417.323c-.21.163-.5-.043-.423-.299l.173-.57a.277.277 0 0 0-.094-.299l-.468-.363c-.206-.16-.095-.493.164-.493h.55a.271.271 0 0 0 .259-.194l.162-.53z"/></svg>';
+behaviorCallButton.name = "behaviorbutton";
+behaviorCallButton.setAttribute("class", "btn btn-default rounded-circle p-0 bevhaiorselectbutton");
+behaviorCallButton.setAttribute("style", "width:1.5rem;height:1.5rem;");
+behaviorCallButton.setAttribute("type", "button");
+behaviorCallButton.setAttribute("id", "behaviorbutton_"+drawJsonObjOnCanvas.points[j].id);
+behaviorCallButton.setAttribute("behaviordata", '[{"id":"hogehoge_id", "label":"hogehoge"},{"id":"foo_id", "label":"foo"},{"id":"baa_id", "label":"baa"}]');
+var offsetRatio = 0.8;
+textPosX = (drawJsonObjOnCanvas.points[j].xRatio - Math.cos(directionRad)*textPosOffsetX*offsetRatio)*canvasElement.width-labelWidthOffset/2;
+textPosY = (drawJsonObjOnCanvas.points[j].yRatio - Math.sin(directionRad)*textPosOffsetY*offsetRatio)*canvasElement.height+labelHeightOffset/2;
+behaviorCallButton.style.left = (textPosX)+"px";
+behaviorCallButton.style.top = (textPosY)+"px";
+behaviorCallButton.addEventListener("click", clickBevhaior);
+videoContainerElement.appendChild(behaviorCallButton);
+*/
+function clickBevhaior(){
+	console.log(this.id);
+	//console.log(this.getAttribute("behaviordata"));
+	var behaviordataList = JSON.parse(this.getAttribute("behaviordata"));
+	/*
+	for (i = 0; i < behaviordataList.length; i++) {
+		if (behaviordataList[i] != null) {
+			console.log(behaviordataList[i].id +" "+behaviordataList[i].label);
+		}
+	}
+	*/
+	loadBehaviorSelectData(behaviordataList, 100, 100);
+}
 
+//http://blog.chatlune.jp/2018/02/06/canvas-rounded-rectangle/#i-4
+function drawsq(x,y,w,h,r,context, color) {
+	context.beginPath();
+	context.lineWidth = 1;
+	context.strokeStyle = color;
+	context.fillStyle = color;
+	context.moveTo(x,y + r);  //←①
+	context.arc(x+r,y+h-r,r,Math.PI,Math.PI*0.5,true);  //←②
+	context.arc(x+w-r,y+h-r,r,Math.PI*0.5,0,1);  //←③
+	context.arc(x+w-r,y+r,r,0,Math.PI*1.5,1);  //←④
+	context.arc(x+r,y+r,r,Math.PI*1.5,Math.PI,1);  //←⑤
+	context.closePath();  //←⑥
+	context.stroke();  //←⑦
+	context.fill();  //←⑧
+}
 
 //動画によってちょっとアスペクト比が違ったりする場合があるからcanvasのアスペクト比をあわせるけど使わなくて良さそう
 //<video class="mainvideo" autoplay="1" muted controls id="sunnydrop-video" name="video" peerid="sunnydrop" onloadedmetadata="sourceLoaded(this)">
 function sourceLoaded(videoElement){
 	var peerid = videoElement.getAttribute("peerid")
-	 var trackid=videoElement.getAttribute("trackid");
+	var trackid = videoElement.getAttribute("trackid");
 	var ratio = videoElement.clientHeight/videoElement.clientWidth*100;
 	//console.log(peerid + " paddingTop : "+ratio+"%, " +videoElement.clientWidth+"/"+videoElement.clientHeight);
 	var canvasElement = document.getElementById(peerid+"_"+trackid+"_canvas");

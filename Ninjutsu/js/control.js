@@ -592,6 +592,15 @@ function canncelInputRequest(){
 	*/
 }
 
+//call on ui.js, selectbehaviordata on peerid's video
+function selectBehavior(peerid, behaviordata){
+	sendData(peerid, "selectbehavior="+behaviordata);
+	//操作者陪席アバタにも送信
+	if(wSocketIsConnected){
+		wSocket.send("selectbehavior="+behaviordata);
+	}
+}
+
 
 function getData(fromPeerID, receiveText, dataConnection){
 	//console.log(fromPeerID+ " : " + receiveText);

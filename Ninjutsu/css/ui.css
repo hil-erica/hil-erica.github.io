@@ -4,6 +4,7 @@ html {
 body {
  font-family: "keifont";
  overflow-y : hidden;
+ overflow-x : hidden;
  /*羊羹色ようかんいろ*/
   background-color: #383c3c;
   width: 100vw;
