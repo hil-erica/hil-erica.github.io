@@ -1577,9 +1577,12 @@ function drawActionPointOnEachCanvas(canvasElement){
 							var aEle = document.createElement("a");
 							aEle.setAttribute("class", "dropdown-item bevhaiorbutton");
 							aEle.setAttribute("href", "#");
-							aEle.addEventListener("click", clickBevhaiorDropDownButton);
+							//aEle.addEventListener("click", clickBevhaiorDropDownButton(aEle, canvasElement));{name: userName, handleEvent: sayHello}
+							aEle.addEventListener("click", {buttonObj: aEle, canvasObj: canvasElement, handleEvent: clickBevhaiorDropDownButton});
 							aEle.setAttribute("behaviordata", behaviordataList[i].id);
 							aEle.setAttribute("peerid", canvasElement.getAttribute("peerid"));
+							aEle.setAttribute("pointid", drawJsonObjOnCanvas.points[j].id);
+							
 							aEle.innerHTML = behaviordataList[i].label;
 							liEle.appendChild(aEle);
 							dropdownUl.appendChild(liEle);
@@ -1616,10 +1619,15 @@ function drawActionPointOnEachCanvas(canvasElement){
 	}
 	context.restore();
 }
-function clickBevhaiorDropDownButton(){
-	//console.log(this.getAttribute("behaviordata"));
+function clickBevhaiorDropDownButton(e){
+	console.log(this.buttonObj.getAttribute("behaviordata"));
 	//send command
-	selectBehavior(this.getAttribute("peerid"), this.getAttribute("behaviordata"));
+	//selectBehavior(this.getAttribute("peerid"), this.getAttribute("behaviordata"));
+	var myPeerID = document.getElementById("myuserid");
+	var eventName = "selectbehaivorevent";		
+	var sendText = "{\"peerid\": \""+myPeerID.value+"\", \""+eventName+"\": {\"remotepeerid\":\""+this.canvasObj.getAttribute('peerid')+"\", \"trackid\":"+this.canvasObj.getAttribute('trackid')+", \"pointid\":\""+this.buttonObj.getAttribute("pointid")+"\", \"behaviordata\":\""+this.buttonObj.getAttribute("behaviordata")+"\"}}";
+	publishData(sendText);
+	//selectBehavior(this.getAttribute("peerid"), this.getAttribute("behaviordata"));
 }
 function showBevhaiorDropDownList(){
 	//console.log("shown "+this.id);
