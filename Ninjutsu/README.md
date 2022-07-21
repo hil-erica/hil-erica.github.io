@@ -154,6 +154,8 @@ forcelogout=peerid
 
 ##### drawoncanvas　遠隔地映像にタッチエリアを表示する
 - 送信コマンド drawoncanvas=json
+  
+  例：drawoncanvas={"user":"erica", "points":[{"xRatio":0.84375,"yRatio":0.7453703703703703,"radiusRatio":0.4166666666666667, "trackID":0, "label":"","type":"human"}, {"xRatio":0.4817708333333333,"yRatio":0.2962962962962963,"radiusRatio":0.4166666666666667, "trackID":0, "label":"","type":"human"}, {"xRatio":0.18229166666666666,"yRatio":0.8287037037037037,"radiusRatio":0.4166666666666667, "trackID":0, "label":"","type":"human"}, {"xRatio":0.296875,"yRatio":0.6157407407407407,"radiusRatio":0.2604166666666667, "trackID":1, "label":"desk","type":"object", "behaviorlist":[{"id":"hoge.seq", "label":"say hellow"}, {"id":"foo.seq", "label":"bye bye"}, {"id":"bar.seq", "label":"hey wait!"}]}]}
   - user : だれの画面の設定か
   - points : 画面に表示される円のリスト
    - label : なんのタッチエリアかの説明文，円の中心の表示される，必須ではない
@@ -163,9 +165,16 @@ forcelogout=peerid
    - yRatio :videoの縦向きの相対座標（原点は左上）
    - radiusRation : 半径
    - behaviorlist : []　UIに出す行動選択一覧のJsonArray，[{"id":"hoge.seq", "label":"say hellow"}, ...]
-     - 操作者がボタンをクリックするとselectbehavior=id を受信，例：selectbehavior=hoge.seq
-   
-  drawoncanvas={"user":"erica", "points":[{"xRatio":0.84375,"yRatio":0.7453703703703703,"radiusRatio":0.4166666666666667, "trackID":0, "label":"","type":"human"}, {"xRatio":0.4817708333333333,"yRatio":0.2962962962962963,"radiusRatio":0.4166666666666667, "trackID":0, "label":"","type":"human"}, {"xRatio":0.18229166666666666,"yRatio":0.8287037037037037,"radiusRatio":0.4166666666666667, "trackID":0, "label":"","type":"human"}, {"xRatio":0.296875,"yRatio":0.6157407407407407,"radiusRatio":0.2604166666666667, "trackID":1, "label":"desk","type":"object", "behaviorlist":[{"id":"hoge.seq", "label":"say hellow"}, {"id":"foo.seq", "label":"bye bye"}, {"id":"bar.seq", "label":"hey wait!"}]}]}
+     - 操作者がボタンをクリックすると↓が返信
+       
+       {"peerid": "testope", "selectbehaivorevent": {"remotepeerid":"test3", "trackid":0, "pointid":"backcam-hid2", "behaviordata":foo.seq}}
+       - peerid : 選択したユーザ
+       - selectbehaivorevent : イベント名
+       - remotepeerid : どのユーザの画面か
+       - trackid : トラック番号
+       - pointid : 選択エリアのID
+       - behaviordata : 選択された内容
+  
 
 
 ##### request システムから操作者に遠隔操作を要求する
