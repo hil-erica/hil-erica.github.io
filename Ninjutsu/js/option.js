@@ -26,6 +26,7 @@ function initializeOption() {
 		var fileChooser =  $('#optionalcommandfile');
 		fileChooser.value = "";
 	});
+
 }
 function openOption(){
 	if(optionFrame == null){
@@ -59,11 +60,11 @@ function openOption(){
 					//console.log("optionalcommandfile loaded : ");
 					optionalCommandLoadOnFloating();
 				});
-				optionFrame.on('#optionalcommandfile', 'click', (_frame, evt) => {
-					//console.log("clicked");
-					//リセットすることで同じファイルを再度選択してもChangeリスナーが発火する
-					var fileChooser =  optionFrame.$('#optionalcommandfile');
-					fileChooser.value = "";
+				optionFrame.on('#attractiveness-input', 'click', (_frame, evt) => {
+					clickAttractiveness(evt);
+				});
+				optionFrame.on('#emotioncanvas', 'click', (_frame, evt) => {
+					clickEmotionSpace(evt);
 				});
 				addGestureButtons();
 			}
@@ -231,4 +232,61 @@ function optionalButtonClicked(){
 
 function showOptionAppPane(){
 	$("#optionapp").slideToggle();
+}
+
+function clickEmotionSpace(event){
+	var canvasElement = event.target;
+	var points = getMousePointOnCanvas(canvasElement, event); 
+	var x = points[0];
+	var y = points[1];
+	var xRatio = points[2];
+	var yRatio = points[3];
+	var directionRad = points[4];
+	var arousal = (0.5-yRatio)*2;
+	var valence = (-0.5+xRatio)*2;
+
+	canvasElement.width =canvasElement.offsetWidth;
+	canvasElement.height =canvasElement.offsetHeight;
+	
+	var context = canvasElement.getContext( "2d" ) ;
+	context.save();
+	context.clearRect(0, 0, canvasElement.width, canvasElement.height);
+
+	context.fillStyle = "rgba(255,255,255,0.5)";
+	context.beginPath () ;
+	context.lineWidth = 2.0 ;
+	context.arc(xRatio*canvasElement.width, yRatio*canvasElement.height, canvasElement.width/10, 0 * Math.PI / 180, 360 * Math.PI / 180, false ) ;
+	context.stroke() ;
+	
+	console.log("set emotional state arousal = "+arousal+", valence = "+valence);
+	sendEmotion(arousal, valence);
+}
+
+function emotionChanged(arousal, valence){
+	var xRatio = valence/2.0+0.5;
+	var yRatio = -arousal/2.0+0.5;
+	var canvasElement = document.getElementById("emotioncanvas");
+	var context = canvasElement.getContext( "2d" ) ;
+	context.save();
+	context.clearRect(0, 0, canvasElement.width, canvasElement.height);
+
+	context.fillStyle = "rgba(255,255,255,0.5)";
+	context.beginPath () ;
+	context.lineWidth = 2.0 ;
+	context.arc(xRatio*canvasElement.width, yRatio*canvasElement.height, canvasElement.width/10, 0 * Math.PI / 180, 360 * Math.PI / 180, false ) ;
+	context.stroke() ;
+}
+
+function clickAttractiveness(event){
+	var inputBar = event.target;
+	var attractiveness = inputBar.value*0.1;
+	//console.log("set attractiveness = "+attractiveness);
+	sendAttractiveness(attractiveness);
+}
+
+function attractivenessChanged(attractiveness){
+	var value = attractiveness*10;
+	var inputBar = document.getElementById("attractiveness-input");
+	inputBar.value = value;
+	
 }

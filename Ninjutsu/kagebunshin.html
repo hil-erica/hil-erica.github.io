@@ -63,6 +63,7 @@
 <!-- split.js -->
 <script src="https://unpkg.com/split.js/dist/split.min.js"></script>
 
+
 </head>
 <body>
 
@@ -285,6 +286,7 @@
 </div>
 <div id="workspace">
 	<div id="optionapp" class="optionpane">
+		<!--
 		<div id="controllers" class="box-text-controllers">
 			<ui>
 				<a href="#" id="controller">
@@ -294,6 +296,14 @@
 					</svg>
 				</a>
 			</ul>
+		</div>
+		-->
+		<div id="state" class="box-text-state">
+			<label for="attractiveness-input" class="form-label"><font size="1">attractiveness</font></label>
+			<input type="range" class="form-range attractivenessbar" id="attractiveness-input" min="-10" max="10" step="1" value="0" onclick="clickAttractiveness(event)">
+			<label for="emotionpics" class="form-label emotionlabel"><font size="1">emotion</font></label>
+			<img src="pics/ArousalValenceColor.png" title="Emotion" class="emotioncanvas" id="emotionpics">
+			<canvas class="emotioncanvas" id="emotioncanvas" onclick="clickEmotionSpace(event)">
 		</div>
 		<div id="gesture" class="box-text-gestures">
 			<!--g,b,r3種類64*64サイズ用意すること，以下に追加するだけでスクリプトの修正は不要-->

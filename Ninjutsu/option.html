@@ -10,6 +10,10 @@
 
 <link rel="stylesheet" href="./css/option.css">
 
+<!--https://roundsliderui.com/-->
+<script src="https://cdn.jsdelivr.net/npm/round-slider@1.6.1/dist/roundslider.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/round-slider@1.6.1/dist/roundslider.min.css">
+
 <style>
 html, body {
   font-family: "keifont";
@@ -19,6 +23,16 @@ html, body {
 </head>
 <body>
 <div style="width:90%">
+	<div class="row  mb-3">
+		<div id="state" class="box-text-state">
+			<label for="attractiveness-input" class="form-label"><font size="1">attractiveness</font></label>
+			<input type="range" class="form-range attractivenessbar" id="attractiveness-input" min="-10" max="10" step="1" value="0">
+			<label for="emotionpics" class="form-label emotionlabel"><font size="1">emotion</font></label>
+			<img src="pics/ArousalValenceColor.png" title="Emotion" class="emotioncanvas" id="emotionpics">
+			<canvas class="emotioncanvas" id="emotioncanvas">
+		</div>
+	</div>
+	<!--
 	<div class="row  mb-3">
 		<div id="controllers" class="box-text-controllers">
 			<ui>
@@ -31,6 +45,7 @@ html, body {
 			</ul>
 		</div>
 	</div>
+	-->
 	<div class="row  mb-3">
 		<div id="gesture" class="box-text-gestures">
 			<!--g,b,r3種類64*64サイズ用意すること，以下に追加するだけでスクリプトの修正は不要-->

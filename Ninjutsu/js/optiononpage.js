@@ -1,3 +1,5 @@
+//not using
+
 function initializeOption() {
 	$("#optionapp").hide();
 	$('#controller').click(function() {
@@ -115,3 +117,4 @@ function optionalButtonClicked(){
 function showOptionAppPane(){
 	$("#optionapp").slideToggle();
 }
+

@@ -158,10 +158,20 @@ function sendEmotionBad(){
 	var sendText = "optionalcommand="+"{\"id\":\"emotion_bad\",\"label\":\"emotion_bad\",\"type\":\"internalstate\",\"internalstatetype\":\"emotion\",\"isrelative\":false,\"arousal\":-0.3,\"valence\":-0.2,\"dominance\":0,\"changeduration\":500}";
 	publishData(sendText);
 }
+function sendEmotion(arousal, valence){
+	var sendText = "optionalcommand="+"{\"id\":\"emotion_manual\",\"label\":\"emotion_manual\",\"type\":\"internalstate\",\"internalstatetype\":\"emotion\",\"isrelative\":false,\"arousal\":"+arousal+",\"valence\":"+valence+",\"dominance\":0,\"changeduration\":500}";
+	publishData(sendText);
+}
 function sendMood(){
 	var sendText = "optionalcommand="+"{\"id\":\"autoemotion\",\"label\":\"autoemotion\",\"type\":\"internalstate\",\"internalstatetype\":\"emotion\",\"autoemotion\":true}";
 	publishData(sendText);
 }
+
+function sendAttractiveness(attractiveness){
+	var sendText = "optionalcommand="+"{\"id\":\"attractiveness_manual\",\"label\":\"attractiveness_manual\",\"type\":\"internalstate\",\"internalstatetype\":\"attractiveness\",\"isrelative\":false,\"attractiveness\":"+attractiveness+",\"changeduration\":500}";
+	publishData(sendText);
+}
+
 function sendAttractivenessIncrease(){
 	var sendText = "optionalcommand="+"{\"id\":\"attractiveness_increase\",\"label\":\"attractiveness_increase\",\"type\":\"internalstate\",\"internalstatetype\":\"attractiveness\",\"isrelative\":true,\"attractiveness\":0.2,\"changeduration\":500}";
 	publishData(sendText);
