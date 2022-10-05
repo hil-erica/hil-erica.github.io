@@ -1424,6 +1424,27 @@ function drawActionPointOnEachCanvas(canvasElement){
 	if(drawJsonObjOnCanvas == null)return;
 	
 	var hasBehaviorButtons = false;
+
+	
+	//今あるdropdownボタンのうちBehaviorListにないものは削除
+	{
+		var videoContainerElement = canvasElement.parentNode;
+		var currentbevhaiorbuttons = videoContainerElement.getElementsByClassName("dropdown");
+		for(var i=currentbevhaiorbuttons.length-1; i>=0;i--){
+			var foundBehavior = false;
+			for(var j = 0; j<drawJsonObjOnCanvas.points.length; j++){
+				var behaviordataList = drawJsonObjOnCanvas.points[j].behaviorlist;
+				if(behaviordataList != null && behaviordataList.length > 0 && currentbevhaiorbuttons[i].id == "behavior_"+drawJsonObjOnCanvas.points[j].id){
+					foundBehavior = true;
+					break;
+				}
+			}
+			if(!foundBehavior){
+				videoContainerElement.removeChild(currentbevhaiorbuttons[i]);
+			}
+		}
+	}
+
 	for(var j = 0; j<drawJsonObjOnCanvas.points.length; j++){
 		if(drawJsonObjOnCanvas.points[j].trackID == canvasElement.getAttribute("trackid")){
 			if(targetSelected && drawJsonObjOnCanvas.points[j].id == selectedTargetID){
@@ -1532,7 +1553,7 @@ function drawActionPointOnEachCanvas(canvasElement){
 				//console.log(behaviordataList);
 				//backgroundcanvas上の子ノード全部削除
 				var videoContainerElement = canvasElement.parentNode;
-
+				
 				var textPosX = drawJsonObjOnCanvas.points[j].xRatio*canvasElement.width;
 				var textPosY = drawJsonObjOnCanvas.points[j].yRatio*canvasElement.height;
 				//var dirctionFromCenter = Math.atan2()
@@ -1551,6 +1572,7 @@ function drawActionPointOnEachCanvas(canvasElement){
 				textPosY = (drawJsonObjOnCanvas.points[j].yRatio - Math.sin(directionRad)*textPosOffsetY*offsetRatio)*canvasElement.height+labelHeightOffset;
 				
 				var dropdownDiv = document.getElementById("behavior_"+drawJsonObjOnCanvas.points[j].id);
+				
 				if(dropdownDiv == null){
 					dropdownDiv = document.createElement("div");
 					dropdownDiv.setAttribute("id", "behavior_"+drawJsonObjOnCanvas.points[j].id);
@@ -1595,6 +1617,7 @@ function drawActionPointOnEachCanvas(canvasElement){
 					videoContainerElement.appendChild(dropdownDiv);
 					console.log("add behavior button on "+canvasElement.id);
 				} else {
+					//すでにある場合は閉じてる場合のみ移動
 					var dropdownButton = document.getElementById(dropdownDiv.getAttribute("buttonid"));
 					//console.log("update position "+ "behavior_"+drawJsonObjOnCanvas.points[j].id+" "+dropdownButton.getAttribute("isListShown"));
 					if(dropdownButton.getAttribute("isListShown")=="false"){
@@ -1605,7 +1628,9 @@ function drawActionPointOnEachCanvas(canvasElement){
 			} else {
 				
 			}
+			//end of drawJsonObjOnCanvas.points[j]
 		}
+
 	}
 	if(!hasBehaviorButtons){
 		//backgroundcanvas上の子ノード全部削除, Point事にあるなしを管理すべきだが面倒なので放置
@@ -1619,6 +1644,7 @@ function drawActionPointOnEachCanvas(canvasElement){
 	}
 	context.restore();
 }
+
 function clickBevhaiorDropDownButton(e){
 	console.log(this.buttonObj.getAttribute("behaviordata"));
 	//send command
