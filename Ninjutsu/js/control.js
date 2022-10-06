@@ -603,6 +603,8 @@ function canncelInputRequest(){
 }
 
 //call on ui.js, selectbehaviordata on peerid's video
+/*
+//not used
 function selectBehavior(peerid, behaviordata){
 	sendData(peerid, "selectbehavior="+behaviordata);
 	//操作者陪席アバタにも送信
@@ -610,7 +612,7 @@ function selectBehavior(peerid, behaviordata){
 		wSocket.send("selectbehavior="+behaviordata);
 	}
 }
-
+*/
 
 function getData(fromPeerID, receiveText, dataConnection){
 	//console.log(fromPeerID+ " : " + receiveText);
