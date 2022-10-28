@@ -343,6 +343,9 @@
 						wSocket.send("thank you\r\n\r\n");
 						wSocket.send(JSON.stringify(msg));
 						*/
+						if(!flag_start){
+							asr_start_function();
+						}
 					};
 					
 					//エラー発生
