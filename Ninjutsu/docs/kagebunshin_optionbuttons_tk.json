@@ -1,0 +1,23 @@
+{
+  "buttons": [
+    {
+      "id": "gaze_crowd",
+      "label": "群衆視線",
+      "type": "workingmemory",
+      "scope": "interaction",
+      "name": "miracle_attention_mode",
+      "string": "CROWD"
+    }
+  ],
+  "buttonelementsample": {
+    "id": "buttonsample",
+    "label": "表示されるテキスト",
+    "type": "workingmemory",
+    "scope": "interaction/robot/human",
+    "name": "変数名",
+    "string": "値はstring/int/double/booleanどれか",
+    "int": 1,
+    "double": -1.5,
+    "boolean": true
+  }
+}

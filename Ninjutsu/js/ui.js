@@ -1432,9 +1432,18 @@ function drawActionPointOnEachCanvas(canvasElement){
 		var currentbevhaiorbuttons = videoContainerElement.getElementsByClassName("dropdown");
 		for(var i=currentbevhaiorbuttons.length-1; i>=0;i--){
 			var foundBehavior = false;
+			//視線エリアごとのビヘイビア
 			for(var j = 0; j<drawJsonObjOnCanvas.points.length; j++){
 				var behaviordataList = drawJsonObjOnCanvas.points[j].behaviorlist;
 				if(behaviordataList != null && behaviordataList.length > 0 && currentbevhaiorbuttons[i].id == "behavior_"+drawJsonObjOnCanvas.points[j].id){
+					foundBehavior = true;
+					break;
+				}
+			}
+			//トラックウィンドウごとのビヘイビア
+			for(var j = 0; j<drawJsonObjOnCanvas.tracks.length; j++){
+				var behaviordataList = drawJsonObjOnCanvas.tracks[j].behaviorlist;
+				if(behaviordataList != null && behaviordataList.length > 0 && currentbevhaiorbuttons[i].id == "behavior_track_"+drawJsonObjOnCanvas.tracks[j].track){
 					foundBehavior = true;
 					break;
 				}
@@ -1545,7 +1554,8 @@ function drawActionPointOnEachCanvas(canvasElement){
 			}
 
 			//試しにボタン追加 behaviorlist
-			//var behaviordataList = JSON.parse('[{"id":"hogehoge_id", "label":"hogehoge"},{"id":"foo_id", "label":"foo"},{"id":"baa_id", "label":"baa"}]');
+			//var behaviordataList = JSON.parse('[{"id":"hogehoge_id", "label":"hogehoge"},{"id":"foo_id", "label":"foo"},{"id":"baa_id", "label":"baa"]');
+			//behaviorlistautoclose
 			//if(true){
 			if(drawJsonObjOnCanvas.points[j].behaviorlist != null && drawJsonObjOnCanvas.points[j].behaviorlist.length > 0){
 				hasBehaviorButtons = true;
@@ -1585,6 +1595,12 @@ function drawActionPointOnEachCanvas(canvasElement){
 					dropdownButton.setAttribute("class", "btn btn-default btn-sm rounded-pill bevhaiorselectbutton dropdown-toggle");
 					//dropdownButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-list-stars" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5z"/><path d="M2.242 2.194a.27.27 0 0 1 .516 0l.162.53c.035.115.14.194.258.194h.551c.259 0 .37.333.164.493l-.468.363a.277.277 0 0 0-.094.3l.173.569c.078.256-.213.462-.423.3l-.417-.324a.267.267 0 0 0-.328 0l-.417.323c-.21.163-.5-.043-.423-.299l.173-.57a.277.277 0 0 0-.094-.299l-.468-.363c-.206-.16-.095-.493.164-.493h.55a.271.271 0 0 0 .259-.194l.162-.53zm0 4a.27.27 0 0 1 .516 0l.162.53c.035.115.14.194.258.194h.551c.259 0 .37.333.164.493l-.468.363a.277.277 0 0 0-.094.3l.173.569c.078.255-.213.462-.423.3l-.417-.324a.267.267 0 0 0-.328 0l-.417.323c-.21.163-.5-.043-.423-.299l.173-.57a.277.277 0 0 0-.094-.299l-.468-.363c-.206-.16-.095-.493.164-.493h.55a.271.271 0 0 0 .259-.194l.162-.53zm0 4a.27.27 0 0 1 .516 0l.162.53c.035.115.14.194.258.194h.551c.259 0 .37.333.164.493l-.468.363a.277.277 0 0 0-.094.3l.173.569c.078.255-.213.462-.423.3l-.417-.324a.267.267 0 0 0-.328 0l-.417.323c-.21.163-.5-.043-.423-.299l.173-.57a.277.277 0 0 0-.094-.299l-.468-.363c-.206-.16-.095-.493.164-.493h.55a.271.271 0 0 0 .259-.194l.162-.53z"/></svg>';
 					dropdownButton.setAttribute("data-bs-toggle", "dropdown");
+					
+					if(drawJsonObjOnCanvas.points[j].behaviorlistautoclose != null && drawJsonObjOnCanvas.points[j].behaviorlistautoclose == false){
+						dropdownButton.setAttribute("data-bs-auto-close", "false");
+						dropdownButton.setAttribute("aria-expanded", "false");	
+					}
+					
 					dropdownButton.setAttribute("style", "width:1.0rem;height:1.0rem;");
 					dropdownButton.addEventListener("shown.bs.dropdown", showBevhaiorDropDownList);
 					dropdownButton.addEventListener("hidden.bs.dropdown", hideBevhaiorDropDownList);
@@ -1630,8 +1646,83 @@ function drawActionPointOnEachCanvas(canvasElement){
 			}
 			//end of drawJsonObjOnCanvas.points[j]
 		}
-
 	}
+	//end of for(var j = 0; j<drawJsonObjOnCanvas.points.length; j++)
+
+	//トラックウィンドウごとのビヘイビア
+	for(var j = 0; j<drawJsonObjOnCanvas.tracks.length; j++){
+		if(drawJsonObjOnCanvas.tracks[j].track == canvasElement.getAttribute("trackid")){
+			if(drawJsonObjOnCanvas.tracks[j].behaviorlist != null && drawJsonObjOnCanvas.tracks[j].behaviorlist.length > 0){
+				hasBehaviorButtons = true;
+				var behaviordataList = drawJsonObjOnCanvas.tracks[j].behaviorlist;
+				//console.log(behaviordataList);
+				//backgroundcanvas上の子ノード全部削除
+				var videoContainerElement = canvasElement.parentNode;
+				//デフォルトで左上
+				//var textPosX = 0.01*canvasElement.width;
+				//var textPosY = 0.01*canvasElement.height;
+				var textPosX = 5;
+				var textPosY = 30;
+				var dropdownDiv = document.getElementById("behavior_track_"+drawJsonObjOnCanvas.tracks[j].track);
+				
+				if(dropdownDiv == null){
+					dropdownDiv = document.createElement("div");
+					dropdownDiv.setAttribute("id", "behavior_track_"+drawJsonObjOnCanvas.tracks[j].track);
+					dropdownDiv.setAttribute("class", "dropdown");
+					dropdownDiv.setAttribute("buttonid", "behaviorbutton_track_"+drawJsonObjOnCanvas.tracks[j].track);
+					//buttonを追加すると何故かBodyの横スクロールが出る，このボタン位置からこのボタンを追加するキャンバス分横幅が出るのだが意味不明，Bodyのoverflow-x : hidden;で対処
+					var dropdownButton = document.createElement("button");
+					dropdownButton.setAttribute("id", "behavior_track_"+drawJsonObjOnCanvas.tracks[j].track);
+					//dropdownButton.setAttribute("class", "btn btn-default rounded-circle p-0 bevhaiorselectbutton dropdown-toggle");
+					dropdownButton.setAttribute("class", "btn btn-info btn-sm rounded-pill bevhaiorselectbutton dropdown-toggle");
+					//dropdownButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-list-stars" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5z"/><path d="M2.242 2.194a.27.27 0 0 1 .516 0l.162.53c.035.115.14.194.258.194h.551c.259 0 .37.333.164.493l-.468.363a.277.277 0 0 0-.094.3l.173.569c.078.256-.213.462-.423.3l-.417-.324a.267.267 0 0 0-.328 0l-.417.323c-.21.163-.5-.043-.423-.299l.173-.57a.277.277 0 0 0-.094-.299l-.468-.363c-.206-.16-.095-.493.164-.493h.55a.271.271 0 0 0 .259-.194l.162-.53zm0 4a.27.27 0 0 1 .516 0l.162.53c.035.115.14.194.258.194h.551c.259 0 .37.333.164.493l-.468.363a.277.277 0 0 0-.094.3l.173.569c.078.255-.213.462-.423.3l-.417-.324a.267.267 0 0 0-.328 0l-.417.323c-.21.163-.5-.043-.423-.299l.173-.57a.277.277 0 0 0-.094-.299l-.468-.363c-.206-.16-.095-.493.164-.493h.55a.271.271 0 0 0 .259-.194l.162-.53zm0 4a.27.27 0 0 1 .516 0l.162.53c.035.115.14.194.258.194h.551c.259 0 .37.333.164.493l-.468.363a.277.277 0 0 0-.094.3l.173.569c.078.255-.213.462-.423.3l-.417-.324a.267.267 0 0 0-.328 0l-.417.323c-.21.163-.5-.043-.423-.299l.173-.57a.277.277 0 0 0-.094-.299l-.468-.363c-.206-.16-.095-.493.164-.493h.55a.271.271 0 0 0 .259-.194l.162-.53z"/></svg>';
+					dropdownButton.setAttribute("data-bs-toggle", "dropdown");
+					
+					if(drawJsonObjOnCanvas.tracks[j].behaviorlistautoclose != null && drawJsonObjOnCanvas.tracks[j].behaviorlistautoclose == false){
+						dropdownButton.setAttribute("data-bs-auto-close", "false");
+						dropdownButton.setAttribute("aria-expanded", "false");	
+					}
+					
+					dropdownButton.setAttribute("style", "width:1.0rem;height:1.0rem;");
+					dropdownButton.addEventListener("shown.bs.dropdown", showBevhaiorDropDownList);
+					dropdownButton.addEventListener("hidden.bs.dropdown", hideBevhaiorDropDownList);
+					dropdownButton.setAttribute("isListShown", false);
+					var dropdownUl = document.createElement("ul");
+					dropdownUl.setAttribute("class", "dropdown-menu bevhaiordropdown");
+					dropdownUl.setAttribute("aria-labelledby", "behaviorbutton_track_"+drawJsonObjOnCanvas.tracks[j].track);
+					for (i = 0; i < behaviordataList.length; i++) {
+						if (behaviordataList[i] != null) {
+							//console.log(behaviordataList[i].id +" "+behaviordataList[i].label);
+							var liEle = document.createElement("li");
+							var aEle = document.createElement("a");
+							aEle.setAttribute("class", "dropdown-item bevhaiorbutton");
+							aEle.setAttribute("href", "#");
+							//aEle.addEventListener("click", clickBevhaiorDropDownButton(aEle, canvasElement));{name: userName, handleEvent: sayHello}
+							aEle.addEventListener("click", {buttonObj: aEle, canvasObj: canvasElement, handleEvent: clickBevhaiorDropDownButton});
+							aEle.setAttribute("behaviordata", behaviordataList[i].id);
+							aEle.setAttribute("peerid", canvasElement.getAttribute("peerid"));
+							aEle.setAttribute("pointid", "");//トラックごとの全体ビヘイビアなので視線エリア選択なし
+							aEle.innerHTML = behaviordataList[i].label;
+							liEle.appendChild(aEle);
+							dropdownUl.appendChild(liEle);
+						}
+					}
+					dropdownDiv.appendChild(dropdownButton);
+					dropdownDiv.appendChild(dropdownUl);
+					dropdownDiv.style.left = (textPosX)+"px";
+					dropdownDiv.style.top = (textPosY)+"px";
+					videoContainerElement.appendChild(dropdownDiv);
+					console.log("add behavior track button on "+canvasElement.id);
+				} else {
+					//すでにある場合はなにもしない
+				}				
+			} else {
+				
+			}
+			//end of drawJsonObjOnCanvas.points[j]
+		}
+	}
+
 	if(!hasBehaviorButtons){
 		//backgroundcanvas上の子ノード全部削除, Point事にあるなしを管理すべきだが面倒なので放置
 		var videoContainerElement = canvasElement.parentNode;
