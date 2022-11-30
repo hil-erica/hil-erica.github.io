@@ -164,6 +164,7 @@ forcelogout=peerid
    - xRatio : videoの横向きの相対座標（原点は左上）
    - yRatio :videoの縦向きの相対座標（原点は左上）
    - radiusRation : 半径
+   - behaviorlistautoclose : プルダウンボタンを自動で隠すかどうか（デフォルトでtrue） true/false
    - behaviorlist : []　UIに出す行動選択一覧のJsonArray，[{"id":"hoge.seq", "label":"say hellow"}, ...]
      - 操作者がボタンをクリックすると↓が返信
        
@@ -174,7 +175,19 @@ forcelogout=peerid
        - trackid : トラック番号
        - pointid : 選択エリアのID
        - behaviordata : 選択された内容
-  
+  - tracks : 画面ごとにシーケンス選択する
+   - track : userのどのvideo trackかを指定する
+   - behaviorlistautoclose : プルダウンボタンを自動で隠すかどうか（デフォルトでtrue） true/false
+   - behaviorlist : []　UIに出す行動選択一覧のJsonArray，[{"id":"hoge.seq", "label":"say hellow"}, ...]
+     - 操作者がボタンをクリックすると↓が返信
+       
+       {"peerid": "testope", "selectbehaivorevent": {"remotepeerid":"test3", "trackid":0, "pointid":"backcam-hid2", "behaviordata":foo.seq}}
+       - peerid : 選択したユーザ
+       - selectbehaivorevent : イベント名
+       - remotepeerid : どのユーザの画面か
+       - trackid : トラック番号
+       - pointid : 選択エリアのID
+       - behaviordata : 選択された内容
 
 
 ##### request システムから操作者に遠隔操作を要求する
