@@ -136,7 +136,11 @@ html {
   border-bottom-left-radius: 10px;
 }
 
-
+.optionalcommandbutton {
+  /*薄葡萄うすぶどう*/
+  background: rgba(231, 231, 235, 0.703);  
+  /*width: calc( 100% - 2rem );*/
+}
 
 .attractivenessbar {
   position: absolute;

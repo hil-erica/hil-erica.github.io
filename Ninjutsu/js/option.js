@@ -197,7 +197,7 @@ function optionalCommandLoad(fileChooser){
 					cmdBtn.setAttribute('jsondata', JSON.stringify(optionalBtnJson));
 					cmdBtn.addEventListener("click", optionalButtonClicked);
 					cmdBtn.innerHTML = optionalBtnJson.label;
-					cmdBtn.setAttribute('class', 'btn btn-outline-primary');
+					cmdBtn.setAttribute('class', 'btn btn-outline-primary optionalcommandbutton');
 					cmdBtn.setAttribute('style', 'margin:2px;');
 					cmdBtn.setAttribute('type', 'button');
 					var txt = document.createTextNode("\u00a0");
@@ -210,7 +210,7 @@ function optionalCommandLoad(fileChooser){
 					cmdBtn.setAttribute('jsondata', JSON.stringify(optionalBtnJson));
 					cmdBtn.addEventListener("click", optionalButtonClicked);
 					cmdBtn.innerHTML = optionalBtnJson.label;
-					cmdBtn.setAttribute('class', 'btn btn-outline-primary btn-sm');
+					cmdBtn.setAttribute('class', 'btn btn-outline-primary btn-sm optionalcommandbutton');
 					cmdBtn.setAttribute('style', 'margin:2px;');
 					cmdBtn.setAttribute('type', 'button');
 					var txt = document.createTextNode("\u00a0");
