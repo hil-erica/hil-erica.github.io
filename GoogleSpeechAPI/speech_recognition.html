@@ -90,7 +90,7 @@
 							<div id="google_translate_element"></div> 
 							<script type="text/javascript"> 
 								function googleTranslateElementInit() { 
-									new google.translate.TranslateElement({pageLanguage: 'en'}, 'google_translate_element');
+									new google.translate.TranslateElement({pageLanguage: 'jp'}, 'google_translate_element');
 								} 
 							</script> 
 							<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script> 
@@ -117,7 +117,11 @@
 			var rawText = "";
 			var confidenceLevel = -1;
 			
+			//翻訳機能を使うと2回結果を出力しちゃうので
 			var isTranslating = false;
+			var lastDomModifiedTime = new Date();
+			var lastTranslated = "";
+			var domModifiedThreshold = 10;
 			
 			var wSocket = null;
 			
@@ -233,6 +237,9 @@
 			document.getElementById("recognitionText").addEventListener("DOMSubtreeModified", translationResultCallback, false);
 			//document.getElementById("recognitionText").addEventListener("change", translationCallback, false);
 			function translationResultCallback() {
+				var currentDomModifiedTime = new Date();
+				var domModifiedInterval = currentDomModifiedTime.getTime() - lastDomModifiedTime.getTime();
+				//console.log("translationResultCallback "+domModifiedInterval+" msec");
 				// This function needs to be called when Google translates this web page.
 				var currentHTML = document.getElementById("recognitionText").innerHTML;
 				var currentValue = document.getElementById("recognitionText").innerText;
@@ -294,21 +301,26 @@
 					} else {
 						//console.log("Translated : " + currentValue);
 						if(isTranslating){
-							if(confidenceLevel < 0){
-								if(wSocket != null){
-									wSocket.send("interimresult:"+currentTranslated+"\n");
+							if(lastTranslated != currentTranslated || (domModifiedInterval > domModifiedThreshold)){
+								if(confidenceLevel < 0){
+									if(wSocket != null){
+										wSocket.send("interimresult:"+currentTranslated+"\n");
+									}
+									console.log( "interimresult:"+currentTranslated);
+								} else {
+									if(wSocket != null){
+										wSocket.send("result:"+currentTranslated + "\nconfidence:" + confidenceLevel+"\n");
+									}
+									console.log( "result:"+currentTranslated + "\nconfidence:" + confidenceLevel);
 								}
-								console.log( "interimresult:"+currentTranslated);
-							} else {
-								if(wSocket != null){
-									wSocket.send("result:"+currentTranslated + "\nconfidence:" + confidenceLevel+"\n");
-								}
-								console.log( "result:"+currentTranslated + "\nconfidence:" + confidenceLevel);
 							}
 						}
 					}
 				}
 				//console.log("Translated : " + currentValue);
+				
+				lastDomModifiedTime = currentDomModifiedTime;
+				lastTranslated = currentTranslated;
 			}
 			
 			/*
