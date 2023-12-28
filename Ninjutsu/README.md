@@ -230,6 +230,13 @@ forcelogout=peerid
   
   answerrequest={"answerdata":[{"姓":"さとう"},{"名":"ひろのぶ"}]}
 
+###### 効果音再生
+- 送信コマンド sound=json
+  - soundType : newtype, info, warning
+  - soundVolume: 0.0~1.0
+  
+  sound={"soundType":"newtype", "soundVolume":0.5}
+  
 
 ## 画面共有機能
 ### 注意点・問題点

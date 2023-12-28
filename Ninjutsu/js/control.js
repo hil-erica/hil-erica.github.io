@@ -2,6 +2,11 @@ var requestModalOpenSound = new Audio("./sounds/決定、ボタン押下39.mp3")
 var answerRequestSound = new Audio("./sounds/決定、ボタン押下22.mp3");
 var cancelRequestSound = new Audio("./sounds/キャンセル4.mp3");
 var stackRequestSound = new Audio("./sounds/警告音2.mp3");
+var newtypeSound = new Audio("./sounds/ひらめく1.mp3");
+var infoSound = new Audio("./sounds/チリン.mp3");
+var warningSound = new Audio("./sounds/間抜け1.mp3");
+
+
 
 //sharedscreenを使っているかどうか
 //var remotePeerIDSharingscreenFlagMap = new Map();//peerid, true/false
@@ -614,6 +619,24 @@ function selectBehavior(peerid, behaviordata){
 }
 */
 
+function soundInfo(soundType, volume){
+	if(soundType == "newtype"){
+		newtypeSound.currentTime = 0;
+		newtypeSound.volume = volume;
+		newtypeSound.play();
+	} else if(soundType == "info"){
+		infoSound.currentTime = 0;
+		infoSound.volume = volume;
+		infoSound.play();
+	} else if(soundType == "warning"){
+		warningSound.currentTime = 0;
+		warningSound.volume = volume;
+		warningSound.play();
+	} else{
+		console.warn("not found sound type : "+soundType);
+	}
+}
+
 function getData(fromPeerID, receiveText, dataConnection){
 	//console.log(fromPeerID+ " : " + receiveText);
 	if(wSocketIsConnected){
@@ -698,6 +721,22 @@ function getData(fromPeerID, receiveText, dataConnection){
 				skipBehavor();
 			}
 		} else {
+		}
+	} else if(receiveText.startsWith("sound=")){
+		//音を鳴らす
+		var cmds = receiveText.slice(6);
+		console.log("sound="+cmds);
+		var soundCmd = JSON.parse(cmds);
+		var soundVolume = 1;
+		if(soundCmd.soundVolume != null){
+			if(soundCmd.soundVolume >=0 && soundCmd.soundVolume <= 1){
+				soundVolume = soundCmd.soundVolume;
+			}
+		}
+		if(soundCmd.soundType != null){
+			soundInfo(soundCmd.soundType, soundVolume);
+		} else {
+			console.warn(cmds +" does not have soundType node");
 		}
 	} else if(receiveText.startsWith("socket=")){
 		//not used
