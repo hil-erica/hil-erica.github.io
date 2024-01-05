@@ -1312,7 +1312,7 @@ function setVideoOrder(event){
 	}
 }
 
-function teleOpeModeChanged() {
+function clickGestureActionChanged() {
 	if (document.getElementById("teleopemodecheckbox").checked) {
 		teleOpeMode = true;
 		var elements = document.getElementsByClassName("videocanvas");

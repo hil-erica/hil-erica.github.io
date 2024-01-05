@@ -77,6 +77,13 @@ handgesture, pointing, handshake，handraise
 
 {"peerid": "ericaope", "rightHandAnalogGestureEnd": {"hand": "pointing"}}
 
+
+#### 遠隔操作モードの切替
+##### ロボットアイコンで自律モード
+WorkingMemoryのInteractionStateに"teleoperation_end"="end", "teleopemode"="auto"と書き込まれる
+##### ハート付き人のアイコンでフル遠隔操作モード
+WorkingMemoryのInteractionStateに"teleoperation_start"="start", "teleopemode"="manual"と書き込まれる
+
 #### Jsonによるコマンドボタンの追加
 jsonファイルにはJson配列buttonsを定義し，buttonsの要素は必ずidとlabelを持つこと．
 
@@ -273,3 +280,7 @@ chrome://flags/#enable-experimental-web-platform-features~~
 # 素材
 ## 効果音
 - 効果音ラボ https://soundeffect-lab.info/sound/button/
+
+## UI
+- https://getbootstrap.jp/
+

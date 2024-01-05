@@ -5,7 +5,7 @@ var stackRequestSound = new Audio("./sounds/警告音2.mp3");
 var newtypeSound = new Audio("./sounds/ひらめく1.mp3");
 var infoSound = new Audio("./sounds/チリン.mp3");
 var warningSound = new Audio("./sounds/間抜け1.mp3");
-
+var currentTeleopeMode = "auto";
 
 
 //sharedscreenを使っているかどうか
@@ -99,6 +99,26 @@ function faceSelected(id) {
 	}
 }
 
+function teleopeModeSelected(id){
+	console.log("teleopemode select : "+id);
+	var teleopeImg = document.getElementById("teleopeImg");
+	if(id == "auto"){
+		teleopeImg.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-robot" viewBox="0 0 16 16"><path d="M6 12.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5ZM3 8.062C3 6.76 4.235 5.765 5.53 5.886a26.58 26.58 0 0 0 4.94 0C11.765 5.765 13 6.76 13 8.062v1.157a.933.933 0 0 1-.765.935c-.845.147-2.34.346-4.235.346-1.895 0-3.39-.2-4.235-.346A.933.933 0 0 1 3 9.219V8.062Zm4.542-.827a.25.25 0 0 0-.217.068l-.92.9a24.767 24.767 0 0 1-1.871-.183.25.25 0 0 0-.068.495c.55.076 1.232.149 2.02.193a.25.25 0 0 0 .189-.071l.754-.736.847 1.71a.25.25 0 0 0 .404.062l.932-.97a25.286 25.286 0 0 0 1.922-.188.25.25 0 0 0-.068-.495c-.538.074-1.207.145-1.98.189a.25.25 0 0 0-.166.076l-.754.785-.842-1.7a.25.25 0 0 0-.182-.135Z"/><path d="M8.5 1.866a1 1 0 1 0-1 0V3h-2A4.5 4.5 0 0 0 1 7.5V8a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1v1a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-1a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1v-.5A4.5 4.5 0 0 0 10.5 3h-2V1.866ZM14 7.5V13a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V7.5A3.5 3.5 0 0 1 5.5 4h5A3.5 3.5 0 0 1 14 7.5Z"/></svg>';
+		sendAutoTeleopeMode();
+		currentTeleopeMode = "auto";
+	} else if(id == "semi-auto"){
+		teleopeImg.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-fill-gear" viewBox="0 0 16 16"><path d="M11 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm-9 8c0 1 1 1 1 1h5.256A4.493 4.493 0 0 1 8 12.5a4.49 4.49 0 0 1 1.544-3.393C9.077 9.038 8.564 9 8 9c-5 0-6 3-6 4Zm9.886-3.54c.18-.613 1.048-.613 1.229 0l.043.148a.64.64 0 0 0 .921.382l.136-.074c.561-.306 1.175.308.87.869l-.075.136a.64.64 0 0 0 .382.92l.149.045c.612.18.612 1.048 0 1.229l-.15.043a.64.64 0 0 0-.38.921l.074.136c.305.561-.309 1.175-.87.87l-.136-.075a.64.64 0 0 0-.92.382l-.045.149c-.18.612-1.048.612-1.229 0l-.043-.15a.64.64 0 0 0-.921-.38l-.136.074c-.561.305-1.175-.309-.87-.87l.075-.136a.64.64 0 0 0-.382-.92l-.148-.045c-.613-.18-.613-1.048 0-1.229l.148-.043a.64.64 0 0 0 .382-.921l-.074-.136c-.306-.561.308-1.175.869-.87l.136.075a.64.64 0 0 0 .92-.382l.045-.148ZM14 12.5a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0Z"/></svg>';
+		sendSemiAutoTeleopeMode();
+		currentTeleopeMode = "semi-auto";
+	} else if(id == "manual"){
+		teleopeImg.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-hearts" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M11.5 1.246c.832-.855 2.913.642 0 2.566-2.913-1.924-.832-3.421 0-2.566ZM9 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm-9 8c0 1 1 1 1 1h10s1 0 1-1-1-4-6-4-6 3-6 4Zm13.5-8.09c1.387-1.425 4.855 1.07 0 4.277-4.854-3.207-1.387-5.702 0-4.276ZM15 2.165c.555-.57 1.942.428 0 1.711-1.942-1.283-.555-2.281 0-1.71Z"/></svg>';
+		sendManualTeleopeMode();
+		currentTeleopeMode = "manual";
+	} else {
+		console.log("unknown teleope type : "+id);
+	}
+}
+
 function openAnalogGestureWindow(){
 	var obj_window = window.open("AnalogGestureWindow.html","","width="+600+",height="+300+"scrollbars=no");
 	subWindows.push(obj_window);
@@ -186,6 +206,40 @@ function sendAttractivenessDecrease(){
 	publishData(sendText);
 }
 
+function sendAutoTeleopeMode(){
+	//ic制御のため
+	var sendText = "optionalcommand="+"{\"id\":\"teleoperation_end\",\"label\":\"teleoperation_end\",\"type\":\"workingmemory\",\"scope\":\"interaction\",\"name\":\"teleoperation_end\",\"string\":\"end\"}";
+	publishData(sendText);
+	//teleexistance appで状態制御のため
+	sendText = "optionalcommand="+"{\"id\":\"teleopemode\",\"label\":\"teleopemode\",\"type\":\"workingmemory\",\"scope\":\"interaction\",\"name\":\"teleopemode\",\"string\":\"auto\"}";
+	publishData(sendText);
+}
+function sendManualTeleopeMode(){
+	//ic制御のため
+	var sendText = "optionalcommand="+"{\"id\":\"teleoperation_start\",\"label\":\"teleoperation_start\",\"type\":\"workingmemory\",\"scope\":\"interaction\",\"name\":\"teleoperation_start\",\"string\":\"start\"}";
+	publishData(sendText);
+	//teleexistance appで状態制御のため
+	sendText = "optionalcommand="+"{\"id\":\"teleopemode\",\"label\":\"teleopemode\",\"type\":\"workingmemory\",\"scope\":\"interaction\",\"name\":\"teleopemode\",\"string\":\"manual\"}";
+	publishData(sendText);
+}
+
+function sendSemiAutoTeleopeMode(){
+	//teleexistance appで状態制御のため
+	var sendText = "optionalcommand="+"{\"id\":\"teleopemode\",\"label\":\"teleopemode\",\"type\":\"workingmemory\",\"scope\":\"interaction\",\"name\":\"teleopemode\",\"string\":\"semi-auto\"}";
+	publishData(sendText);
+}
+
+//繋がったときに現状を送る
+function sendCurrentTeleopeMode(){
+	if(currentTeleopeMode == "auto"){
+		sendAutoTeleopeMode();
+	} else if(id == "semi-auto"){
+		sendSemiAutoTeleopeMode();
+	} else if(id == "manual"){
+		sendManualTeleopeMode();
+	} else {
+	}
+}
 
 var wSocket = null;
 var wSocketIsConnected = false;
