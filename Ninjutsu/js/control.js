@@ -674,6 +674,9 @@ function selectBehavior(peerid, behaviordata){
 */
 
 function soundInfo(soundType, volume){
+	//volume 0-1を対数
+	volume = Math.pow(10, (volume*2-1))/10;
+	//console.log(volume);
 	if(soundType == "newtype"){
 		newtypeSound.currentTime = 0;
 		newtypeSound.volume = volume;
