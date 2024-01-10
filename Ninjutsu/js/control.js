@@ -673,9 +673,14 @@ function selectBehavior(peerid, behaviordata){
 }
 */
 
+var dBStartStacle = 20;
 function soundInfo(soundType, volume){
 	//volume 0-1を対数
-	volume = Math.pow(10, (volume*2-1))/10;
+	//volume = Math.pow(10, (volume*2-1))/10;
+	if(volume > 0){
+		volume = Math.pow(10,(volume-0.5)*2*dBStartStacle/20)*Math.pow(10,-0.5*2*dBStartStacle/20);
+	}
+	
 	//console.log(volume);
 	if(soundType == "newtype"){
 		newtypeSound.currentTime = 0;
@@ -700,7 +705,9 @@ var fadeInDuration = 1000;
 var fadeOutDuration = 500;
 var useBackgroundSound = false;
 function backgroundSoundOnOff(startStop){
-	var volume = Math.pow(10, (defaultBackgoundVolume*2-1))/10;
+	//=10^((J3-0.5)*2*ABS(I$3)/20)*10^(-0.5*2*ABS(I$3)/20)
+	var volume = Math.pow(10,(defaultBackgoundVolume-0.5)*2*dBStartStacle/20)*Math.pow(10,-0.5*2*dBStartStacle/20);
+	//var volume = Math.pow(10, (defaultBackgoundVolume*2-1))/10;
 	if(startStop && !useBackgroundSound){
 		backgroundSound.fade(0,defaultBackgoundVolume, fadeInDuration);
 		backgroundSound.play();
@@ -713,13 +720,22 @@ function backgroundSoundOnOff(startStop){
 function backgroundSoundControl(fadeToVolume, duration){
 	if(!useBackgroundSound)return;
 	var currentVolume = backgroundSound.volume();
-	var volume = Math.pow(10, (defaultBackgoundVolume*2-1))/10;
-	if(fadeToVolume<0){
+	//var volume = Math.pow(10, (defaultBackgoundVolume*2-1))/10;
+	//var volume = Math.pow(10, (defaultBackgoundVolume*4-2))/100;
+	var volume = Math.pow(10,(defaultBackgoundVolume-0.5)*2*dBStartStacle/20)*Math.pow(10,-0.5*2*dBStartStacle/20);
+	
+	if(fadeToVolume==0){
+		volume = 0;
+		//backgroundSound.fade(currentVolume,defaultBackgoundVolume, fadeInDuration);
+	} else if(fadeToVolume<0){
 		//backgroundSound.fade(currentVolume,defaultBackgoundVolume, fadeInDuration);
 	} else {
-		volume = Math.pow(10, (fadeToVolume*2-1))/10;
+		volume = Math.pow(10,(fadeToVolume-0.5)*2*dBStartStacle/20)*Math.pow(10,-0.5*2*dBStartStacle/20);
+		//volume = Math.pow(10, (fadeToVolume*2-1))/10;
+		//volume = Math.pow(10, (fadeToVolume*4-2))/100;
 		//backgroundSound.fade(currentVolume,fadeToVolume, fadeOutDuration);
 	}
+	console.log("fade to "+volume);
 	backgroundSound.fade(currentVolume,volume, fadeInDuration);
 }
 
