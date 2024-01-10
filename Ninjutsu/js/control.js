@@ -812,7 +812,7 @@ function getData(fromPeerID, receiveText, dataConnection){
 	} else if(receiveText.startsWith("sound=")){
 		//音を鳴らす
 		var cmds = receiveText.slice(6);
-		console.log("sound="+cmds);
+		//console.log("sound="+cmds);
 		var soundCmd = JSON.parse(cmds);
 		var soundVolume = 1;
 		if(soundCmd.soundVolume != null){
@@ -828,7 +828,7 @@ function getData(fromPeerID, receiveText, dataConnection){
 	}  else if(receiveText.startsWith("bgm=")){
 		//音を鳴らす
 		var cmds = receiveText.slice(4);
-		console.log("bgm="+cmds);
+		//console.log("bgm="+cmds);
 		var soundCmd = JSON.parse(cmds);
 		var soundVolume = -1;
 		if(soundCmd.soundVolume != null){
@@ -848,8 +848,7 @@ function getData(fromPeerID, receiveText, dataConnection){
 		}
 		backgroundSoundOnOff(useBGM);
 		backgroundSoundControl(soundVolume, duration);
-		console.log(useBGM+" "+soundVolume +" "+duration);
-
+		//console.log(useBGM+" "+soundVolume +" "+duration);
 	} else if(receiveText.startsWith("socket=")){
 		//not used
 		/*

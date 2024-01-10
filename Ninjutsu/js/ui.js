@@ -1728,10 +1728,12 @@ function drawActionPointOnEachCanvas(canvasElement){
 		var videoContainerElement = canvasElement.parentNode;
 		//要素削除は後ろから
 		var currentbevhaiorbuttons = videoContainerElement.getElementsByClassName("dropdown");
-		for(var i=currentbevhaiorbuttons.length-1; i>=0;i--){
-			videoContainerElement.removeChild(currentbevhaiorbuttons[i]);
+		if(currentbevhaiorbuttons.length > 0){
+			console.log("remove behavior buttons from "+canvasElement.id);
+			for(var i=currentbevhaiorbuttons.length-1; i>=0;i--){
+				videoContainerElement.removeChild(currentbevhaiorbuttons[i]);
+			}
 		}
-		console.log("remove behavior buttons from "+canvasElement.id);
 	}
 	context.restore();
 }
