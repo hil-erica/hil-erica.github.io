@@ -6,7 +6,7 @@ var newtypeSound = new Audio("./sounds/ひらめく1.mp3");
 var infoSound = new Audio("./sounds/チリン.mp3");
 var warningSound = new Audio("./sounds/間抜け1.mp3");
 var currentTeleopeMode = "auto";
-
+var backgroundSound = new Howl({src: ['./sounds/VSQSE_0601_cafe_01.mp3'], loop:true});
 
 //sharedscreenを使っているかどうか
 //var remotePeerIDSharingscreenFlagMap = new Map();//peerid, true/false
@@ -694,6 +694,36 @@ function soundInfo(soundType, volume){
 	}
 }
 
+
+var defaultBackgoundVolume = 0.7;
+var fadeInDuration = 1000;
+var fadeOutDuration = 500;
+var useBackgroundSound = false;
+function backgroundSoundOnOff(startStop){
+	var volume = Math.pow(10, (defaultBackgoundVolume*2-1))/10;
+	if(startStop && !useBackgroundSound){
+		backgroundSound.fade(0,defaultBackgoundVolume, fadeInDuration);
+		backgroundSound.play();
+		useBackgroundSound = true;
+	} else if(!startStop && useBackgroundSound) {
+		backgroundSound.stop();
+		useBackgroundSound = false;
+	}
+}
+function backgroundSoundControl(fadeToVolume, duration){
+	if(!useBackgroundSound)return;
+	var currentVolume = backgroundSound.volume();
+	var volume = Math.pow(10, (defaultBackgoundVolume*2-1))/10;
+	if(fadeToVolume<0){
+		//backgroundSound.fade(currentVolume,defaultBackgoundVolume, fadeInDuration);
+	} else {
+		volume = Math.pow(10, (fadeToVolume*2-1))/10;
+		//backgroundSound.fade(currentVolume,fadeToVolume, fadeOutDuration);
+	}
+	backgroundSound.fade(currentVolume,volume, fadeInDuration);
+}
+
+
 function getData(fromPeerID, receiveText, dataConnection){
 	//console.log(fromPeerID+ " : " + receiveText);
 	if(wSocketIsConnected){
@@ -795,6 +825,31 @@ function getData(fromPeerID, receiveText, dataConnection){
 		} else {
 			console.warn(cmds +" does not have soundType node");
 		}
+	}  else if(receiveText.startsWith("bgm=")){
+		//音を鳴らす
+		var cmds = receiveText.slice(4);
+		console.log("bgm="+cmds);
+		var soundCmd = JSON.parse(cmds);
+		var soundVolume = -1;
+		if(soundCmd.soundVolume != null){
+			if(soundCmd.soundVolume >=0 && soundCmd.soundVolume <= 1){
+				soundVolume = soundCmd.soundVolume;
+			}
+		}
+		var duration = 1000;
+		if(soundCmd.duration != null){
+			if(soundCmd.duration >=0 ){
+				duration = soundCmd.duration;
+			}
+		}
+		var useBGM = true;
+		if(soundCmd.use != null){
+			useBGM = soundCmd.use;
+		}
+		backgroundSoundOnOff(useBGM);
+		backgroundSoundControl(soundVolume, duration);
+		console.log(useBGM+" "+soundVolume +" "+duration);
+
 	} else if(receiveText.startsWith("socket=")){
 		//not used
 		/*

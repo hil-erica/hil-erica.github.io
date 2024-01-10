@@ -244,6 +244,14 @@ forcelogout=peerid
   
   sound={"soundType":"newtype", "soundVolume":0.5}
   
+###### BGM再生
+- 送信コマンド bgm=json
+  - use : true, false
+  - soundVolume: 0.0~1.0, -1=default
+  - duration: 0~[msec]
+  
+  bgm={"use":true, "soundVolume":0.5, "duration":2000}
+
 
 ## 画面共有機能
 ### 注意点・問題点
@@ -280,7 +288,9 @@ chrome://flags/#enable-experimental-web-platform-features~~
 # 素材
 ## 効果音
 - 効果音ラボ https://soundeffect-lab.info/sound/button/
+- https://vsq.co.jp/plus/
 
 ## UI
 - https://getbootstrap.jp/
+- https://github.com/goldfire/howler.js
 
