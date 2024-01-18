@@ -5,7 +5,8 @@ var doUpdate = false;
 
 var connection;
 
-function test(){
+function connectToIshiki(){
+	// console.log("hogehoghoe");
 
 	//WebSocket接続
 	connection = new WebSocket("ws://localhost:8000/");
@@ -26,6 +27,15 @@ function test(){
 	connection.onmessage = function(event) {
 		document.getElementById( "eventType" ).value = "メッセージ受信";
 		document.getElementById( "received" ).value = event.data;
+		const receivedCommand = JSON.parse(event.data);
+		console.log(receivedCommand.op);
+		console.log(receivedCommand.choices);
+
+		for (var i = 0; i < receivedCommand.choices.length; i++) {
+			let element = receivedCommand.choices[i];
+			console.log(element);
+			createChoiceButton(element, i);
+		}
 	};
 
 	//切断
@@ -35,78 +45,36 @@ function test(){
 	};
 }
 
+function createChoiceButton(choice_text, choice_index) {
+	let button = document.createElement("button");
+
+	button.innerHTML = choice_text;
+
+	button.id = "choice_button_" + choice_index;
+
+	let target = document.getElementById("choice_buttons");
+	button.addEventListener("click", callback);
+
+	target.appendChild(button);
+}
+
+function callback(e) {
+	console.log(e.target.id);
+
+	let choice_index = parseInt(e.target.id.replace("choice_button_", ""), 10);
+	let returnCommandData = {op: 'selected', selected: choice_index};
+	let returnCommand = JSON.stringify(returnCommandData);
+	console.log(returnCommand);
+	connection.send(returnCommand);
+}
+
 
 function onClicked(){
 	connection.send('サンプルデータ');
 }
 
-// ページの一部だけをreloadする方法
-// Ajaxを使う方法
-// XMLHttpRequestを使ってAjaxで更新
-function ajaxUpdate(url, element) {
-	//var dt = new Date();
-	// urlを加工し、キャッシュされないurlにする。
-	url = url + '?ver=' + new Date().getTime();
-
-	// ajaxオブジェクト生成
-	var ajax = new XMLHttpRequest;
-
-	// ajax通信open
-	ajax.open('GET', url, true);
-
-	// ajax返信時の処理
-	ajax.onload = function () {
-		// ajax返信から得たHTMLでDOM要素を更新
-		element.innerHTML = ajax.responseText;
-	};
-
-	// ajax開始
-	ajax.send(null);
-}
-
-function getUpdateTiming() {
-	// var url = "get_special_state_questions.php";
-	var url = "get_experiment_state_updated_timestamp.php";
-	url = url + '?ver=' + new Date().getTime();
-
-	var ajax = new XMLHttpRequest;
-	ajax.open('GET', url, true);
-	ajax.onload = function () {
-		// console.log(ajax.responseText);
-		if(ajax.responseText !== previousUpdateTimestamp){
-			previousUpdateTimestamp = ajax.responseText;
-			doUpdate = true;
-		}
-		else
-			doUpdate = false;
-	};
-	ajax.send(null);
-}
-
-function update(url, element){
-	console.log("update");
-	ajaxUpdate(url, element);
-	setTimeout(function(){
-		//console.log("hoge");
-		window.scroll(0, document.documentElement.scrollHeight);
-	}, 500);
-	// window.scroll(0, document.documentElement.scrollHeight);
-}
-
 window.addEventListener('load', function () {
-	// var url = "question_visualizer_ajax_reload.php";
+	connectToIshiki();
 
-	// var div = document.getElementById('ajaxreload');
-
-	// // getUpdateTiming();
-	// // update(url, div);
-
-	// setInterval(function(){
-	// 	getUpdateTiming();
-	// 	// console.log(doUpdate);
-	// 	if(doUpdate)
-	// 		update(url, div);
-	// }, 300);
-
-	test();
+	// createChoiceButton("hoge", 2);
 });
