@@ -72,6 +72,101 @@ body {
 	}
 }
 
+.language_button {
+	width: 200px;
+	height: 80px;
+	background: white;
+	position: fixed;
+	top: 0;
+	right: 0;
+	opacity: .5; /*追記*/
+	border-radius: 8px;
+
+	border-width: 3px;
+	border-style: solid;
+	border-color: #cc4343;
+
+	margin: 10px;
+	align-items: center;
+	justify-content: center;
+
+	font-size: 1.6rem;
+	font-weight: 700;
+	line-height: 1.5;
+/*	display: inline-block;*/
+	display: flex;
+	padding: 1rem 4rem;
+	cursor: pointer;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	-webkit-transition: all 0.3s;
+	transition: all 0.3s;
+	text-align: center;
+	vertical-align: middle;
+	text-decoration: none;
+	letter-spacing: 0.1em;
+/*	color: #212529;*/
+	border-color: black;
+	border-radius: 0.5rem;
+
+	opacity: 1;
+}
+
+.description_panel {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-around;
+	align-items: center;
+	width: 100%;
+	height: 0vh;
+/*	margin: 10px 0;*/
+/*	padding-top: 30px;*/
+
+}
+.description_content {
+	align-items: center;
+	justify-content: center;
+	width: calc(100% - 10px);
+	height: calc(100% - 10px);
+	margin: 10px;
+/*	padding: 5px 0px;*/
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	font-size: 30px;
+/*	border: solid 1px;*/
+/*	border-radius: 8px;*/
+	background-color: #CAE3BF;
+/*	animation: fadeIn 1.0s cubic-bezier(0.25, 1, 0.5, 1) 1 forwards;*/
+	animation: fadeIn 0.8s cubic-bezier(0.25, 1, 0.5, 1) 1;
+
+	font-size: 2.6rem;
+	font-weight: 700;
+	line-height: 1.5;
+	position: relative;
+/*	display: inline-block;*/
+	display: flex;
+	padding: 1rem 4rem;
+/*	cursor: pointer;*/
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	-webkit-transition: all 0.3s;
+	transition: all 0.3s;
+	text-align: center;
+	vertical-align: middle;
+	text-decoration: none;
+	letter-spacing: 0.1em;
+	color: #212529;
+/*	border-radius: 0.5rem;*/
+
+	transition-property: opacity;
+	transition-duration: 1s;
+	opacity: 1;
+}
 
 .choice_buttons_panel {
 	display: flex;
@@ -82,6 +177,7 @@ body {
 	height: 100vh;
 /*	margin: 10px 0;*/
 /*	padding-top: 30px;*/
+	transition: all 1s;
 }
 .choice_button {
 /*	display: flex;*/
