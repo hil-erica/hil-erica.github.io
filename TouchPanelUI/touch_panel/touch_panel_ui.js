@@ -1,9 +1,10 @@
-
-var previousUpdateTimestamp = '';
-var previousQuestionIDList = '';
-var doUpdate = false;
-
 var connection;
+
+var current_language = 'jp';
+var description_jp;
+var choices_jp;
+var description_en;
+var choices_en;
 
 /*
 	ISHIKIのWebSocketサーバに接続
@@ -18,6 +19,7 @@ function connectToIshiki(){
 	connection.onopen = function(event) {
 		// document.getElementById( "eventType" ).value = "通信接続イベント受信";
 		// document.getElementById( "dispMsg" ).value = event.data;
+		console.log("connected");
 	};
 
 	//エラー発生
@@ -47,26 +49,77 @@ function processReceivedMessage(event) {
 	console.log(receivedCommand.op);
 	console.log(receivedCommand.choices);
 	console.log(receivedCommand.description);
+	console.log(receivedCommand.choices_en);
+	console.log(receivedCommand.description_en);
 
 	if (receivedCommand.op == 'set_choices') {
-		if (receivedCommand.description_en === undefined) {
-			console.log("description undefined");
-		}
-		else {
+		// description
+		description_jp = receivedCommand.description;
+		description_en = receivedCommand.description_en;
+
+		clearDescriptionContent();
+		if (receivedCommand.description !== undefined) {
 			console.log("description not undefined");
+			createDescriptionAndChoiceButtonsScreen();
+			createDescriptionContent(description_jp);
 		}
+		else{
+			createChoiceButtonsOnlyScreen();
+		}
+
+		// choices
+		choices_jp = receivedCommand.choices;
+		choices_en = receivedCommand.choices_en;
 		clearChoiceButtons();
 		for (var i = 0; i < receivedCommand.choices.length; i++) {
-			let element = receivedCommand.choices[i];
-			console.log(element);
-			createChoiceButton(element, i);
+			let choice = receivedCommand.choices[i];
+			console.log(choice);
+			createChoiceButton(choice, i);
 		}
 	}
 
 }
 
+function toggleLanguage() {
+	let target_description;
+	let target_choices;
+	if (current_language === 'jp') {
+		current_language = 'en';
+		target_description = description_en;
+		target_choices = choices_en;
+	}
+	else if (current_language === 'en') {
+		current_language = 'jp';
+		target_description = description_jp;
+		target_choices = choices_jp;
+	}
+
+	// description
+	// description_jpがなければ説明文なしなので処理しない
+	if (description_jp !== undefined) {
+		if (target_description !== undefined) {
+			let description_content = document.getElementById("description_content");
+			description_content.innerHTML = target_description;
+		}
+	}
+
+	// choices
+	if (target_choices !== undefined) {
+		for (var i = 0; i < target_choices.length; i++) {
+			let choice = target_choices[i];
+			let choice_button = document.getElementById("choice_button_" + i);
+			choice_button.innerHTML = choice;
+		}
+	}
+}
 
 
+function clearDescriptionContent() {
+	let target = document.getElementById("description_panel");
+	while(target.firstChild){
+		target.removeChild(target.firstChild);
+	}
+}
 function clearChoiceButtons() {
 	let target = document.getElementById("choice_buttons_panel");
 	while(target.firstChild){
@@ -129,12 +182,14 @@ function onButtonClicked(e) {
 	console.log(returnCommand);
 	connection.send(returnCommand);
 	// clearChoiceButtons();
-	// fadeOutChoiceButtons();
+	fadeOutChoiceButtons();
 	// e.target.classList.add('is-hide');
-
-	createChoiceButtonsOnlyScreen();
+	// createChoiceButtonsOnlyScreen();
 }
 
+function onLanguageButtonClicked(e) {
+	toggleLanguage();
+}
 
 /*
 	画面を説明と選択肢に分割
@@ -158,6 +213,9 @@ function createChoiceButtonsOnlyScreen() {
 
 
 window.addEventListener('load', function () {
+	let language_button = document.getElementById("language_button");
+	language_button.addEventListener("click", onLanguageButtonClicked);
+
 	connectToIshiki();
 
 	createDescriptionContent("これはテスト説明です。");
