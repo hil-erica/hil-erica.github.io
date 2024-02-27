@@ -96,7 +96,7 @@ function processReceivedMessage(event) {
 		// そもそもdescriptionがなければ、選択肢だけ表示する
 		if (receivedCommand.description !== undefined) {
 			console.log("description not undefined");
-			createDescriptionAndChoiceButtonsScreen();
+			// createDescriptionAndChoiceButtonsScreen();
 			createDescriptionContent(target_description);
 		}
 		else{
@@ -110,6 +110,7 @@ function processReceivedMessage(event) {
 			console.log(choice);
 			createChoiceButton(choice, i);
 		}
+		createDescriptionAndChoiceButtonsScreen();
 		adjustChoiceButtonsSize();
 	}
 	else if (receivedCommand.op == 'set_description') {
@@ -195,6 +196,7 @@ function fadeOutChoiceButtons() {
 		if (i == 0) {
 			target.children[i].addEventListener('transitionend', () => {
 				// アニメーション終了後にボタンを消す
+				console.log("animation end");
 				clearChoiceButtons();
 			})
 		}
@@ -210,6 +212,7 @@ function fadeOutChoiceButtons() {
 function createDescriptionContent(description) {
 	var div = document.createElement('div');
 	div.className = 'description_content';
+	div.classList.add('fade_animation');
 	div.id = "description_content";
 	div.innerHTML = description;
 
@@ -235,14 +238,20 @@ function createChoiceButton(choice_text, choice_index) {
 	let button = document.createElement("a");
 	// button.className = 'choice_button_text';
 	button.className = 'choice_button';
+	button.classList.add('fade_animation');
 	button.innerHTML = choice_text;
 	button.id = "choice_button_" + choice_index;
 
-	button.addEventListener("click", onButtonClicked);
+	// button.addEventListener("click", onButtonClicked);
 	// button.classList.toggle('is-show');
 
 	// div.appendChild(button);
 	// div_text.appendChild(button);
+	button.addEventListener('animationend', () => {
+		// アニメーション終了後にクリックイベントを追加する
+		// console.log('animationend');
+		button.addEventListener("click", onButtonClicked);
+	})
 
 	let target = document.getElementById("choice_buttons_panel");
 	target.appendChild(button);
@@ -321,9 +330,20 @@ function getChoiceButtonsColumnNum(choice_num, row_num) {
 */
 function createDescriptionAndChoiceButtonsScreen() {
 	let description_panel = document.getElementById("description_panel");
-	description_panel.style.height = 'calc(100% / 3 - 0px)';
 	let choice_buttons_panel = document.getElementById("choice_buttons_panel");
-	choice_buttons_panel.style.height = 'calc(100% * 2 / 3 - 0px)';
+	let choice_num = choice_buttons_panel.children.length;
+	if (choice_num == 1) {
+		description_panel.style.height = 'calc(100% * 2 / 3 - 0px)';
+		choice_buttons_panel.style.height = 'calc(100% / 3 - 0px)';
+	}
+	else if (choice_num < 6) {
+		description_panel.style.height = '50%';
+		choice_buttons_panel.style.height = '50%';
+	}
+	else {
+		description_panel.style.height = 'calc(100% / 3 - 0px)';
+		choice_buttons_panel.style.height = 'calc(100% * 2 / 3 - 0px)';
+	}
 }
 /*
 	画面を説明表示のみに
@@ -356,8 +376,8 @@ window.addEventListener('load', function () {
 	createDescriptionContent("これはテスト説明です。");
 	createChoiceButton("hoge0", 0);
 	createChoiceButton("hoge1", 1);
-	// createChoiceButton("hoge2", 2);
-	// createChoiceButton("hoge3", 3);
+	createChoiceButton("hoge2", 2);
+	createChoiceButton("hoge3", 3);
 	// createChoiceButton("hoge4", 4);
 	// createChoiceButton("hoge4", 4);
 
