@@ -11,8 +11,14 @@ var choices_en;
 	入力ダイアログを表示して接続先urlを取得
 */
 function getIshikiUrlFromUser(){
+	const searchParams = new URLSearchParams(window.location.search)
+	let host = 'localhost';
+	if (searchParams.has('host')) {
+		host = searchParams.get('host');
+	}
 	// 入力ダイアログを表示
-	url = window.prompt("ISHIKIサーバurlを指定してください", "ws://localhost:8800/");
+	// url = window.prompt("ISHIKIサーバurlを指定してください", "ws://localhost:8800/");
+	url = window.prompt("ISHIKIサーバurlを指定してください", 'ws://' + host + ':8800/');
 	return url;
 }
 
