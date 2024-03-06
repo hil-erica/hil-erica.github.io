@@ -6,6 +6,7 @@ var choices_jp;
 var description_en;
 var choices_en;
 
+const choice_buttons_panel_margin_height = 40;
 
 /*
 	入力ダイアログを表示して接続先urlを取得
@@ -50,6 +51,7 @@ function connectToIshiki(){
 	connection.onerror = function(error) {
 		// document.getElementById( "eventType" ).value = "エラー発生イベント受信";
 		// document.getElementById( "dispMsg" ).value = error.data;
+		window.alert('接続できませんでした');
 	};
 
 	//メッセージ受信
@@ -340,15 +342,18 @@ function createDescriptionAndChoiceButtonsScreen() {
 	let choice_num = choice_buttons_panel.children.length;
 	if (choice_num == 1) {
 		description_panel.style.height = 'calc(100% * 2 / 3 - 0px)';
-		choice_buttons_panel.style.height = 'calc(100% / 3 - 0px)';
+		// choice_buttons_panel.style.height = 'calc(100% / 3 - 0px)';
+		choice_buttons_panel.style.height = `calc(100% / 3 - ${choice_buttons_panel_margin_height}px)`;
 	}
 	else if (choice_num < 6) {
 		description_panel.style.height = '50%';
-		choice_buttons_panel.style.height = '50%';
+		// choice_buttons_panel.style.height = 'calc(50% - 0px)';
+		choice_buttons_panel.style.height = `calc(50% - ${choice_buttons_panel_margin_height}px)`;
 	}
 	else {
 		description_panel.style.height = 'calc(100% / 3 - 0px)';
-		choice_buttons_panel.style.height = 'calc(100% * 2 / 3 - 0px)';
+		// choice_buttons_panel.style.height = 'calc(100% * 2 / 3 - 0px)';
+		choice_buttons_panel.style.height = `calc(100% * 2 / 3 - ${choice_buttons_panel_margin_height}px)`;
 	}
 }
 /*
@@ -381,7 +386,7 @@ window.addEventListener('load', function () {
 
 	createDescriptionContent("これはテスト説明です。");
 	createChoiceButton("hoge0", 0);
-	createChoiceButton("hoge1", 1);
+	createChoiceButton("こんにちは1", 1);
 	createChoiceButton("hoge2", 2);
 	createChoiceButton("hoge3", 3);
 	// createChoiceButton("hoge4", 4);

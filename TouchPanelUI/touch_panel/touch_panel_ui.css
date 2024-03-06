@@ -56,11 +56,13 @@ a.btn--orange:hover {
 /**/
 body {
 /*	margin: 30px;*/
-	margin: 3px;
+	margin: 0px;
 	padding: 0px;
 	overflow: hidden;
-	font-family: "游ゴシック", "Yu Gothic";
+	font-family: "游ゴシック", "Yu Gothic", "ヒラギノ角ゴ ProN", sans-serif;
+/*	font-family: sans-serif;*/
 	height: 100vh;
+/*	height: -webkit-fill-available;*/
 }
 
 @keyframes flash {
@@ -86,7 +88,8 @@ body {
 	border-style: solid;
 	border-color: #cc4343;
 
-	margin: 10px;
+/*	margin: 27px;*/
+	margin: 7px 37px 10px;
 	align-items: center;
 	justify-content: center;
 
@@ -128,9 +131,9 @@ body {
 .description_content {
 	align-items: center;
 	justify-content: center;
-	width: calc(100% - 10px);
+	width: calc(100% - 80px);
 	height: calc(100% - 20px);
-	margin: 10px;
+	margin: 10px 40px 10px;
 /*	padding: 5px 0px;*/
 	text-align: center;
 	font-size: 30px;
@@ -160,7 +163,7 @@ body {
 	text-decoration: none;
 	letter-spacing: 0.1em;
 	color: #212529;
-/*	border-radius: 0.5rem;*/
+	border-radius: 0.5rem;
 
 	/*transition-property: opacity;
 	transition-duration: 1s;
@@ -175,8 +178,10 @@ body {
 	flex-wrap: wrap;
 	justify-content: space-around;
 	align-items: center;
-	width: 100%;
+/*	width: 100%;*/
+	width: calc(100% - 60px);
 	height: 100vh;
+	margin: 0px 30px 40px;
 /*	margin: 10px 0;*/
 /*	padding-top: 30px;*/
 	transition: all 1s;
@@ -188,8 +193,8 @@ body {
 	justify-content: center;
 	width: calc(100% / 2 - 20px);
 	height: calc(100% / 2 - 20px);
-	margin: 5px;
-	margin-top: 10px;
+	margin: 10px;
+/*	margin-top: 10px;*/
 /*	padding: 5px 0px;*/
 	font-size: 30px;
 /*	border: solid 1px;*/
@@ -218,7 +223,7 @@ body {
 	text-decoration: none;
 	letter-spacing: 0.1em;
 	color: #212529;
-	border-radius: 0.5rem;
+	border-radius: 1.5rem;
 
 	/*transition-property: opacity;
 	transition-duration: 1s;
