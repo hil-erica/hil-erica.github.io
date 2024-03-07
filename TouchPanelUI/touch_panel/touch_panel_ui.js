@@ -6,6 +6,8 @@ var choices_jp;
 var description_en;
 var choices_en;
 
+var url;
+
 const choice_buttons_panel_margin_height = 40;
 
 /*
@@ -19,7 +21,7 @@ function getIshikiUrlFromUser(){
 	}
 	// 入力ダイアログを表示
 	// url = window.prompt("ISHIKIサーバurlを指定してください", "ws://localhost:8800/");
-	url = window.prompt("ISHIKIサーバurlを指定してください", 'ws://' + host + ':8800/');
+	let url = window.prompt("ISHIKIサーバurlを指定してください", 'ws://' + host + ':8800/');
 	return url;
 }
 
@@ -52,6 +54,7 @@ function connectToIshiki(){
 		// document.getElementById( "eventType" ).value = "エラー発生イベント受信";
 		// document.getElementById( "dispMsg" ).value = error.data;
 		window.alert('接続できませんでした');
+		connectToIshiki();
 	};
 
 	//メッセージ受信
