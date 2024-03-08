@@ -132,8 +132,8 @@ body {
 	align-items: center;
 	justify-content: center;
 	width: calc(100% - 80px);
-	height: calc(100% - 20px);
-	margin: 10px 40px 10px;
+	height: calc(100% - 40px);
+	margin: 10px 40px 30px;
 /*	padding: 5px 0px;*/
 	text-align: center;
 	font-size: 30px;
@@ -240,7 +240,8 @@ body {
 }
 
 .fade_animation {
-	animation: fadeIn 3.0s cubic-bezier(0.25, 1, 0.5, 1) 1;
+/*	animation: fadeIn 3.0s cubic-bezier(0.25, 1, 0.5, 1) 1;*/
+	animation: fadeIn 1.5s ease;
 
 	transition-property: opacity;
 	transition-duration: 1s;
