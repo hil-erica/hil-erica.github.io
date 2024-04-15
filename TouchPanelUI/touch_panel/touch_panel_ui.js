@@ -274,8 +274,13 @@ function createChoiceButton(choice_text, choice_index) {
 	選択肢ボタンクリックイベント
 */
 function onButtonClicked(e) {
-	// console.log("e is : " + e.target.id);
-	let choice_index = parseInt(e.target.id.replace("choice_button_", ""), 10);
+	// console.log("e is : " + e.target);
+	var target = e.target;
+	if (target instanceof HTMLFontElement) {
+		// console.log("e is : " + e.target.parentNode);
+		target = target.parentNode;
+	}
+	let choice_index = parseInt(target.id.replace("choice_button_", ""), 10);
 	let returnCommandData = {op: 'selected', selected: choice_index};
 	let returnCommand = JSON.stringify(returnCommandData);
 	console.log(returnCommand);
