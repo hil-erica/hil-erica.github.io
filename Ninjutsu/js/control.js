@@ -865,14 +865,12 @@ function getData(fromPeerID, receiveText, dataConnection){
 		backgroundSoundOnOff(useBGM);
 		backgroundSoundControl(soundVolume, duration);
 		//console.log(useBGM+" "+soundVolume +" "+duration);
-	} else if(receiveText.startsWith("socket=")){
+	} else if(receiveText.startsWith("forwardcmd=")){
 		//not used
-		/*
-		var cmds = receiveText.slice(7);
+		var cmds = receiveText.slice(11);
 		if(wSocket != null){
 			wSocket.send(cmds);
 		}
-		*/
 	} else if(receiveText.startsWith("tts=")){
 		//for external system
 	} else if(receiveText.startsWith("optionalcommand=")){
