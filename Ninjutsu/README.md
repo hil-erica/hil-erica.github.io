@@ -139,8 +139,11 @@ type
   - 例： {"id":"attractiveness_increase","label":"興味度合い増加","type":"internalstate","internalstatetype":"attractiveness","isrelative":true,"attractiveness":0.2,"changeduration":500}
 
 
-#### ~~websocketデータのトンネリングプロトコル~~
-~~"socket="をヘッダーに利用~~
+#### websocketデータのトンネリングプロトコル
+"forwardcmd="をヘッダーに利用
+
+websocketからforward=\*\*\*のメッセージを送るとつながっているユーザのWebsocketは\*\*\*を受診する
+
 #### chatデータ
 "chat="をヘッダーに利用
 #### TTSプロトコル
