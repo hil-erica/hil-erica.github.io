@@ -93,7 +93,7 @@
 						-->
 					</a>
 				</li>
-				
+
 				<!--device-->
 				<li class="nav-item">
 					<a class="nav-link active" aria-current="page" href="#" data-bs-toggle="modal" data-bs-target="#deviceModal">
@@ -107,7 +107,7 @@
 						</svg>
 					</a>
 				</li>
-				
+
 				<!--recorder-->
 				<li class="nav-item">
 					<a class="nav-link active" aria-current="page" href="#" r data-bs-toggle="modal" data-bs-target="#recorderModal" id="recordericon">
@@ -122,7 +122,7 @@
 						-->
 					</a>
 				</li>
-				
+
 				<!--hand pose-->
 				<li class="nav-item dropdown">
 					<a class="nav-link dropdown-toggle" href="#" id="handGestureDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -136,7 +136,7 @@
 						<li><a class="dropdown-item-custom" href="#" name="handgesture" handpose="raisehand" onclick='handSelected("raisehand")'><img class="svg_notselected navicon" src="./pics/gestures/raisehand-right.svg" alt="" width="24" height="24">raise hand</a></li>
 					</ul>
 				</li>
-				
+
 				<!--face-->
 				<li class="nav-item dropdown">
 					<a id="faceImg" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -175,7 +175,7 @@
 						</li>
 					</ul>
 				</li>
-				
+
 				<!--optional application-->
 				<!--
 				<li class="nav-item">
@@ -225,7 +225,7 @@
 						</svg>
 					</a>
 				</li>
-				
+
 				<!--setting application-->
 				<li class="nav-item">
 					<a class="nav-link active" aria-current="page" href="#" data-bs-toggle="modal" data-bs-target="#settingModal">
@@ -235,7 +235,7 @@
 						</svg>
 					</a>
 				</li>
-				
+
 				<!--information-->
 				<li class="nav-item">
 					<a class="nav-link active" aria-current="page" href="#"  onclick="openInformation()" id="infoicon">
@@ -246,7 +246,7 @@
 					</a>
 				</li>
 			</ul>
-			
+
 			<!--
 			<div class="d-flex" style="margin-right: 30px">
 				<div class="form-check form-switch">
@@ -255,7 +255,7 @@
 				</div>
 			</div>
 			-->
-			
+
 			<!--teleopemode-->
 			<div class="d-flex" style="margin-right: 30px">
 				<ul class="navbar-nav me-auto mb-2 mb-md-0">
@@ -368,24 +368,24 @@
 			<div id="optionalbuttons" class="box-text-optionalcommandbuttons">
 			</div>
 		</div>
-		
+
 	</div>
 	<div id="main" class="maincontainers">
 	</div>
-	
+
 	<div id="sub" class="subcontainers">
 	</div>
 
 	<div id="controlpane" class="controlpane">
 	</div>
-	
+
 </div>
 <!--
 <div id="workspace">
 	<div id="main" class="maincontainers">
 
 	</div>
-	
+
 	<div id="sub" class="subcontainers">
 	</div>
 </div>
@@ -408,9 +408,9 @@
 								<input  id="apiKey"data-toggle="password" class="form-control" type="password" placeholder="Enter the api key">
 							</div>
 						</div>
-						
+
 					</div>
-					
+
 					<div class="box-text-mic" id="micsetting">
 						<div class="row mb-3">
 							<div class="col-sm-4">
@@ -425,7 +425,7 @@
 		          				</div>
 		          				<div class="col-sm-4">
 								<label for="micdelayinput" class="form-label">additional transmit delay[sec]</label><br>
-								<input type="number" id="micdelayinput" value="0" min="0" max="1" step="0.01"> 
+								<input type="number" id="micdelayinput" value="0" min="0" max="1" step="0.01">
 		          				</div>
 		          				<div class="col-sm-4">
 								<label for="echocancelselector" class="form-label">echo cancel</label>
@@ -452,7 +452,7 @@
 							</div>
 						</div>
 					</div>
-					
+
 					<div class="box-text-speaker"  id="speakersetting">
 						<div class="row mb-3">
 							<div class="col-sm-4">
@@ -468,13 +468,13 @@
 							</div>
 						</div>
 					</div>
-					
+
 					<div class="box-text-camera">
 						<div class="form-check form-switch">
 							<input class="form-check-input" type="checkbox" id="streaming2local">
 							<label class="form-check-label" for="streaming2local">streaming videos to local sockets</label>
 						</div>
-						
+
 						<div id="local_cameras" class="horizontal-list"></div>
 					</div>
 				</div><!--model body-->
@@ -540,7 +540,7 @@
 				<h5 class="modal-title" id="settingModalLabel">Settings</h5>
 			</div>
 			<div class="modal-body">
-				
+
 				<div class="row  mb-3">
 					<div class="box-text-externalwebsite">
 						<div class="input-group  input-group-sm">
@@ -550,7 +550,7 @@
 						</div>
 					</div>
 				</div>
-				
+
 				<div class="row  mb-3">
 					<div class="box-text-websocket">
 						<div class="form-check form-switch">
@@ -563,9 +563,10 @@
 							<button class="btn btn-outline-primary" type="button" id="websocketbutton">Connect</button>
 						</div>
 						<label class="h6">access https protocol at first time to install a ssl certificate</label>&nbsp;<a class="h6" id="installcertificateLink" href="https://127.0.0.1:8000"  target="_blank" rel="noopener">https://127.0.0.1:8000</a>
+						&nbsp;<a href="./utils/WebsocketSSLTools.zip">WebsocketSSLTools</a>
 					</div>
 				</div>
-				
+
 				<div class="row  mb-3">
 					<div class="box-text-mediastreamer">
 						<!--
@@ -588,7 +589,7 @@
 						&nbsp;<a href="./utils/SSLWebSocketUDPStreamer.zip">SSLWebSocketUDPStreamer</a>&nbsp;<a href="./utils/UDPStreamingReceiver.zip">UDPStreamingReceiver</a>
 					</div>
 				</div>
-				
+
 				<!--
 				<div class="row  mb-3">
 					<div class="box-text-ros">
@@ -609,7 +610,7 @@
 					</div>
 				</div>
 				-->
-				
+
 				<div class="row  mb-3">
 					<div class="box-text-otheroptions">
 						<div class="form-check form-switch">
@@ -622,7 +623,7 @@
 				<div class="row  mb-3">
 					<div class="box-text-otheroptions">
 						<div id="roscanvases">
-							
+
 						</div>
 					</div>
 				</div>
@@ -643,7 +644,7 @@
 				<h5 class="modal-title" id="requestSelectModalLabel">Select</h5>
 			</div>
 			<div class="modal-body modal-body-clear" id="requestSelectModalBody">
-				
+
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal"  onclick="canncelSelectRequest()" id="canncelButtonSelectRequest">Cancel</button>
@@ -659,7 +660,7 @@
 				<h5 class="modal-title" id="requestInputModalLabel">Input</h5>
 			</div>
 			<div class="modal-body modal-body-clear" id="requestInputModalBody">
-				
+
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-primary" data-bs-dismiss="modal"  onclick="answerRequest()">Send</button>
@@ -744,7 +745,7 @@ function fadeInBodyImg(speed){
 		imgNumber ++;
 		if(imgNumber >= backImgs.length){
 			imgNumber = 0;
-		} 
+		}
 		$(this).css({"background-image":"url("+backImgs[imgNumber]+")"}).fadeIn(speed);
 		if(split != null){
 			split.destroy();
@@ -778,7 +779,7 @@ function setSplitMinSize(){
 	var numSub = document.getElementsByClassName("subcontainer").length;
 	var mainHeight = 300;
 	var subHeight = 220;
-	
+
 	if(numMain > 0){
 		document.getElementById("main").style.display ="";
 	} else {
@@ -789,7 +790,7 @@ function setSplitMinSize(){
 	} else {
 		document.getElementById("sub").style.display ="none";
 	}
-	
+
 	if(numMain <= 0 || numSub <= 0){
 		if(split != null){
 			split.destroy();
@@ -805,7 +806,7 @@ function setSplitMinSize(){
 				minSize: [mainHeight, subHeight]
 			});
 		}
-		
+
 	}
 	//console.log("numMain = "+numMain+", numSub = "+numSub+", "+mainHeight+"/"+subHeight);
 	calcMainContainersSize();
