@@ -14,6 +14,7 @@ let srcNode = null, analyser = null;
 let rafId = null;
 let lastClipTime = 0;
 let micTestAudio = null;
+let speakerTestAudio = null;
 const CLIP_HOLD_MS = 250;
 function clamp(v, min, max){ return Math.max(min, Math.min(max, v)); }
 
@@ -390,9 +391,6 @@ function sharingScreenSelectEvent(selected){
 }
 
 function finishTestMode(){
-	if(micTestMediaRecorder != null){
-		micTestMediaRecorder.stop();
-	}
 	if(micTestAudio != null){
 		micTestAudio.pause();
 		micTestAudio.currentTime = 0;
@@ -403,7 +401,7 @@ function finishTestMode(){
 	}
 	var micTestButton = document.getElementById("mic_test");
 	micTestButton.innerHTML = "<font size='3'>mic test start</font>";
-	micTestButton.disabled = true;
+	micTestButton.disabled = false;
 	var speakerTestButton = document.getElementById("speaker_test");
 	speakerTestButton.disabled = true;
 }
@@ -755,28 +753,6 @@ async function getSelectedMicStream(){
 	}).catch(function (err) {
 		console.error('getUserMedia Err:', err);
 	});
-}
-
-function finishTestMode(){
-	/*
-	if(micTestMediaRecorder != null){
-		micTestMediaRecorder.stop();
-	}
-	if(micTestAudio != null){
-		micTestAudio.pause();
-		micTestAudio.currentTime = 0;
-	}
-	if(speakerTestAudio != null){
-		speakerTestAudio.pause();
-		speakerTestAudio.currentTime = 0;
-	}
-	*/
-	var micTestButton = document.getElementById("mic_test");
-	micTestButton.innerHTML = "<font size='3'>mic test(start recording)</font>";
-	micTestButton.disabled = true;
-	var speakerTestButton = document.getElementById("speaker_test");
-	speakerTestButton.disabled = true;
-
 }
 
 function standbyDevice(){
