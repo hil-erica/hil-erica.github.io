@@ -21,9 +21,10 @@
 
 <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/jimp/0.16.2-canary.1052.1235.0/jimp.min.js"></script>-->
 <!-- ROS -->
+<!--
 <script src="https://static.robotwebtools.org/EventEmitter2/current/eventemitter2.min.js"></script>
 <script src="https://static.robotwebtools.org/roslibjs/current/roslib.min.js"></script>
-
+-->
 <!--floating window library-->
 <script src="https://cdn.jsdelivr.net/npm/jsframe.js/lib/jsframe.min.js"></script>
 
@@ -432,15 +433,15 @@
 								<select id="echocancelselector" class="form-select form-select-sm" aria-label="echo cancel"></select>
 							</div>
 							<div class="col-sm-4">
-		          					<!--<div class="form-check form-switch">-->
-		          					<div class="form-check form-switch">
+      					<!--<div class="form-check form-switch">-->
+      					<div class="form-check form-switch">
 									<input class="form-check-input" type="checkbox" id="noisesuppressionchkbox">
 									<label class="form-check-label" for="noisesuppressionchkbox">noise suppression</label>
 								</div>
 							</div>
 							<div class="col-sm-4">
-		          					<!--<div class="form-check form-switch">-->
-		          					<div class="form-check form-switch">
+      					<!--<div class="form-check form-switch">-->
+      					<div class="form-check form-switch">
 									<input class="form-check-input" type="checkbox" id="autogainchkbox">
 									<label class="form-check-label" for="autogainchkbox" title="only when no noise suppression, noise suppression automatically auto gain control on.">auto gain</label>
 								</div>
@@ -448,8 +449,14 @@
 						</div>
 						<div class="row mb-3">
 							<div class="col-sm-4">
-								<button id="mic_test" class="btn btn-secondary btn-sm" onclick="micTestRecord()" disabled="true"><font size="3">mic test(start recording)</font></button>
+								<button id="mic_test" class="btn btn-secondary btn-sm" onclick="micTestRecord()" disabled="true"><font size="3">mic test start</font></button>
 							</div>
+							<div class="col-sm-4" id="mic_levelBox">
+						    <div id="mic_meter"><div id="mic_bar"></div></div>
+						    <div><div id="mic_clip" title="Clipping detector"></div></div>
+						    <div><span id="mic_pct">0%</span> / <span id="mic_db">-∞ dBFS</span></div>
+						  </div>
+							<audio id="audio_test" autoplay playsinline></audio>
 						</div>
 					</div>
 

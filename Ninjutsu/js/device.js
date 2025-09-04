@@ -2,6 +2,21 @@ var default_width = 1280;
 var defualt_heigt = 720;
 var numView = 0;
 
+//mic mic_test
+let bar = null;
+let pct = null;
+let dbEl = null;
+let clipDot = null;
+
+let mic_test_stream = null;
+let ac = null;
+let srcNode = null, analyser = null;
+let rafId = null;
+let lastClipTime = 0;
+let micTestAudio = null;
+const CLIP_HOLD_MS = 250;
+function clamp(v, min, max){ return Math.max(min, Math.min(max, v)); }
+
 async function addCamera(deviceID, deviceLabel) {
 	var width = default_width;
 	var height = defualt_heigt;
@@ -67,14 +82,14 @@ async function addDevice(device) {
 	var speakerList = document.getElementById("speaker_list");
 	if (device.kind === 'audioinput') {
 		var id = device.deviceId;
-		var label = device.label || 'microphone'; // label is available for https 
+		var label = device.label || 'microphone'; // label is available for https
 		var option = document.createElement('option');
 		option.setAttribute('value', id);
 		option.innerHTML = label + '(' + id + ')';;
 		micList.appendChild(option);
 	} else if (device.kind === 'videoinput') {
 		var id = device.deviceId;
-		var label = device.label || 'camera'; // label is available for https 
+		var label = device.label || 'camera'; // label is available for https
 		/*
 		var option = document.createElement('option');
 		option.setAttribute('value', id);
@@ -84,7 +99,7 @@ async function addDevice(device) {
 		await addCamera(id, label);
 	} else if (device.kind === 'audiooutput') {
 		var id = device.deviceId;
-		var label = device.label || 'speaker'; // label is available for https 
+		var label = device.label || 'speaker'; // label is available for https
 		var option = document.createElement('option');
 		option.setAttribute('value', id);
 		option.innerHTML = label + '(' + id + ')';
@@ -94,116 +109,127 @@ async function addDevice(device) {
 	}
 }
 
-function getDeviceList() {
-	var micList = document.getElementById("mic_list");
-	var speakerList = document.getElementById("speaker_list");
-	clearDeviceList();
-	
-	var getDeviceButton = document.getElementById("devices_button");
-	getDeviceButton.disabled=true;
-	//https://stackoverflow.com/questions/60297972/navigator-mediadevices-enumeratedevices-returns-empty-labels
-	(async () => {   
-		//await navigator.mediaDevices.getUserMedia({audio: true, video: true});
-		//let devices = await navigator.mediaDevices.enumerateDevices();   
-		//console.log(devices); 
-		await navigator.mediaDevices.getUserMedia({audio: true, video: true}).then(function (stream) {
-			stream.getTracks().forEach((track) => {
-				track.stop();
-			});
-		}).catch(function (err) {
-			navigator.mediaDevices.getUserMedia({audio: true, video: false}).then(function (stream) {
-				stream.getTracks().forEach((track) => {
-					track.stop();
-				});
-			}).catch(function (err) {
-				alert('you need mic device:'+err);
-				console.error(err);
-			});
-		});
-		
-		
-		await navigator.mediaDevices.enumerateDevices().then(function (devices) {
-			var supportedConstraints = navigator.mediaDevices.getSupportedConstraints();
-			console.log("supported media constraints : echoCancellation = "+supportedConstraints.echoCancellation);
-			console.log(supportedConstraints);
-			if(supportedConstraints.echoCancellation == true){
-				// <option value="none">no echo canel</option>          <option value="system">system echo canel</option>          <option value="browser">browser echo canel</option>
-				var echoSelector = document.getElementById("echocancelselector");
-				echoSelector.disabled = false;
-				var echoOption = document.createElement('option');
-				echoOption.setAttribute('value', 'none');
-				echoOption.innerHTML = 'no echo canel';
-				echoSelector.appendChild(echoOption);
-				echoOption = document.createElement('option');
-				echoOption.setAttribute('value', 'system');
-				echoOption.innerHTML = 'system echo canel';
-				echoSelector.appendChild(echoOption);
-				echoOption = document.createElement('option');
-				echoOption.setAttribute('value', 'browser');
-				echoOption.innerHTML = 'browser echo canel';
-				echoSelector.appendChild(echoOption);
-			} else {
-				var echoSelector = document.getElementById("echocancelselector");
-				echoSelector.disabled = true;
-			}
-			if(supportedConstraints.noiseSuppression == true){
-				//var noiseSuppressInput = document.getElementById("noisesuppressionchkbox");
-			} else {
-				var noiseSuppressInput = document.getElementById("noisesuppressionchkbox");
-				autoGainInput.checked = false;
-				autoGainInput.disabled = true;
-			}
-			if(supportedConstraints.autoGainControl == true){
-			} else {
-				var autoGainInput = document.getElementById("autogainchkbox");
-				noiseSuppressInput.checked = false;
-				noiseSuppressInput.disabled = true;
-			}
-			(async () => {   
-				for(var i = 0; i<devices.length; i++){
-					console.log("call add device :"+devices[i].kind + ": " + devices[i].label + " id = " + devices[i].deviceId);
-					await addDevice(devices[i]);
-				}
-				//option to not send audio
-				var id = "don't send audio";
-				var label = "don't send audio"; // label is available for https 
-				var option = document.createElement('option');
-				option.setAttribute('value', id);
-				option.innerHTML = label + '(' + id + ')';;
-				micList.appendChild(option);
-				
-				
-				//デバイス選択イベント
-				micList.addEventListener('change', micSelectEvent);
-				speakerList.addEventListener('change', mainSpeakerSelectEvent);
-				var echoCancelInput = document.getElementById("echocancelselector");
-				echoCancelInput.addEventListener('change', micSelectEvent);
-				var noiseSuppressInput = document.getElementById("noisesuppressionchkbox");
-				noiseSuppressInput.addEventListener('change', micSelectEvent);
-				var autoGainInput = document.getElementById("autogainchkbox");
-				autoGainInput.addEventListener('change', micSelectEvent);
-				
-				var micTestButton = document.getElementById("mic_test");
-				micTestButton.disabled = false;
-				var speakerTestButton = document.getElementById("speaker_test");
-				speakerTestButton.disabled = false;
-				getDeviceButton.disabled = false;
-				var stepButton = document.getElementById("step_button");
-				stepButton.disabled = false;
-			})();
-			
-		}).catch(function (err) {
-			console.error('enumerateDevide ERROR:', err);
-				
-			getDeviceButton.disabled = false;
-		});
-	})();
-	
-	//https://yizm.work/sample_code/javascript/sortablejs_howto/
-	var local_cameras_div = document.getElementById('local_cameras');
-	var local_cameras_sortable = Sortable.create(local_cameras_div);
-	
+// 一度だけ権限を取りに行く（label を出すため）
+async function ensureMicPermission() {
+  try {
+    const s = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+    s.getTracks().forEach(t => t.stop());
+  } catch (_) {
+    try {
+      const s = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+      s.getTracks().forEach(t => t.stop());
+    } catch (e2) {
+      alert("You need a microphone device: " + e2);
+      console.error(e2);
+    }
+  }
 }
+
+function populateEchoSelector(echoSelector, isSupported) {
+  echoSelector.replaceChildren(); // 重複防止
+  echoSelector.disabled = !isSupported;
+  if (!isSupported) return;
+  for (const [val, label] of [
+    ["none",    "no echo cancel"],
+    ["system",  "system echo cancel"],
+    ["browser", "browser echo cancel"],
+  ]) {
+    const opt = document.createElement("option");
+    opt.value = val;
+    opt.textContent = label;
+    echoSelector.appendChild(opt);
+  }
+}
+
+async function getDeviceList() {
+  const micList       = document.getElementById("mic_list");
+  const speakerList   = document.getElementById("speaker_list");
+  const getDeviceBtn  = document.getElementById("devices_button");
+  const echoSelector  = document.getElementById("echocancelselector");
+  const noiseChk      = document.getElementById("noisesuppressionchkbox");
+  const agcChk        = document.getElementById("autogainchkbox");
+  const micTestBtn    = document.getElementById("mic_test");
+  const speakerTestBtn= document.getElementById("speaker_test");
+  const stepBtn       = document.getElementById("step_button");
+  const localCamerasDiv = document.getElementById("local_cameras");
+
+  getDeviceBtn.disabled = true;
+  clearDeviceList();
+
+  try {
+    // 1) 権限（ラベル表示のため）
+    await ensureMicPermission();
+
+    // 2) デバイス列挙
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const sc = navigator.mediaDevices.getSupportedConstraints();
+    console.log("supported media constraints : echoCancellation =", !!sc.echoCancellation);
+		// console.log(sc);
+
+    // 3) 機能可否で UI を制御
+    populateEchoSelector(echoSelector, !!sc.echoCancellation);
+
+    if (sc.noiseSuppression) {
+      noiseChk.disabled = false;
+    } else {
+      noiseChk.checked = false;
+      noiseChk.disabled = true;
+    }
+
+    if (sc.autoGainControl) {
+      agcChk.disabled = false;
+    } else {
+      agcChk.checked = false;
+      agcChk.disabled = true;
+    }
+
+    // 4) デバイスを追加
+    for (const d of devices) {
+      console.log(`add device: ${d.kind}: ${d.label} id = ${d.deviceId}`);
+      // addDevice が async なら await
+      await addDevice(d);
+    }
+
+    // 5) 「音声を送らない」オプションを最後に（重複防止してから）
+    if (![...micList.options].some(o => o.value === "none")) {
+      const opt = document.createElement("option");
+      opt.value = "none";
+      opt.textContent = "Don't send audio (none)";
+      micList.appendChild(opt);
+    }
+
+    // 6) イベントは一度だけバインド
+    if (!getDeviceList._eventsBound) {
+      micList.addEventListener("change", micSelectEvent);
+      speakerList.addEventListener("change", mainSpeakerSelectEvent);
+      echoSelector.addEventListener("change", micSelectEvent);
+      noiseChk.addEventListener("change", micSelectEvent);
+      agcChk.addEventListener("change", micSelectEvent);
+      getDeviceList._eventsBound = true;
+    }
+
+    // 7) 並び替え（Sortable）は一度だけ作成
+    if (window.Sortable && !getDeviceList._sortableInit && localCamerasDiv) {
+      Sortable.create(localCamerasDiv);
+      getDeviceList._sortableInit = true;
+    }
+
+    // 8) ボタン有効化
+    micTestBtn.disabled     = false;
+    speakerTestBtn.disabled = false;
+    stepBtn.disabled        = false;
+
+  } catch (err) {
+    console.error("enumerateDevices ERROR:", err);
+  } finally {
+    // 失敗しても「取得」ボタンは戻す
+    getDeviceBtn.disabled = false;
+  }
+}
+// 多重対策フラグ
+getDeviceList._eventsBound = false;
+getDeviceList._sortableInit = false;
+
 
 function clearView() {
 	const local_cameras = document.getElementById("local_cameras");
@@ -235,8 +261,8 @@ async function startVideo(cameraID, video) {
 	//var audioId = getSelectedAudio();
 	var deviceId = cameraID;
 	console.log('selected video device id=' + deviceId);
-	
-	
+
+
 	//default camera はID指定するとうまくconstraintが反映されない
 	var constraints;
 	if(captureSize == "720"){
@@ -265,7 +291,7 @@ async function startVideo(cameraID, video) {
 			}
 		};
 	}
-	
+
 	console.log('mediaDevice.getMedia() constraints:', constraints);
 	await navigator.mediaDevices.getUserMedia(constraints).then(function (stream) {
 		logStream('selectedVideo', stream);
@@ -310,9 +336,9 @@ function micSelectEvent(event){
 	if(isReady){
 		var micId = getSelectedAudio();
 		console.log("selected mic id = "+micId);
-		getSelectedMicStream().then(() => { 
+		getSelectedMicStream().then(() => {
 			makeLocalStream();
-		}).then(() => { 
+		}).then(() => {
 			for(var[key, value] of remotePeerIDMediaConMap){
 				console.log("replace media stream of "+key);
 				value.replaceStream(localMixedStream);
@@ -324,7 +350,7 @@ function micSelectEvent(event){
 function localCameraSelectEvent(event){
 	console.log("local camera checkbox changed "+this.id);
 	if(isReady){
-		makeLocalStream(); 
+		makeLocalStream();
 		for(var[key, value] of remotePeerIDMediaConMap){
 			console.log("replace media stream of "+key);
 			value.replaceStream(localMixedStream);
@@ -353,14 +379,14 @@ function sharingScreenSelectEvent(selected){
 				//value.replaceStream(localMixedStream);
 			}
 		}
-		
+
 		/*
-		makeLocalStream(); 
+		makeLocalStream();
 		//replaceじゃなくてreconnectしないとトラック数変動できない
 		callAgainWithScreen();
 		*/
-		
-	}	
+
+	}
 }
 
 function finishTestMode(){
@@ -376,7 +402,7 @@ function finishTestMode(){
 		speakerTestAudio.currentTime = 0;
 	}
 	var micTestButton = document.getElementById("mic_test");
-	micTestButton.innerHTML = "<font size='3'>mic test(start recording)</font>";
+	micTestButton.innerHTML = "<font size='3'>mic test start</font>";
 	micTestButton.disabled = true;
 	var speakerTestButton = document.getElementById("speaker_test");
 	speakerTestButton.disabled = true;
@@ -388,21 +414,25 @@ function micTestRecord(event){
 		micTestAudio.pause();
 		micTestAudio.currentTime = 0;
 	}
+	if(micTestAudio == null){
+		micTestAudio = document.createElement('audio');
+	}
 	var micTestButton = document.getElementById("mic_test");
-	
-	if(micTestButton.innerHTML.indexOf('mic test(start recording)') >= 0){
+
+	if(micTestButton.innerHTML.indexOf('mic test start') >= 0){
 		console.log("start mic record test");
-		micTestButton.innerHTML = "<font size='3'>stop mic test and play back</font>";
+		micTestButton.innerHTML = "<font size='3'>mic test finish</font>";
 		var micSelector = micList;
 		var micId = micSelector.options[micSelector.selectedIndex].value;
 		console.log("selected mic id = "+micId);
-		
+
 		if(micId == "don't send audio"){
 			return;
 		}
 		var constraints = {
 			audio: {
-				deviceId: micId,
+				//deviceId: micId,
+				deviceId: micId === 'default' ? undefined : { exact: micId },
 				sampleRate: {ideal: 48000},
 				sampleSize: 16,
 				echoCancellation: false,
@@ -412,55 +442,101 @@ function micTestRecord(event){
 		};
 		console.log('mediaDevice.getMedia() constraints:', constraints);
 		navigator.mediaDevices.getUserMedia(constraints).then(function (stream) {
-			
-			micTestMediaRecorder = new MediaRecorder(stream, {
-				mimeType: 'video/webm;codecs=vp9'
-			});
+			const track = stream.getAudioTracks()[0];
+  		const settings = track.getSettings();
+			//console.log("実際に使われた deviceId:", settings.deviceId);
+			//console.log("その他の設定:", settings);
+			mic_test_stream = stream;
+			micTestAudio.srcObject = mic_test_stream;
+			micTestAudio.muted = true; // 既定はミュート（ハウリング防止）
 
-			//音を拾い続けるための配列。chunkは塊という意味
-			var chunks = [];
+      ac = new (window.AudioContext || window.webkitAudioContext)();
+      srcNode = ac.createMediaStreamSource(mic_test_stream);
+      analyser = ac.createAnalyser();
+      analyser.fftSize = 2048;
+      srcNode.connect(analyser);
 
-			//集音のイベントを登録する
-			micTestMediaRecorder.addEventListener('dataavailable', function(ele) {
-				if (ele.data.size > 0) {
-					chunks.push(ele.data);
-				}
-			});
-
-			// recorder.stopが実行された時のイベント
-			micTestMediaRecorder.addEventListener('stop', function() {
-				console.log("stop record event");
-				var url = URL.createObjectURL(new Blob(chunks));
-				if(isReady == false){
-					micTestAudio = document.createElement('audio');
-					micTestAudio.src = url;
-					micTestAudio.load();
-					var speakerId = getSelectedSpeaker();
-					micTestAudio.setSinkId(speakerId)
-						.then(function() {
-						console.log('setSinkID Success, audio is being played on '+speakerId +' for mic test');
-					})
-					.catch(function(err) {
-						console.error('setSinkId Err:', err);
-					});
-					micTestAudio.play();
-				}
-				stream.getTracks().forEach(track => track.stop());
-				micTestMediaRecorder = null;
-			});
-
-			micTestMediaRecorder.start();
+			drawLoop();
+			micTestButton.innerHTML = "<font size='3'>mic test stop</font>";
 			console.log("start mic test recording");
 		}).catch(function (err) {
-			console.error('getUserMedia Err:', err);
+				console.error('getUserMedia Err:', err);
+				stopTest(true);
 		});
 	} else {
 		console.log("stop mic record test");
-		micTestButton.innerHTML = "<font size='3'>mic test(start recording)</font>";
-		if(micTestMediaRecorder != null){
-			micTestMediaRecorder.stop();
-		}
+		//micTestButton.innerHTML = "<font size='3'>mic test start</font>";
+		stopTest(true);
 	}
+}
+
+function stopTest(silent = false) {
+	if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+	if (srcNode) try { srcNode.disconnect(); } catch {}
+	srcNode = null;
+	analyser = null;
+
+	if (ac) { try { ac.close(); } catch {} ac = null; }
+	if (mic_test_stream) {
+		mic_test_stream.getTracks().forEach(t => t.stop());
+		mic_test_stream = null;
+	}
+	var micTestButton = document.getElementById("mic_test");
+	micTestButton.innerHTML = "<font size='3'>mic test start</font>";
+	if (!silent) log('停止しました。');
+}
+
+function drawLoop() {
+	if (!analyser) return;
+
+	if(bar == null)
+		bar = document.getElementById('mic_bar');
+	if(pct == null)
+		pct = document.getElementById('mic_pct');
+	if(dbEl == null)
+		dbEl = document.getElementById('mic_db');
+	if(clipDot == null)
+		clipDot = document.getElementById('mic_clip');
+
+	const N = analyser.fftSize;
+	const buf = new Float32Array(N);
+	analyser.getFloatTimeDomainData(buf);
+
+	// RMS / Peak 計算
+	let sumSq = 0, peak = 0, clipped = false;
+	for (let i = 0; i < N; i++) {
+		const s = buf[i];
+		sumSq += s * s;
+		const a = Math.abs(s);
+		if (a > peak) peak = a;
+		if (a >= 0.98) clipped = true;
+	}
+	const rms = Math.sqrt(sumSq / N); // 0..1
+	const dbfs = 20 * Math.log10(rms || 1e-12); // -∞..0
+	const pctVal = clamp(Math.round(rms * 100), 0, 100);
+
+	// メーター表示
+	bar.style.width = pctVal + '%';
+	pct.textContent = `${pctVal}%`;
+	dbEl.textContent = isFinite(dbfs) ? `${dbfs.toFixed(1)} dBFS` : '-∞ dBFS';
+	if (clipped) lastClipTime = performance.now();
+	clipDot.classList.toggle('on', performance.now() - lastClipTime < CLIP_HOLD_MS);
+
+/*
+	// オシロ（タイムドメイン）
+	ctx2d.clearRect(0,0,scope.width, scope.height);
+	ctx2d.strokeStyle = '#666';
+	ctx2d.lineWidth = 1;
+	ctx2d.beginPath();
+	const mid = scope.height / 2;
+	for (let x = 0; x < scope.width; x++) {
+		const i = Math.floor(x / scope.width * N);
+		const y = mid - buf[i] * (scope.height * 0.45);
+		if (x === 0) ctx2d.moveTo(x, y); else ctx2d.lineTo(x, y);
+	}
+	ctx2d.stroke();
+*/
+	rafId = requestAnimationFrame(drawLoop);
 }
 
 function speakerTest(event){
@@ -474,7 +550,7 @@ function speakerTest(event){
 		speakerTestAudio.src = ".\\resources\\そらみち電話のスピーカーのテストです.wav";
 		speakerTestAudio.load();
 	}
-	
+
 	speakerTestAudio.setSinkId(speakerId)
 		.then(function() {
 		console.log('setSinkID Success, audio is being played on '+speakerId +' at speaker test');
@@ -507,10 +583,10 @@ var onAudioProcess = function(e) {
 	var size = (140 + volume/1000); // 1000は適当(小さくすると円が大きくなる)
 	var adj = (128-size)/2 - 4; // 4はborderの大きさ
 	console.log(volume);
-	
+
 }
 
-   
+
 function mainSpeakerSelectEvent(event){
 	var mainSpeakerSelector = this;
 	var mainSpeakerId = mainSpeakerSelector.options[mainSpeakerSelector.selectedIndex].value;
@@ -571,7 +647,7 @@ async function getSelectedMicStream(){
 		//localMicStream = null;
 		return;
 	}
-	
+
 	var echocancel = false;
 	var noiseSuppressionOnoff = document.getElementById("noisesuppressionchkbox").checked;
 	var autogainOnoff = document.getElementById("autogainchkbox").checked;
@@ -582,7 +658,8 @@ async function getSelectedMicStream(){
 	if(echocanelValue == "none"){
 		constraints = {
 			audio: {
-				deviceId: audioId,
+				//deviceId: audioId,
+				deviceId: audioId === 'default' ? undefined : { exact: audioId },
 				sampleRate: {ideal: 48000},
 				sampleSize: 16,
 				autoGainControl: autogainOnoff,
@@ -592,11 +669,12 @@ async function getSelectedMicStream(){
 			}
 		};
 	} else if(echocanelValue == "system"){
-		echocancel = true; 
+		echocancel = true;
 		echocancelType = "system";
 		constraints = {
 			audio: {
-				deviceId: audioId,
+				//deviceId: audioId,
+				deviceId: audioId === 'default' ? undefined : { exact: audioId },
 				sampleRate: {ideal: 48000},
 				sampleSize: 16,
 				autoGainControl: autogainOnoff,
@@ -607,11 +685,12 @@ async function getSelectedMicStream(){
 			}
 		};
 	}  else if(echocanelValue == "browser"){
-		echocancel = true; 
+		echocancel = true;
 		echocancelType = "browser";
 		constraints = {
 			audio: {
-				deviceId: audioId,
+				//deviceId: audioId,
+				deviceId: audioId === 'default' ? undefined : { exact: audioId },
 				sampleRate: {ideal: 48000},
 				sampleSize: 16,
 				autoGainControl: autogainOnoff,
@@ -647,21 +726,21 @@ async function getSelectedMicStream(){
 		//delay.connect(destination);
 		gain.connect(destination);
 		localMicStream = destination.stream;
-		
+
 		document.getElementById("micdelayinput").addEventListener('input', function( event ) {
 			delay.delayTime.value = document.getElementById("micdelayinput").value;
 			console.log("set mic delay = "+document.getElementById("micdelayinput").value +" sec");
 		} ) ;
-		
+
 		if(!document.getElementById("mutecheckbox").checked){
-			gain.gain.value=0; 
+			gain.gain.value=0;
 		}
 		document.getElementById("mutecheckbox").addEventListener('change', function( event ) {
 			console.log("set mic mute = "+!document.getElementById("mutecheckbox").checked);
 			if(document.getElementById("mutecheckbox").checked){
-				gain.gain.value=micGain; 			
+				gain.gain.value=micGain;
 			} else {
-				gain.gain.value=0; 
+				gain.gain.value=0;
 			}
 		} ) ;
 		document.getElementById("micvolumeslider").addEventListener('input', function( event ) {
@@ -697,7 +776,7 @@ function finishTestMode(){
 	micTestButton.disabled = true;
 	var speakerTestButton = document.getElementById("speaker_test");
 	speakerTestButton.disabled = true;
-	
+
 }
 
 function standbyDevice(){
@@ -706,7 +785,7 @@ function standbyDevice(){
 	while (navVideoContainer.lastChild) {
 		navVideoContainer.removeChild(navVideoContainer.lastChild);
 	}
-	
+
 	//使うカメラだけ残してあとは削除
 	var useCameras = new Array();
 	for (var i = 0; i < elements.length; i++) {
@@ -724,12 +803,12 @@ function standbyDevice(){
 	}
 	for(var i = 0; i< useCameras.length; i++){
 		var videoContainer = document.getElementById(useCameras[i]);
-		
+
 		//相手に送るか，ROSに送るかチェックボックスを追加
 		var videoid = videoContainer.getAttribute("videoid");
 		var checkBoxLabelObj = document.getElementById("local_camera_label_" + videoid);
 		checkBoxLabelObj.innerHTML = "send to users&nbsp;";
-		
+
 		var sendRosInput = document.getElementById("streaming2local");
 		if(sendRosInput.checked){
 			var checkBoxLabelObj = document.createElement('label');
@@ -747,10 +826,10 @@ function standbyDevice(){
 			videoContainer.appendChild(checkBoxObj);
 			videoContainer.appendChild(checkBoxLabelObj);
 		}
-		
+
 		navVideoContainer.appendChild(videoContainer);//これするとelements要素が変わっちゃうっぽい
 	}
-	
+
 	/*
 	for (var i = 0; i < elements.length; i++) {
 		if(!elements[i].checked){
@@ -770,20 +849,20 @@ function standbyDevice(){
 	while (local_cameras != null && local_cameras.lastChild) {
 		local_cameras.removeChild(local_cameras.lastChild);
 	}
-	
+
 	//マイク・スピーカーセッティングを移動
 	var micsettingElement = document.getElementById("micsetting");
 	var micsettingOnNavElement = document.getElementById("micsetting_onnav");
 	micsettingOnNavElement.appendChild(micsettingElement);
-	
+
 	var speakersettingElement = document.getElementById("speakersetting");
 	var speakersettingOnNavElement = document.getElementById("speakersetting_onnav");
 	speakersettingOnNavElement.appendChild(speakersettingElement);
-	
+
 	//getSelectedMicStream();
-	getSelectedMicStream().then(() => { 
+	getSelectedMicStream().then(() => {
 		var elements = document.getElementsByName('local_camera_video');
-			
+
 		//取得した一覧から全てのvalue値を表示する
 		for (var i = 0; i < elements.length; i++) {
 			//elements[i].setAttribute('width', String(width)+'px');
@@ -799,7 +878,7 @@ function standbyDevice(){
 			} else {
 				console.log('local mic stream is null');
 			}
-			
+
 			/*
 			//check boxとcamera labelを削除
 			var removeItem = document.getElementById('local_camera_checkBox_'+elements[i].getAttribute('videoid'));
@@ -813,5 +892,5 @@ function standbyDevice(){
 			*/
 		}
 	});
-	
+
 }
