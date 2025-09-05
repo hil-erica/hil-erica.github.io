@@ -1,3 +1,9 @@
+//localStorage label
+const USE_CAMERA = "useCameraList"
+const USE_MIC = "useMic"
+const USE_SPEAKER = "useSpeaker"
+
+
 var default_width = 1280;
 var defualt_heigt = 720;
 var numView = 0;
@@ -29,6 +35,7 @@ async function addCamera(deviceID, deviceLabel) {
 	content.setAttribute('name', 'local_camera_view');
 	content.setAttribute('class', 'item_large');
 	content.setAttribute('videoid', deviceID);
+	content.setAttribute('deviceLabel', deviceLabel);
 	//content.setAttribute('style', 'padding: 10px; margin-bottom: 10px; border: 1px solid #333333;');
 	var screenObj;
 	screenObj = document.createElement('video');
@@ -38,6 +45,8 @@ async function addCamera(deviceID, deviceLabel) {
 	screenObj.setAttribute('class', "localvideo");
 	screenObj.setAttribute('autoplay', '1');
 	screenObj.setAttribute('trackid', numView-1);
+	screenObj.setAttribute('deviceLabel', deviceLabel);
+
 	//controlsを入れるとダブルクリックで最大化したりPictureInPicureモードとかできる
 	//screenObj.setAttribute('controls', '1');
 	//screenObj.setAttribute('style', 'border: 1px solid;');
@@ -86,6 +95,7 @@ async function addDevice(device) {
 		var label = device.label || 'microphone'; // label is available for https
 		var option = document.createElement('option');
 		option.setAttribute('value', id);
+		option.setAttribute('label', label);
 		option.innerHTML = label + '(' + id + ')';;
 		micList.appendChild(option);
 	} else if (device.kind === 'videoinput') {
@@ -103,6 +113,7 @@ async function addDevice(device) {
 		var label = device.label || 'speaker'; // label is available for https
 		var option = document.createElement('option');
 		option.setAttribute('value', id);
+		option.setAttribute('label', label);
 		option.innerHTML = label + '(' + id + ')';
 		speakerList.appendChild(option);
 	} else {
@@ -198,6 +209,83 @@ async function getDeviceList() {
       opt.textContent = "Don't send audio (none)";
       micList.appendChild(opt);
     }
+
+		// ソート
+		// 保存済みの順序リストを取得
+		var useCameraList = JSON.parse(localStorage.getItem(USE_CAMERA) || "[]");
+		console.log(useCameraList);
+		// local_cameras の子要素を配列として取得
+		const local_cameras = document.getElementById("local_cameras");
+		const children = Array.from(local_cameras.children);
+
+		// useCameraList が空ならチェックだけ全部 true
+		if (useCameraList.length === 0) {
+		    children.forEach(child => {
+		        const videoid = child.getAttribute("videoid");
+		        const checkBox = document.getElementById("local_camera_checkBox_" + videoid);
+		        if (checkBox) checkBox.checked = true;
+		    });
+		} else {
+		    // 並び替え
+		    children.sort((a, b) => {
+		        const aLabel = a.getAttribute("deviceLabel");
+		        const bLabel = b.getAttribute("deviceLabel");
+
+		        const aIndex = useCameraList.findIndex(item => item.label === aLabel);
+		        const bIndex = useCameraList.findIndex(item => item.label === bLabel);
+
+		        // 見つからなければ末尾扱い
+		        return (aIndex === -1 ? Number.MAX_SAFE_INTEGER : aIndex) -
+		               (bIndex === -1 ? Number.MAX_SAFE_INTEGER : bIndex);
+		    });
+
+		    // 並べ替え＋チェックボックスの更新
+		    children.forEach(child => {
+		        const deviceLabel = child.getAttribute("deviceLabel");
+		        const videoid = child.getAttribute("videoid");
+
+		        const found = useCameraList.find(item => item.label === deviceLabel);
+
+		        const checkBox = document.getElementById("local_camera_checkBox_" + videoid);
+		        if (checkBox) {
+		            checkBox.checked = !!found; // あれば true, なければ false
+		        }
+
+		        // appendChild で再配置（中身は消えない）
+		        local_cameras.appendChild(child);
+		    });
+		}
+		
+		var useMicLabel = (localStorage.getItem(USE_MIC) || "");
+		if (useMicLabel !== "") {
+		    // option一覧を配列化
+		    var options = Array.from(micList.options);
+
+		    // 一致するものを探す
+		    var targetIndex = options.findIndex(opt => opt.getAttribute("label") === useMicLabel);
+
+		    if (targetIndex !== -1) {
+		        micList.selectedIndex = targetIndex;
+		    } else {
+		        // 見つからなければ先頭を選択するなどフォールバック
+		        micList.selectedIndex = 0;
+		    }
+		}
+		var useSpeakerLabel = (localStorage.getItem(USE_SPEAKER) || "");
+		if (useSpeakerLabel !== "") {
+				// option一覧を配列化
+				var options = Array.from(micList.options);
+
+				// 一致するものを探す
+				var targetIndex = options.findIndex(opt => opt.getAttribute("label") === useSpeakerLabel);
+
+				if (targetIndex !== -1) {
+						speakerList.selectedIndex = targetIndex;
+				} else {
+						// 見つからなければ先頭を選択するなどフォールバック
+						speakerList.selectedIndex = 0;
+				}
+		}
 
     // 6) イベントは一度だけバインド
     if (!getDeviceList._eventsBound) {
@@ -627,11 +715,21 @@ function getSelectedAudio() {
 	return id;
 }
 
+function getSelectedAudioLabel() {
+	var micList = document.getElementById("mic_list");
+	return micList.options[micList.selectedIndex].label;
+}
+
 function getSelectedSpeaker() {
 	var speakerList = document.getElementById("speaker_list");
 	var id = speakerList.options[speakerList.selectedIndex].value;
 	console.log('selected speaker '+speakerList.selectedIndex+' '+id);
 	return id;
+}
+
+function getSelectedSpeakerLabel() {
+	var speakerList = document.getElementById("speaker_list");
+	return speakerList.options[speakerList.selectedIndex].label;;
 }
 
 var micGain = 1;
@@ -764,6 +862,7 @@ function standbyDevice(){
 
 	//使うカメラだけ残してあとは削除
 	var useCameras = new Array();
+	var useCameraList = [];//localStorage
 	for (var i = 0; i < elements.length; i++) {
 		if(!elements[i].checked){
 			var srcVideo = document.getElementById("local_camera_video_"+elements[i].getAttribute("videoid"));
@@ -785,6 +884,13 @@ function standbyDevice(){
 		var checkBoxLabelObj = document.getElementById("local_camera_label_" + videoid);
 		checkBoxLabelObj.innerHTML = "send to users&nbsp;";
 
+		// 配列に追加
+    useCameraList.push({
+        index: i,
+				label: videoContainer.getAttribute("deviceLabel"),
+        videoid: videoid
+    });
+
 		var sendRosInput = document.getElementById("streaming2local");
 		if(sendRosInput.checked){
 			var checkBoxLabelObj = document.createElement('label');
@@ -803,24 +909,19 @@ function standbyDevice(){
 			videoContainer.appendChild(checkBoxLabelObj);
 		}
 
+		// localStorage に保存（名前とインデックスをペアで保存）
+    localStorage.setItem("camera_" + i, JSON.stringify({
+        index: i,
+        name: useCameras[i]
+    }));
+
 		navVideoContainer.appendChild(videoContainer);//これするとelements要素が変わっちゃうっぽい
 	}
 
-	/*
-	for (var i = 0; i < elements.length; i++) {
-		if(!elements[i].checked){
-			var srcVideo = document.getElementById("local_camera_video_"+elements[i].getAttribute("videoid"));
-			if(srcVideo.srcObject != null){
-				console.log("close camera : "+elements[i].getAttribute("videoid")+", "+elements[i].id);
-				srcVideo.srcObject.getTracks().forEach(track => track.stop());
-			}
-		} else {
-			var videoContainer = document.getElementById("local_camera_view_"+elements[i].getAttribute("videoid"));
-			console.log("append camera : "+elements[i].getAttribute("videoid")+", "+elements[i].id);
-			navVideoContainer.appendChild(videoContainer);//これするとelements要素が変わっちゃうっぽい
-		}
-	}
-	*/
+	// 最後にまとめて localStorage に保存
+	localStorage.setItem(USE_CAMERA, JSON.stringify(useCameraList));
+	//console.log(JSON.stringify(useCameraList));
+
 	var local_cameras = document.getElementById("local_cameras");
 	while (local_cameras != null && local_cameras.lastChild) {
 		local_cameras.removeChild(local_cameras.lastChild);
@@ -868,5 +969,9 @@ function standbyDevice(){
 			*/
 		}
 	});
+
+	//mic speakerを保存
+	localStorage.setItem(USE_MIC, getSelectedAudioLabel());
+	localStorage.setItem(USE_SPEAKER, getSelectedSpeakerLabel());
 
 }
