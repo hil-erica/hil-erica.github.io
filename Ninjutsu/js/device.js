@@ -223,7 +223,10 @@ async function getDeviceList() {
 		    children.forEach(child => {
 		        const videoid = child.getAttribute("videoid");
 		        const checkBox = document.getElementById("local_camera_checkBox_" + videoid);
-		        if (checkBox) checkBox.checked = true;
+						if (checkBox) {
+							//何もしない
+							//checkBox.checked = true;
+						}
 		    });
 		} else {
 		    // 並び替え
@@ -248,14 +251,17 @@ async function getDeviceList() {
 
 		        const checkBox = document.getElementById("local_camera_checkBox_" + videoid);
 		        if (checkBox) {
-		            checkBox.checked = !!found; // あれば true, なければ false
+								if(checkBox.checked){
+									//ちゃんと開けたデバイスのみtrueになっているはず
+									checkBox.checked = !!found; // あれば true, なければ false
+								}
 		        }
 
 		        // appendChild で再配置（中身は消えない）
 		        local_cameras.appendChild(child);
 		    });
 		}
-		
+
 		var useMicLabel = (localStorage.getItem(USE_MIC) || "");
 		if (useMicLabel !== "") {
 		    // option一覧を配列化
@@ -391,6 +397,7 @@ async function startVideo(cameraID, video) {
 		var checkBoxObj = document.getElementById('local_camera_checkBox_' + cameraID);
 		if(checkBoxObj != null){
 			checkBoxObj.checked = false;
+			checkBoxObj.disabled = true;
 		}
 	});
 }
