@@ -1,0 +1,167 @@
+.container {
+ position: relative;
+ width:100%;
+ margin-left: auto;
+ margin-right: auto;
+ display: flex;
+ flex-direction: column;
+ margin-top: 10px;
+ margin-bottom: 10px;
+}
+
+body {
+ background-color: transparent;
+ color: #000000;
+ display: flex;
+ justify-content: center;
+ height: 100vh;
+}
+
+
+/*https://codepen.io/sajadhsm/pen/odaBdd*/
+:root {
+  --body-bg: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  --msger-bg: #fff;
+  --border: 2px solid #ddd;
+  --left-msg-bg: #ececec;
+  --right-msg-bg: #579ffb;
+}
+
+html {
+  box-sizing: border-box;
+}
+
+*,
+*:before,
+*:after {
+  margin: 0;
+  padding: 0;
+  box-sizing: inherit;
+}
+
+.box-text-controllers {
+  position: relative;
+  border: 3px solid SkyBlue;
+  border-radius: 5px;
+  margin: 20px 0;
+  padding: 20px 20px 5px 20px;
+  width: 90%;
+}
+
+.box-text-controllers::before {
+  content: "controllers";
+  position: absolute;
+  background-color: SkyBlue;
+  color: White;
+  font-weight: bold;
+  left: 20px;
+  top: -20px;
+  padding: 5px;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+  border-bottom-left-radius: 10px;
+}
+
+.box-text-state {
+  position: relative;
+  border: 3px solid SkyBlue;
+  border-radius: 5px;
+  margin: 20px 0;
+  padding: 20px 20px 5px 20px;
+  /*width: 90%;*/
+  width: 250px;
+  height: 100px;
+}
+
+.box-text-state::before {
+  content: "state";
+  position: absolute;
+  background-color: SkyBlue;
+  color: White;
+  font-weight: bold;
+  left: 20px;
+  top: -20px;
+  padding: 5px;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+  border-bottom-left-radius: 10px;
+}
+
+.box-text-gestures {
+  position: relative;
+  border: 3px solid SkyBlue;
+  border-radius: 5px;
+  margin: 20px 0;
+  padding: 20px 20px 5px 20px;
+  width: 90%;
+}
+
+.box-text-gestures::before {
+  content: "gestures";
+  position: absolute;
+  background-color: SkyBlue;
+  color: White;
+  font-weight: bold;
+  left: 20px;
+  top: -20px;
+  padding: 5px;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+  border-bottom-left-radius: 10px;
+}
+
+.box-text-optionalcommands {
+  position: relative;
+  border: 3px solid SkyBlue;
+  border-radius: 5px;
+  margin: 20px 0;
+  padding: 20px 20px 5px 20px;
+}
+
+.box-text-optionalcommands::before {
+  content: "optional commands";
+  position: absolute;
+  background-color: SkyBlue;
+  color: White;
+  font-weight: bold;
+  left: 20px;
+  top: -20px;
+  padding: 5px;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+  border-bottom-left-radius: 10px;
+}
+
+.optionalcommandbutton {
+  /*薄葡萄うすぶどう*/
+  background: rgba(231, 231, 235, 0.703);  
+  /*width: calc( 100% - 2rem );*/
+}
+
+.attractivenessbar {
+  position: absolute;
+  top: 22px;
+  left: 5px;
+  width: 50%;
+  height: 65px;
+}
+
+.emotioncanvas {
+  position: absolute;
+  top: 22px;
+  left: calc( 5px + 50% + 5px);
+  width: calc( 100% - ( 5px + 50% ) - 8px);;
+  height: 65px;
+}
+
+.emotionlabel {
+  position: absolute;
+  top: 5px;
+  left: calc( 5px + 50% + 10px);
+  width: 30px;
+  height: 20px;
+}

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+
+<html lang="ja">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<!--Boostrap https://getbootstrap.jp/docs/5.0/getting-started/download/-->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+
+<link rel="stylesheet" href="./css/selectbehavior.css">
+
+<style>
+html, body {
+  font-family: "keifont";
+}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+	<div id="behaviorbuttons">
+	</div>
+</div>
+
+<!--http://weboook.blog22.fc2.com/blog-entry-383.html-->
+<ul id="dropmenu">
+	<li><a href="#">メニュー1</a>
+	  <ul>
+		<li><a href="#">サブメニュー</a>
+		  <ul>
+			<li><a href="#">サブサブメニュー</a></li>
+			<li><a href="#">サブサブメニュー</a>
+			  <ul>
+				<li><a href="#">サブサブサブメニュー</a></li>
+				<li><a href="#">サブサブサブメニュー</a></li>
+				<li><a href="#">サブサブサブメニュー</a></li>
+				<li><a href="#">サブサブサブメニュー</a></li>
+			  </ul>
+			</li>
+			<li><a href="#">サブサブメニュー</a></li>
+			<li><a href="#">サブサブメニュー</a></li>
+		  </ul>
+		</li>
+		<li><a href="#">サブメニュー</a>
+		  <ul>
+			<li><a href="#">サブサブメニュー</a></li>
+			<li><a href="#">サブサブメニュー</a></li>
+			<li><a href="#">サブサブメニュー</a></li>
+			<li><a href="#">サブサブメニュー</a></li>
+		  </ul>
+		</li>
+		<li><a href="#">サブメニュー</a>
+		   <ul>
+			<li><a href="#">サブサブメニュー</a></li>
+			<li><a href="#">サブサブメニュー</a></li>
+			<li><a href="#">サブサブメニュー</a>
+			  <ul>
+				<li><a href="#">サブサブサブメニュー</a></li>
+				<li><a href="#">サブサブサブメニュー</a></li>
+				<li><a href="#">サブサブサブメニュー</a></li>
+				<li><a href="#">サブサブサブメニュー</a></li>
+			  </ul>
+			</li>
+			<li><a href="#">サブサブメニュー</a></li>
+		  </ul>
+		</li>
+		<li><a href="#">サブメニュー</a>
+		  <ul>
+			<li><a href="#">サブサブメニュー</a></li>
+			<li><a href="#">サブサブメニュー</a></li>
+			<li><a href="#">サブサブメニュー</a></li>
+			<li><a href="#">サブサブメニュー</a></li>
+		  </ul>
+		</li>
+	  </ul>
+	</li>
+	<li><a href="#">メニュー2</a>
+	  <ul>
+		<li><a href="#">サブメニュー</a></li>
+		<li><a href="#">サブメニュー</a></li>
+		<li><a href="#">サブメニュー</a></li>
+		<li><a href="#">サブメニュー</a></li>
+	  </ul>
+	</li>
+	<li><a href="#">メニュー3</a>
+	  <ul>
+		<li><a href="#">サブメニュー</a></li>
+		<li><a href="#">サブメニュー</a>
+		  <ul>
+			<li><a href="#">サブサブメニュー</a></li>
+			<li><a href="#">サブサブメニュー</a></li>
+			<li><a href="#">サブサブメニュー</a></li>
+			<li><a href="#">サブサブメニュー</a></li>
+		  </ul>
+		</li>
+		<li><a href="#">サブメニュー</a></li>
+	  </ul>
+	</li>
+	<li><a href="#">メニュー4</a>
+	  <ul>
+		<li><a href="#">サブメニュー</a></li>
+		<li><a href="#">サブメニュー</a>
+		  <ul>
+			<li><a href="#">サブサブメニュー</a></li>
+			<li><a href="#">サブサブメニュー</a></li>
+			<li><a href="#">サブサブメニュー</a></li>
+			<li><a href="#">サブサブメニュー</a></li>
+		  </ul>
+		</li>
+		<li><a href="#">サブメニュー</a></li>
+	  </ul>
+	</li>
+	<li><a href="#">メニュー5</a>
+	  <ul>
+		<li><a href="#">サブメニュー</a>
+		  <ul>
+			<li><a href="#">サブサブメニュー</a></li>
+			<li><a href="#">サブサブメニュー</a></li>
+			<li><a href="#">サブサブメニュー</a></li>
+			<li><a href="#">サブサブメニュー</a></li>
+			<li><a href="#">サブサブメニュー</a></li>
+		  </ul>
+		</li>
+		<li><a href="#">サブメニュー</a></li>
+		<li><a href="#">サブメニュー</a>
+		  <ul>
+			<li><a href="#">サブサブメニュー</a></li>
+			<li><a href="#">サブサブメニュー</a></li>
+			<li><a href="#">サブサブメニュー</a>
+			  <ul>
+				<li><a href="#">サブサブサブメニュー</a></li>
+				<li><a href="#">サブサブサブメニュー</a></li>
+				<li><a href="#">サブサブサブメニュー</a></li>
+				<li><a href="#">サブサブサブメニュー</a></li>
+			  </ul>
+			</li>
+			<li><a href="#">サブサブメニュー</a></li>
+		  </ul>
+		</li>
+	  </ul>
+	</li>
+  </ul>
+
+</body>
+</html>

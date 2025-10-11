@@ -1,0 +1,180 @@
+.box-text-user {
+  position: relative;
+  border: 3px solid SkyBlue;
+  border-radius: 5px;
+  margin: 20px 0;
+  padding: 20px 20px 5px 20px;
+}
+
+.box-text-user::before {
+  content: "user setting";
+  position: absolute;
+  background-color: SkyBlue;
+  color: White;
+  font-weight: bold;
+  left: 20px;
+  top: -20px;
+  padding: 5px;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+  border-bottom-left-radius: 10px;
+}
+
+.box-text-mic {
+  position: relative;
+  border: 3px solid SkyBlue;
+  border-radius: 5px;
+  margin: 20px 0;
+  padding: 20px 20px 5px 20px;
+}
+
+.box-text-mic::before {
+  content: "microphone";
+  position: absolute;
+  background-color: SkyBlue;
+  color: White;
+  font-weight: bold;
+  left: 20px;
+  top: -20px;
+  padding: 5px;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+  border-bottom-left-radius: 10px;
+}
+
+.box-text-speaker {
+  position: relative;
+  border: 3px solid SkyBlue;
+  border-radius: 5px;
+  margin: 20px 0;
+  padding: 20px 20px 5px 20px;
+}
+
+.box-text-speaker::before {
+  content: "speaker";
+  position: absolute;
+  background-color: SkyBlue;
+  color: White;
+  font-weight: bold;
+  left: 20px;
+  top: -20px;
+  padding: 5px;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+  border-bottom-left-radius: 10px;
+}
+
+.box-text-camera {
+  position: relative;
+  border: 3px solid SkyBlue;
+  border-radius: 5px;
+  margin: 20px 0;
+  padding: 20px 20px 5px 20px;
+}
+
+.box-text-camera::before {
+  content: "camera";
+  position: absolute;
+  background-color: SkyBlue;
+  color: White;
+  font-weight: bold;
+  left: 20px;
+  top: -20px;
+  padding: 5px;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+  border-bottom-left-radius: 10px;
+}
+
+.horizontal-list {
+  overflow-x: auto;
+  white-space: nowrap;
+  -webkit-overflow-scrolling: touch;
+}
+
+.localvideo {
+  /* 16 : 9 */
+  width: 320px;
+  height: 180px;
+
+}
+
+.item_large {
+  /* 横スクロール用 */
+  display: inline-block;
+  /* 16 : 9 */
+  width: 320px;
+  height: 191px;
+  margin: 5px;
+  font-size: 10px;
+  /*background: rgba(255, 0, 0, 0.4);*/
+}
+
+.item_small {
+  /* 横スクロール用 */
+  display: inline-block;
+    /* 16 : 9 */
+  width: 180px;
+  height: 101px;
+  margin: 5px;
+  font-size: 10px;
+  /*background: rgba(255, 0, 0, 0.4);*/
+  /*overflow-y: auto; */
+}
+
+.item_small_overflow {
+  /* 横スクロール用 */
+  display: inline-block;
+  margin: 5px;
+  font-size: 10px;
+  /*background: rgba(255, 0, 0, 0.4);*/
+  overflow-y: auto;
+}
+
+/* micテスト用 */
+/* レベルメーターのボックス全体 */
+#mic_levelBox {
+  display: flex;
+  align-items: center;
+  gap: 8px;               /* 要素間の余白 */
+  white-space: nowrap;    /* 折り返さず横並び */
+}
+
+/* メーター背景 */
+#mic_meter {
+  width: 200px;           /* Bootstrapのカラム内に収まるよう少し短め */
+  height: 14px;
+  background: #ddd;
+  border-radius: 7px;
+  overflow: hidden;
+}
+
+/* メーターの進捗（JSで width 更新） */
+#mic_bar {
+  width: 0%;
+  height: 100%;
+  background: #4caf50;
+  transition: width 40ms linear;
+}
+
+/* クリップインジケータ */
+#mic_clip {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #888;
+}
+#mic_clip.on {
+  background: #e53935;
+  box-shadow: 0 0 6px #e53935;
+}
+
+/* 数値表示 */
+#mic_pct, #mic_db {
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+}

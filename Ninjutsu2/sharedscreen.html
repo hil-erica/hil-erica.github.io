@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+
+<html lang="ja">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>影分身 共有画面</title>
+<link rel="shortcut icon" href="./pics/ninja.ico" type="image/vnd.microsoft.icon">
+
+<!--Boostrap https://getbootstrap.jp/docs/5.0/getting-started/download/-->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+
+<link rel="stylesheet" href="./css/video.css">
+<link rel="stylesheet" href="./css/ui.css">
+<script src="./js/sharescreen.js"></script>
+
+<style>
+html, body {
+  font-family: "keifont";
+}
+</style>
+
+</head>
+<body>
+
+<div class="backgroundimgcontainer">
+	<div id="main" class="maincontainers">
+		<div id="sharedscreen" name="sharedscreen_container" class="maincontainer">
+			<div class="controller">
+				<select size="1" style="width:75pt;" id="sharedscreen_speaker_selector">
+				</select>
+			</div>
+			<div class="videocontainer">
+				<video class="video" id="sharedscreen_video" controls="1" autoplay="1" playsinline="" loop></video>
+				<!--<label  id="sharedscreen_video_label" for="sharedscreen_video" class="videolabel">shared screen</label>-->
+			</div>
+		</div>
+	</div>
+	
+	<div id="sub" class="subcontainers">
+	</div>
+</div>
+
+</body></html>
+</html>

@@ -1,0 +1,156 @@
+.maincontainers {
+ margin-left: auto;
+ margin-right: auto;
+ display: flex;
+ flex-wrap: wrap;
+ /*flex-direction: column;*/
+ width: 100%;
+ height: 100%;
+ }
+
+.maincontainer {
+ position: relative;
+ /*width: calc(100% - 40px);*/
+ width: 600px;
+ height: 100%;
+ margin-left: auto;
+ margin-right: auto;
+ display: flex;
+ flex-direction: column;
+ margin-top: 10px;
+ margin-bottom: 10px;
+}
+ 
+
+/*maincontainerの残りの高さをsubcontainersに割り振ってsubcontainersのみ縦スクロールさせたい*/
+.subcontainers {
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  flex-wrap: wrap;
+  /*flex-direction: column;*/
+  width: 100%;
+  height: 100%;
+  /*
+  display: flex;
+  flex-wrap: wrap;
+ margin-left: auto;
+ margin-right: auto;
+ margin-top: 10px;
+ margin-bottom: 10px;
+ width: 100%;
+ height: 100%;
+ 
+ white-space: nowrap;
+ overflow-x:auto;
+ overflow-y:auto; 
+ /*
+ overflow: hidden;
+ overflow-y: hidden;
+ overflow: hidden;
+ */
+}
+
+.subcontainer {
+ position: relative;
+ width:33%;/*横並び3　本来はcalc(100%/layoutsize)*/
+ margin-left: auto;
+ margin-right: auto;
+ display: flex;
+ flex-direction: column;
+ margin-top: 5px;
+ margin-bottom: 0px;
+ }
+
+
+.controller {
+  position: relative;
+  float: left;
+}
+
+.videocontainer{
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+}
+
+
+.video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/*controller分高さ計算がずれる*/
+.videocanvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+.videocanvas:before {
+  content: "";
+  display: block;
+  padding-top: 56.25%;/*16:9*/
+}
+
+.videolabel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 4px;
+  /*width: 100%;*/
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /*羊羹色*/
+  background: #383c3c none repeat scroll 0 0;
+  /*夏虫色なつむしいろ#cee4ae 紫水晶むらさきすいしょう #e7e7eb*/
+  color: #e7e7eb;
+  font-weight: 600;
+  /*mix-blend-mode: overlay;*/
+  border-bottom-right-radius: 3px;
+  /*
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+  border-bottom-left-radius: 3px;
+  */
+}
+
+.bevhaiorselectbutton {
+  position: absolute;
+  top: 0;
+  left: 0;
+  /*紫水晶*/
+  background: #e7e7eb7b;
+  /*濃紅こいくれない*/
+  color: #a22041;
+}
+
+.bevhaiorbutton {
+  /*紫水晶*/
+  background: #e7e7eb00;
+  /*二藍*/
+  color: #915c8b;
+  
+  width: calc( 100% - 2rem );
+}
+
+.bevhaiordropdown {
+  /*薄葡萄うすぶどう*/
+  background: rgba(231, 231, 235, 0.703);  
+  /*width: calc( 100% - 2rem );*/
+}
+
+.soundonly {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
