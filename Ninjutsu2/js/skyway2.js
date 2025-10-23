@@ -37,6 +37,17 @@ const REMOTE_AREA = () => document.getElementById("remote-media-area");
 const BUTTON_AREA = () => document.getElementById("button-area");
 const MY_ID_EL = () => document.getElementById("my-id");
 
+//cache
+const WEBRTC_TOPOLOGY = "webrtc_topology";
+function onSiteLoadOnSkyway(){
+	var webrtc_topology_selected = localStorage.getItem(WEBRTC_TOPOLOGY) || "p2p";
+	if(webrtc_topology_selected == "p2p"){
+		document.getElementById('webrtc_topology').options[0].selected = true;
+	} else {
+		document.getElementById('webrtc_topology').options[1].selected = true;
+	}
+}
+
 const safeJSON = (s) => {
 	try {
 		return s ? JSON.parse(s) : null;
@@ -168,8 +179,6 @@ function hasAnyVideoSlot(publisherId) {
 const subsByPubId = new Map();
 function registerSub(pubId, rec) {
 	subsByPubId.set(pubId, rec);
-	console.log(pubId);
-	console.log(rec);
 }
 function getSub(pubId) {
 	return subsByPubId.get(pubId) || null;
@@ -269,7 +278,9 @@ function wireMutualOnPub(pub) {
 				}
 			}
 		});
-	} catch {}
+	} catch (e) {
+		console.warn(e);
+	}
 }
 
 async function unsubscribeAllFromMember(member, reason = "peer-unsubscribed") {
@@ -295,7 +306,7 @@ function createToken(appId, apiSecret) {
 		exp: nowInSec() + 60 * 60 * 24,
 		version: 3,
 		scope: {
-			appId,
+			appId: appId,
 			rooms: [{ name: "*", methods: ["create", "close", "updateMetadata"], member: { name: "*", methods: ["publish", "subscribe", "updateMetadata"] } }],
 			turn: { enabled: true },
 		},
@@ -307,6 +318,12 @@ function createToken(appId, apiSecret) {
  *  公開関数
  * ========================= */
 async function gotoStandby() {
+	//WebRTCの形式と送信するVideoの個数の上限をチェック
+	if(!checkValidCameraNumber()){
+		alert("max number of camera is 3 for p2p mode");
+		return;
+	}
+
 	const userId = document.getElementById("myuserid")?.value?.trim();
 	gMyName = userId;
 	const roomId = document.getElementById("myroomid")?.value?.trim();
@@ -314,15 +331,30 @@ async function gotoStandby() {
 	const appId = document.getElementById("appId")?.value?.trim();
 
 	if (!userId || !roomId || !apiSecret || !appId) {
-		alert("userId / roomId / appId / apiKey(API Secret) を入力してください");
+		alert("input userId / roomId / appId / apiKey(API Secret)");
 		return;
 	}
 
 	const token = createToken(appId, apiSecret);
+	const webrtc_topology = document.getElementById('webrtc_topology').value; 
+  
 	gContext = await SkyWayContext.Create(token);
-	gRoom = await SkyWayRoom.FindOrCreate(gContext, { type: "p2p", name: roomId });
-
+	//https://skyway.ntt.com/ja/docs/user-guide/commons/default-room/
+	//room作成時にtypeは指定せずにPublishするStreamごとに指定することで混在できる
+	gContext.onFatalError.add(async () => {
+		console.error(e);
+		addInformation(e);
+		gContext.dispose();
+		gContext = await SkyWayContext.Create(token);
+		gRoom = await SkyWayRoom.FindOrCreate(gContext, {name: roomId });
+		gMe = await gRoom.join({ metadata: JSON.stringify({ userName: userId }) });	
+		console.log("relogin : "+userId+"@"+roomId +", "+webrtc_topology+" -> "+gMe.id);	
+	});
+	gRoom = await SkyWayRoom.FindOrCreate(gContext, {name: roomId });
 	gMe = await gRoom.join({ metadata: JSON.stringify({ userName: userId }) });
+	console.log("login : "+userId+"@"+roomId +", "+webrtc_topology+" -> "+gMe.id);	
+	localStorage.setItem(WEBRTC_TOPOLOGY, webrtc_topology);
+
 	readyToChat();
 	if (MY_ID_EL()) MY_ID_EL().textContent = gMe.id;
 
@@ -330,6 +362,7 @@ async function gotoStandby() {
 	if (window.localMicStreamSkyway == null) await getSelectedMicStream();
 	if (window.localMicStreamSkyway) {
 		gLocalMicPub = await gMe.publish(window.localMicStreamSkyway, {
+			type: webrtc_topology,
 			metadata: JSON.stringify({ label: "local_audio", track: 0, id: gMe.id, userName: gMyName }),
 		});
 
@@ -353,20 +386,38 @@ async function gotoStandby() {
 	for (let i = 0; i < elements.length; i++) {
 		const stream = window.localVideoStreamMap.get(elements[i]);
 		if (!stream) continue;
+		//https://skyway.ntt.com/ja/docs/cookbook/javascript-sdk/large-scale/
 		const metadataStr = JSON.stringify({ label: "localVideo_" + i, track: i, id: gMe.id, userName: gMyName });
-		const vPub = await gMe.publish(stream, { metadata: metadataStr });
 		/*
+		const vPub = await gMe.publish(stream,
+			{ metadata: metadataStr,
+				encodings: [
+					{ scaleResolutionDownBy: 4, id: "low", maxBitrate: 200_000 },
+  			  { scaleResolutionDownBy: 1, id: "high", maxBitrate: 800_000 },
+				]
+			});
+			*/
+		const vPub = await gMe.publish(stream,
+			{
+				metadata: metadataStr,
+				type: webrtc_topology,
+			}
+		);
+		
 		vPub.onConnectionStateChanged.add(({ state, remoteMember }) => {
-			console.log("local video stream state:", state, "->", displayNameOfMember(remoteMember));
+			if(remoteMember){
+				console.log("localVideo_",i," stream state:", state, "->", displayNameOfMember(remoteMember));
+			} else {
+				console.log("localVideo_",i," stream state:", state, " for sfu ?");
+			}
 		});
-		*/
 		gLocalCamPubs.push(vPub);
 		wireMutualOnPub(vPub);
 	}
 
-	// DataStream
+	// DataStreamはP2Pにしか対応していないので明示的に
 	gMyDataStream = await SkyWayStreamFactory.createDataStream();
-	gLocalDataPub = await gMe.publish(gMyDataStream, { metadata: JSON.stringify({ label: "data", id: gMe.id, userName: gMyName }) });
+	gLocalDataPub = await gMe.publish(gMyDataStream, {type: "p2p", metadata: JSON.stringify({ label: "data", id: gMe.id, userName: gMyName }) });
 	/*
 	gLocalDataPub.onConnectionStateChanged.add(({ state, remoteMember }) => {
 		console.log("local data stream state:", state, "->", displayNameOfMember(remoteMember));
@@ -377,11 +428,13 @@ async function gotoStandby() {
 	// 既存メンバー
 	loginUsers = [];
 	gRoom.members.forEach((member) => {
-		if (member.id === gMe.id) return;
-		const md = safeJSON(member.metadata);
-		const name = md?.userName ?? member.name ?? member.id;
-		console.log("current member:", member.id, `(${name})`);
-		loginUsers.push(name);
+		if (member.id === gMe.id){
+		} else {
+			const md = safeJSON(member.metadata);
+			const name = md?.userName ?? member.name ?? member.id;
+			console.log("current member:", member.id, `(${name})`);
+			loginUsers.push(name);
+		}
 	});
 	updateLoginInfo();
 
@@ -402,18 +455,20 @@ async function gotoStandby() {
 	});
 	gRoom.onMemberListChanged.add(() => {
 		console.log("member list changed");
-		loginUsers = gRoom.members.filter((m) => m.id !== gMe.id).map((m) => safeJSON(m.metadata)?.userName ?? m.name ?? m.id);
+		loginUsers = gRoom.members.filter((m) => m.id != gMe.id).map((m) => safeJSON(m.metadata)?.userName ?? m.name ?? m.id);
 		updateLoginInfo();
 	});
 
 	// 新規 publish / unpublish
 	gRoom.onStreamPublished.add(({ publication }) => {
 		if (publication.publisher.id === gMe.id) return;
+		console.log("start pub : "+publication.id +" from "+displayNameOfMember(publication.publisher));
 		handleNewPublication(publication).catch((e) => console.warn("auto-subscribe failed:", e));
 	});
 	gRoom.onStreamUnpublished.add(({ publication }) => {
 		if (publication.publisher.id === gMe.id) return;
 		// こちらが購読していれば掃除
+		console.log("stop pub : "+publication.id +" from "+displayNameOfMember(publication.publisher));
 		if (getSub(publication.id)) {
 			unsubscribePubById(publication.id).catch((e) => console.warn("auto-unsub failed:", e));
 		}
@@ -469,69 +524,111 @@ async function logout() {
 	}
 }
 
-// 3) 指定相手の未購読publicationを購読（全video＋audio1本＋data）＋自動追従ON
-async function callRemoteOne(remoteuserid) {
-	if (!gRoom || !gMe) return false;
-	const target = gRoom.members.find((m) => m.id === remoteuserid || (m.metadata && safeJSON(m.metadata)?.userName === remoteuserid));
-	if (!target) {
-		alert(`${remoteuserid} は入室していません`);
-		return false;
-	}
 
-	if (!mutualSubTriggered.has(target.id)) mutualSubTriggered.add(target.id);
+// =======================================================
+// 1. 相手ごとに購読処理を直列化するためのキュー関数
+// =======================================================
+const subQueues = new Map(); // target.id ごとに処理を直列化
 
-	const pubs = gRoom.publications.filter((p) => p.publisher.id === target.id);
+function enqueueSubscribe(targetId, task) {
+  const prev = subQueues.get(targetId) ?? Promise.resolve();
 
-	const audioPubs = pubs.filter((p) => p.contentType === "audio");
-	const videoPubs = pubs.filter((p) => p.contentType === "video");
-	const hasVideo = videoPubs.length > 0;
+  const next = prev
+    .then(task)
+    .catch((e) => {
+      console.warn('[enqueueSubscribe] task error:', e);
+    });
 
-	if (!audioByPublisher.has(target.id) && audioPubs.length > 0) {
-		try {
-			await subscribeAudio(audioPubs[0], hasVideo);
-		} catch (e) {
-			console.warn("audio subscribe failed", e);
-		}
-	}
-
-	for (const pub of videoPubs) {
-		try {
-			if (pub.metadata) {
-				const md = safeJSON(pub.metadata);
-				const label = md?.label || "";
-				if (label.includes("share_display")) {
-					await subscribeShareDisplay(pub);
-					continue;
-				}
-			}
-			await subscribeVideo(pub);
-		} catch (e) {
-			console.warn("video subscribe failed", pub.id, e);
-		}
-	}
-
-	let subscribed = false;
-	for (const pub of pubs) {
-		if (pub.contentType === "data") {
-			try {
-				await subscribeData(pub);
-				subscribed = true;
-			} catch (e) {
-				console.warn("data subscribe failed", pub.id, e);
-			}
-		}
-	}
-
-	autoSubTargets.add(target.id);
-
-	for (const [pid, rec] of subsByPubId) {
-		if (rec.subscription?.publication?.publisher?.id === target.id) {
-			console.log("subscribing " + pid + " from " + rec.subscription?.publication?.publisher?.id + " " + displayNameOfMember(rec.subscription?.publication?.publisher));
-		}
-	}
-
-	return subscribed || hasVideo || audioPubs.length > 0;
+  subQueues.set(targetId, next);
+  return next;
 }
+
+// =======================================================
+// 3. 本体: callRemoteOne()
+// =======================================================
+async function callRemoteOne(remoteuserid) {
+  if (!gRoom || !gMe) return false;
+
+  const target = gRoom.members.find(
+    (m) => m.id === remoteuserid || (m.metadata && safeJSON(m.metadata)?.userName === remoteuserid)
+  );
+  if (!target) {
+    alert(`${remoteuserid} は入室していません`);
+    return false;
+  }
+
+  // 相手メンバー単位で“ほんとの直列化”
+  let result = false;
+  await enqueueSubscribe(target.id, async () => {
+    if (!mutualSubTriggered.has(target.id)) mutualSubTriggered.add(target.id);
+
+    // publications は開始時点でスナップショット（途中で揺れないように）
+    const pubs = gRoom.publications.filter((p) => p.publisher.id === target.id);
+
+    const audioPubs = pubs.filter((p) => p.contentType === "audio");
+    const videoPubs = pubs.filter((p) => p.contentType === "video");
+    const dataPubs  = pubs.filter((p) => p.contentType === "data");
+    const hasVideo  = videoPubs.length > 0;
+
+		// ---- Data（複数あってもまずは1本だけ推奨）----
+    let subscribedData = false;
+    for (const pub of dataPubs) {
+      if (subsByPubId.has(pub.id)) continue;
+      try {
+        await subscribeData(pub);
+        subscribedData = true;
+        await sleep(10);
+        // 必要なら1本で break; にして多重 DataChannel を避ける
+      } catch (e) {
+        console.warn("data subscribe failed : "+ pub.id+" from "+displayNameOfMember(pub.publisher)+" : "+ e);
+				addInformation("data subscribe failed : "+ pub.id+" from "+displayNameOfMember(pub.publisher)+" : "+ e);
+      }
+    }
+		
+    // ---- Audio（1本目だけ・未購読時のみ）----
+    if (!audioByPublisher.has(target.id) && audioPubs.length > 0) {
+      try {
+        await subscribeAudio(audioPubs[0], hasVideo);
+        await sleep(30);
+      } catch (e) {
+        console.warn("audio subscribe failed : "+ audioPubs[0].id+" from "+displayNameOfMember(audioPubs[0].publisher)+" : "+ e);
+				addInformation("audio subscribe failed : "+ audioPubs[0].id+" from "+displayNameOfMember(audioPubs[0].publisher)+" : "+ e);
+      }
+    }
+
+    // ---- Video（共有画面は最後に回す）----
+    const normalVideos = [];
+    const shareVideos  = [];
+    for (const pub of videoPubs) {
+      const label = (pub.metadata && safeJSON(pub.metadata)?.label) || "";
+      (label.includes("share_display") ? shareVideos : normalVideos).push(pub);
+    }
+    for (const pub of [...normalVideos, ...shareVideos]) {
+      // 既に購読済みならスキップ（subsByPubId を利用）
+      if (subsByPubId.has(pub.id)) continue;
+      try {
+        await subscribeVideo(pub);
+        await sleep(30);
+      } catch (e) {
+        console.warn("video subscribe failed : "+ pub.id+" from "+displayNameOfMember(pub.publisher)+" : "+ e);
+				addInformation("video subscribe failed : "+ pub.id+" from "+displayNameOfMember(pub.publisher)+" : "+ e);
+      }
+    }
+
+    autoSubTargets.add(target.id);
+
+    for (const [pid, rec] of subsByPubId) {
+      if (rec.subscription?.publication?.publisher?.id == target.id) {
+        console.log("subscribing " + pid + " from " + rec.subscription?.publication?.publisher?.id + " " +displayNameOfMember(rec.subscription?.publication?.publisher));
+      }
+    }
+
+    result = subscribedData || hasVideo || audioPubs.length > 0;
+  });
+
+  return result;
+}
+
 
 // 自動追従の実体
 async function handleNewPublication(pub) {
@@ -557,93 +654,132 @@ async function handleNewPublication(pub) {
 }
 
 async function subscribeVideo(pub) {
-	console.log("subscribe video " + pub.id + " " + displayNameOfMember(pub.publisher));
-	const { stream, subscription } = await gMe.subscribe(pub.id);
-	const track = stream.track;
-	const slot = createVideoSlot(pub);
+  console.log("subscribe video " + pub.id + " " + displayNameOfMember(pub.publisher));
 
-	for (const v of slot.ms.getVideoTracks()) slot.ms.removeTrack(v);
-	slot.ms.addTrack(track);
-	slot.videoTrack = track;
+  const { stream, subscription } = await subscribeAndWaitObj(pub, { preferredEncodingId: 'high' });
+  const track = stream.track;
+  const slot = createVideoSlot(pub);
 
-	registerSub(pub.id, { subscription, stream, kind: "video", slot });
-	console.log(subscription);
+  for (const v of slot.ms.getVideoTracks()) slot.ms.removeTrack(v);
+  if (track) slot.ms.addTrack(track);
+  slot.videoTrack = track;
 
-	const audioEntry = audioByPublisher.get(pub.publisher.id);
-	const pendingSet = ensurePendingSet(pub.publisher.id);
-	pendingSet.add(slot);
-	if (audioEntry?.track) attachAudioToAllSlotsOfPublisher(pub.publisher.id, audioEntry.track);
+  registerSub(pub.id, { subscription, stream, kind: "video", slot });
+  console.log(subscription);
 
-	track.addEventListener("ended", () => {
-		console.log("video end " + pub.id + " " + displayNameOfMember(pub.publisher));
-		detachSlotAndRemove(pub.id);
-	});
-	try {
-		await slot.el.play();
-	} catch {}
+  const audioEntry = audioByPublisher.get(pub.publisher.id);
+  const pendingSet = ensurePendingSet(pub.publisher.id);
+  pendingSet.add(slot);
+  if (audioEntry?.track) attachAudioToAllSlotsOfPublisher(pub.publisher.id, audioEntry.track);
+
+  track?.addEventListener("ended", () => {
+    console.log("video end " + pub.id + " " + displayNameOfMember(pub.publisher));
+    detachSlotAndRemove(pub.id);
+  });
+
+  try { await slot.el.play(); } catch {}
 }
-
 async function subscribeShareDisplay(pub) {
-	const { stream, subscription } = await gMe.subscribe(pub.id);
+  const { stream, subscription } = await subscribeAndWaitObj(pub, { preferredEncodingId: 'high' });
 
-	addSharedScreen(displayNameOfMember(pub.publisher), stream);
+  addSharedScreen(displayNameOfMember(pub.publisher), stream);
+  registerSub(pub.id, { subscription, stream, kind: "video" });
 
-	registerSub(pub.id, { subscription, stream, kind: "video" });
-
-	stream.track.addEventListener("ended", () => {
-		console.log("shared display closed from " + displayNameOfMember(pub.publisher));
-		removeSharedScreen(displayNameOfMember(pub.publisher));
-	});
+  stream.track?.addEventListener("ended", () => {
+    console.log("shared display closed from " + displayNameOfMember(pub.publisher));
+    removeSharedScreen(displayNameOfMember(pub.publisher));
+  });
 }
 
 async function subscribeAudio(pub, hasVideo) {
-	if (audioByPublisher.has(pub.publisher.id)) return;
+  if (audioByPublisher.has(pub.publisher.id)) return;
 
-	console.log("subscribe audio " + pub.id + " " + displayNameOfMember(pub.publisher));
-	const { stream, subscription } = await gMe.subscribe(pub.id);
+  console.log("subscribe audio " + pub.id + " " + displayNameOfMember(pub.publisher));
 
-	const track = stream.track;
-	audioByPublisher.set(pub.publisher.id, { pubId: pub.id, track });
-	registerSub(pub.id, { subscription, stream, kind: "audio" });
+  // 音声は preferredEncoding 無しでOK
+  const { stream, subscription } = await subscribeAndWaitObj(pub, { preferredEncoding: null });
 
-	if (hasVideo) {
-		attachAudioToAllSlotsOfPublisher(pub.publisher.id, track);
-	} else {
-		const audioEl = createAudio(pub);
-		stream.attach(audioEl);
-		const rec = getSub(pub.id);
-		if (rec) rec.audioEl = audioEl;
-	}
+  const track = stream.track;
+  audioByPublisher.set(pub.publisher.id, { pubId: pub.id, track });
+  registerSub(pub.id, { subscription, stream, kind: "audio" });
 
-	track.addEventListener("ended", () => {
-		const entry = audioByPublisher.get(pub.publisher.id);
-		if (entry?.track === track) audioByPublisher.delete(pub.publisher.id);
-		removeAudioFromAllSlotsOfPublisher(pub.publisher.id);
-	});
+  if (hasVideo) {
+    attachAudioToAllSlotsOfPublisher(pub.publisher.id, track);
+  } else {
+    const audioEl = createAudio(pub);
+    if (typeof stream.attach === "function") stream.attach(audioEl);
+    else audioEl.srcObject = stream.toMediaStream?.() ?? null;
+
+    const rec = getSub(pub.id);
+    if (rec) rec.audioEl = audioEl;
+  }
+
+  track?.addEventListener("ended", () => {
+    const entry = audioByPublisher.get(pub.publisher.id);
+    if (entry?.track === track) audioByPublisher.delete(pub.publisher.id);
+    removeAudioFromAllSlotsOfPublisher(pub.publisher.id);
+  });
 }
-
 async function subscribeData(pub) {
-	console.log("subscribe data " + pub.id + " " + displayNameOfMember(pub.publisher));
-	const { stream, subscription } = await gMe.subscribe(pub.id);
+  console.log("subscribe data " + pub.id + " " + displayNameOfMember(pub.publisher));
 
-	const onData = async (data) => {
-		try {
-			let msg;
-			if (typeof data === "string") msg = JSON.parse(data);
-			else if (data && typeof data === "object") msg = data;
-			else msg = JSON.parse(new TextDecoder().decode(data));
-			if (shouldDeliverToMe(msg)) {
-				handleIncomingMessage(msg, pub.publisher);
-			}
-		} catch (e) {
-			console.warn("data parse error:", e);
-		}
-	};
-	stream.onData.add(onData);
-	registerSub(pub.id, { subscription, stream, kind: "data", onData });
+  const { stream, subscription } = await subscribeAndWaitObj(pub, { preferredEncoding: null });
+
+  const onData = async (data) => {
+    try {
+      let msg;
+      if (typeof data === "string") msg = JSON.parse(data);
+      else if (data && typeof data === "object" && !(data instanceof Uint8Array)) msg = data;
+      else msg = JSON.parse(new TextDecoder().decode(data));
+      if (shouldDeliverToMe(msg)) handleIncomingMessage(msg, pub.publisher);
+    } catch (e) {
+      console.warn("data parse error:", e);
+    }
+  };
+
+  if (stream?.onData?.add) stream.onData.add(onData);
+  else console.warn("Data stream does not support onData.add");
+
+  registerSub(pub.id, { subscription, stream, kind: "data", onData });
+}
+// ---- subscribe 完了（stream が生える）まで待つ共通ヘルパ ----
+async function subscribeAndWaitObj(pub, { preferredEncoding = 'r0', timeoutMs = 12000 } = {}) {
+  const sub = await gMe.subscribe(pub.id);
+
+  // Simulcast時は低レイヤから開始（任意）
+  if (preferredEncoding && 'preferredEncoding' in sub) {
+    try { sub.preferredEncoding = preferredEncoding; } catch {}
+  }
+
+  if (sub.stream) return { stream: sub.stream, subscription: sub };
+
+  await new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error('wait stream timeout')), timeoutMs);
+
+    const off = sub.onConnectionStateChanged.add(({ state }) => {
+      if ((state === 'completed' || state === 'connected') && sub.stream) {
+        clearTimeout(timer); off(); resolve();
+      } else if (state === 'failed' || state === 'canceled') {
+        clearTimeout(timer); off(); reject(new Error('subscribe failed: ' + state));
+      }
+    });
+
+    const iv = setInterval(() => {
+      if (sub.stream) {
+        clearTimeout(timer); clearInterval(iv); off?.(); resolve();
+      }
+    }, 100);
+  });
+
+  return { stream: sub.stream, subscription: sub };
 }
 
-// 5) 指定相手の購読を外してUIからも消す
+
+function sleep(ms) {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
+
 async function closeRemote(remoteUserName) {
 	const member = gRoom?.members.find((m) => m.id === remoteUserName || (m.metadata && safeJSON(m.metadata)?.userName === remoteUserName));
 	if (!member) {

@@ -420,6 +420,17 @@
 						</div>
 						<div class="row mb-3">
 							<div class="col-sm-2 d-flex align-items-center">
+					    	<label for="webrtc_topology" class="form-label mb-0">WebRTC Topology</label>
+					    </div>
+							<div class="col-sm-4">
+								<select class="form-select" id="webrtc_topology" aria-label="webrtc topology" title="P2P: direct connection (low latency) || SFU: uses a media server (stable for many users) , more than 3 videos, can not use datastreaming">
+									<option value="p2p" selected>P2P</option>
+									<option value="sfu">SFU</option>
+								</select>
+							</div>
+						</div>
+						<div class="row mb-3">
+							<div class="col-sm-2 d-flex align-items-center">
 					    	<label for="appId" class="form-label mb-0">Application Id</label>
 					    </div>
 							<div class="col-sm-8">
@@ -504,7 +515,18 @@
 							<input class="form-check-input" type="checkbox" id="streaming2local">
 							<label class="form-check-label" for="streaming2local">streaming videos to local sockets</label>
 						</div>
-
+						<div class="row mb-3">
+							<div class="col-sm-2 d-flex align-items-center">
+					    	<label for="camera_resolution" class="form-label mb-0">Camera Resolution</label>
+					    </div>
+							<div class="col-sm-4">
+								<select class="form-select" id="camera_resolution" aria-label="webrtc topology" title="P2P: direct connection (low latency) || SFU: uses a media server (stable for many users) , more than 3 videos, can not use datastreaming">
+									<option value="1080" selected>1080</option>
+									<option value="720">720</option>
+									<option value="360">360</option>
+								</select>
+							</div>
+						</div>
 						<div id="local_cameras" class="horizontal-list"></div>
 					</div>
 				</div><!--model body-->

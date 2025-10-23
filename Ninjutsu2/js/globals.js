@@ -24,6 +24,7 @@ function initialize(){
 	*/
 	//changeSubLayout(1);
 	initializeJSFrame();
+	onSiteLoadOnSkyway();
 	console.log("initialize finish, isNode = "+isNode);
 }
 
@@ -75,6 +76,16 @@ function readyToChat(){
 
 //連想配列
 function getQueryParams() {
+	CAMERA_RESOLUTION
+	const cameraResolution = localStorage.getItem(CAMERA_RESOLUTION) || "";
+	if (cameraResolution == "1080") {
+		document.getElementById('camera_resolution').options[0].selected = true;
+	} else if (cameraResolution == "720") {
+		document.getElementById('camera_resolution').options[1].selected = true;
+	} else if (cameraResolution == "360") {
+		document.getElementById('camera_resolution').options[2].selected = true;
+	}
+
 	document.getElementById("teleopemodecheckbox").checked = teleOpeMode;
 	if (1 < document.location.search.length) {
 		const query = document.location.search.substring(1);
@@ -102,8 +113,12 @@ function getQueryParams() {
 				}
 			}
 			if(key == "capturesize"){
-				if(value == '720' || value == '1080'){
-					captureSize = value;
+				if (value == "1080") {
+					document.getElementById('camera_resolution').options[0].selected = true;
+				} else if (value == "720") {
+					document.getElementById('camera_resolution').options[1].selected = true;
+				} else if (value == "360") {
+					document.getElementById('camera_resolution').options[2].selected = true;
 				}
 			}
 			if(key == "skywaykey"){

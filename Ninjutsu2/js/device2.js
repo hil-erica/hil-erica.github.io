@@ -16,6 +16,7 @@
 const USE_CAMERA = "useCameraList";
 const USE_MIC = "useMic";
 const USE_SPEAKER = "useSpeaker";
+const CAMERA_RESOLUTION = "CameraResolution";
 
 var localVideoStreamMap = new Map(); // <HTMLVideoElement, SkyWayVideoStream>
 var localAudioStreamMap = new Map();
@@ -127,19 +128,27 @@ async function startVideo(cameraID, videoEl) {
 		// ここで captureSize などの細かい制約を付けたい場合は、ブラウザ制約を
 		// SkyWay 側オプションに渡せる範囲で指定してください（最低限 deviceId を指定）
 		var vStream = null;
-		if (captureSize == "720") {
+		captureSize = document.getElementById('camera_resolution').value;
+		if (captureSize == "1080") {
+			vStream = await SkyWayStreamFactory.createCameraVideoStream({
+				deviceId: deviceId ? { exact: deviceId } : undefined,
+				aspectRatio: { ideal: 1.7777777778 },
+				width: { min: 640, ideal: 1920 },
+				height: { min: 360, ideal: 1080 },
+			});
+		} else if (captureSize == "720") {
 			vStream = await SkyWayStreamFactory.createCameraVideoStream({
 				deviceId: { exact: deviceId },
 				aspectRatio: { ideal: 1.7777777778 },
 				width: { min: 640, ideal: 1280 },
 				height: { min: 360, ideal: 720 },
 			});
-		} else if (captureSize == "1080") {
+		} else if (captureSize == "360") {
 			vStream = await SkyWayStreamFactory.createCameraVideoStream({
 				deviceId: deviceId ? { exact: deviceId } : undefined,
 				aspectRatio: { ideal: 1.7777777778 },
-				width: { min: 640, ideal: 1920 },
-				height: { min: 360, ideal: 1080 },
+				width: { min: 640, ideal: 640 },
+				height: { min: 360, ideal: 360 },
 			});
 		} else {
 			vStream = await SkyWayStreamFactory.createCameraVideoStream({
@@ -154,6 +163,8 @@ async function startVideo(cameraID, videoEl) {
 
 		// ログ出力用に MediaStream を合成（1トラック）
 		const tmp = new MediaStream([vStream.track]);
+		
+		console.log("try to open camera : "+deviceId+", "+captureSize);
 		logStream("selectedVideo", tmp);
 
 		// 管理用に保存
@@ -1113,4 +1124,23 @@ function standbyDevice() {
 	//mic speakerを保存
 	localStorage.setItem(USE_MIC, getSelectedAudioLabel());
 	localStorage.setItem(USE_SPEAKER, getSelectedSpeakerLabel());
+	localStorage.setItem(CAMERA_RESOLUTION, document.getElementById('camera_resolution').value);
+	
+}
+
+function checkValidCameraNumber(){
+	const webrtc_topology = document.getElementById('webrtc_topology').value;
+	if(webrtc_topology == 'p2p'){
+		var validCameraNum = 0;	
+		var elements = document.getElementsByName("use-camera");
+		for (var i = 0; i < elements.length; i++) {
+			if (elements[i].checked) {
+				validCameraNum++;
+			}
+		}
+		if(validCameraNum > 3){
+			return false;
+		}
+	}
+	return true;
 }
