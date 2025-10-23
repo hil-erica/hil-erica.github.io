@@ -531,7 +531,10 @@
 					</div>
 				</div><!--model body-->
 			<div class="modal-footer">
-				<button id="step_button" type="button" class="btn btn-primary" onclick="gotoStandby()" disabled="true">Ready</button>
+				<button id="step_button" type="button" class="btn btn-primary" onclick="gotoStandby()" disabled="true">
+					<span id="step_button_spinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display:none;"></span>
+					<span id="step_button_label">Ready</span>
+				</button>
 				<!--<button id="step_button" type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="standbyDevice()" disabled="true">Ready</button>-->
 				<!--<button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="gotoStandby()"  disabled="true">Ready</button>-->
 			</div>
@@ -897,6 +900,15 @@ resizeObserver.observe(document.getElementById("main"));
 resizeObserver.observe(document.getElementById("sub"));
 
 </script>
+
+<!-- bodyの末尾に追加 -->
+<div id="busy-overlay" aria-hidden="true">
+  <div class="busy-backdrop"></div>
+  <div class="busy-box" role="status" aria-live="polite" aria-busy="true">
+    <div class="spinner" aria-hidden="true"></div>
+    <div class="busy-text">Processing...</div>
+  </div>
+</div>
 
 </body>
 </html>

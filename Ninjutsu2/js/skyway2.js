@@ -317,6 +317,7 @@ function createToken(appId, apiSecret) {
 /* =========================
  *  公開関数
  * ========================= */
+
 async function gotoStandby() {
 	//WebRTCの形式と送信するVideoの個数の上限をチェック
 	if(!checkValidCameraNumber()){
@@ -334,6 +335,12 @@ async function gotoStandby() {
 		alert("input userId / roomId / appId / apiKey(API Secret)");
 		return;
 	}
+	const btn = document.getElementById('step_button');
+  const spinner = document.getElementById('step_button_spinner');
+  const label = document.getElementById('step_button_label');
+	spinner.style.display = 'inline-block';
+	btn.disabled = true;
+  label.textContent = 'Trying to log in...';
 
 	const token = createToken(appId, apiSecret);
 	const webrtc_topology = document.getElementById('webrtc_topology').value; 
@@ -473,6 +480,10 @@ async function gotoStandby() {
 			unsubscribePubById(publication.id).catch((e) => console.warn("auto-unsub failed:", e));
 		}
 	});
+
+	spinner.style.display = 'none';
+	btn.disabled = false;
+	label.textContent = 'Ready';
 }
 
 // 2) 切断・後片付け
